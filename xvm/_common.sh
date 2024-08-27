@@ -48,8 +48,8 @@ export qemuSystemCommand
 
 export rockyVersion=${rockyVersion:-9.4}
 
-function updateGuestMagAOXCheckout() {
-    echo "Syncing ~/MagAOX/ in guest..."
-    rsync --progress -a --exclude xvm/output --exclude xvm/input -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' ../../ xdev@localhost:MagAOX/
-    echo "Finished updating ~/MagAOX/ in guest"
+function updateGuestRepoCheckout() {
+    echo "Syncing repo in guest..."
+    rsync --progress -a --exclude xvm/output --exclude xvm/input -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' ../ xdev@localhost:magao-x-setup/
+    echo "Finished updating checkout in guest"
 }

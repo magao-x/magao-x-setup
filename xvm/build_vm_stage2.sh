@@ -13,7 +13,7 @@ sleep 60
 ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost mkdir -p MagAOX
 # note that later stages will also rsync because copies in cached VM
 # stages will not match the current commit at build time
-updateGuestMagAOXCheckout
+updateGuestRepoCheckout
 ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_dependencies.sh || exit 1
 # wait for the backgrounded qemu process to exit:
 wait
