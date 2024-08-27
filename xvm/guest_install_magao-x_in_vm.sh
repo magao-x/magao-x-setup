@@ -5,6 +5,7 @@ function shutdownVM() {
 }
 trap shutdownVM EXIT
 set -x
-sudo rsync -rv ~/MagAOX/ /opt/MagAOX/source/MagAOX/ || exit 1
-sudo bash -x /opt/MagAOX/source/MagAOX/setup/steps/ensure_dirs_and_perms.sh || exit 1
+sudo chmod g+w /opt/MagAOX/source
+sudo chown :magaox-dev /opt/MagAOX/source
+git clone https://github.com/magao-x/MagAOX.git /opt/MagAOX/source/MagAOX
 bash -lx /opt/MagAOX/source/MagAOX/setup/steps/install_MagAOX.sh || exit 1
