@@ -45,7 +45,7 @@ if [[ -e $UNIT_PATH/jupyterlab.service ]]; then
 	sudo -H rm $UNIT_PATH/jupyterlab.service || exit 1
 fi
 
-if [[ $MAGAOX_ROLE != ci ]]; then
+if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container ]]; then
 	sudo -H cp $DIR/../systemd_units/jupyternotebook.service $UNIT_PATH/jupyternotebook.service || exit 1
 	log_success "Installed jupyternotebook.service to $UNIT_PATH"
 
