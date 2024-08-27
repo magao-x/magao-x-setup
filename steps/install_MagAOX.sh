@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
 
-cd $DIR/../../ || exit 1
+cd /opt/MagAOX/source/MagAOX || exit 1
 log_info "Building flatlogs"
 cd flatlogs/src || exit 1
 make || exit 1

@@ -6,7 +6,7 @@ FLATBUFFERS_VERSION="23.5.26"
 #
 # Flatbuffers
 #
-cd /opt/MagAOX/vendor
+cd /opt/MagAOX/vendor || exit 1
 FLATBUFFERS_DIR="flatbuffers-$FLATBUFFERS_VERSION"
 if [[ ! -d $FLATBUFFERS_DIR ]]; then
     _cached_fetch https://github.com/google/flatbuffers/archive/v$FLATBUFFERS_VERSION.tar.gz $FLATBUFFERS_DIR.tar.gz || exit 1

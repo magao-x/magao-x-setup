@@ -14,25 +14,13 @@ MXLIB_COMMIT_ISH=magaox
 orgname=jaredmales
 reponame=mxlib
 parentdir=/opt/MagAOX/source
-clone_or_update_and_cd $orgname $reponame $parentdir
+clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 
-
-if [[ -d "$MXLIBROOT" ]]; then
-    cd "$MXLIBROOT"
-    git pull
-    echo "Updated mxlib"
-else
-    # TODO: use _common checkout function
-    git clone https://github.com/jaredmales/mxlib.git "$MXLIBROOT"
-    echo "Cloned a new copy of mxlib"
-    cd "$MXLIBROOT"
-fi
-
-git config core.sharedRepository group
-git checkout $MXLIB_COMMIT_ISH
+git config core.sharedRepository group || exit 1
+git checkout $MXLIB_COMMIT_ISH || exit 1
 export MXMAKEFILE="$MXLIBROOT/mk/MxApp.mk"
 # Populate $MXLIBROOT/local/ with example makefiles:
-make setup
+make setup || exit 1
 
 mxlibCommonOverrides="/tmp/$(date +"%s")-mxlibCommon.mk"
 
@@ -56,7 +44,7 @@ fi
 
 # Ensure mxlib installs to /usr/local (not $HOME)
 if diff local/Common.mk local/Common.example.mk; then
-  mv $mxlibCommonOverrides local/Common.mk
+  mv $mxlibCommonOverrides local/Common.mk || exit 1
 elif diff $mxlibCommonOverrides local/Common.mk ; then
   echo "mxlib options configured"
 else

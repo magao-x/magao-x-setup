@@ -2,6 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
+cd /opt/MagAOX/vendor || exit 1
 PYLON_VERSION="5.2.0.13457"
 #
 # Basler camera Pylon framework

@@ -2,7 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
-cd /opt/MagAOX/vendor
+cd /opt/MagAOX/vendor || exit 1
 
 FFTW_VERSION="3.3.8"
 #

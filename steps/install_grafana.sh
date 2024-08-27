@@ -4,11 +4,11 @@
 # Check if Grafana is already installed
 if ! command -v grafana-server &> /dev/null; then
     # Import Grafana GPG key
-    wget -q -O /tmp/gpg.key https://rpm.grafana.com/gpg.key
-    sudo rpm --import /tmp/gpg.key
+    wget -q -O /tmp/gpg.key https://rpm.grafana.com/gpg.key || exit 1
+    sudo rpm --import /tmp/gpg.key || exit 1
 
     # Add Grafana repository
-    sudo tee /etc/yum.repos.d/grafana.repo <<EOF
+    sudo tee /etc/yum.repos.d/grafana.repo <<EOF || exit 1
 [grafana]
 name=grafana
 baseurl=https://packages.grafana.com/oss/rpm
@@ -20,11 +20,11 @@ sslverify=1
 sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 EOF
     # Install Grafana
-    sudo dnf install -y grafana
-    sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist
+    sudo dnf install -y grafana || exit 1
+    sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist || exit 1
 fi
 
-sudo tee /etc/grafana/grafana.ini <<EOF
+sudo tee /etc/grafana/grafana.ini <<EOF || exit 1
 [paths]
 provisioning = /opt/MagAOX/source/MagAOX/setup/grafana
 [security]
@@ -39,7 +39,7 @@ default_timezone = UTC
 EOF
 
 # Enable Grafana service to start on boot
-sudo systemctl enable grafana-server
+sudo systemctl enable grafana-server || exit 1
 
 # Start Grafana service
-sudo systemctl restart grafana-server
+sudo systemctl restart grafana-server || exit 1

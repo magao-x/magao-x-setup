@@ -2,6 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
+cd /opt/MagAOX/vendor || exit 1
 
 # install cppzmq (dependency of milkzmq)
 CPPZMQ_COMMIT=213da0b04ae3b4d846c9abc46bab87f86bfb9cf4

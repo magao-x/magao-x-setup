@@ -14,7 +14,7 @@ MINIFORGE3_URL="https://github.com/conda-forge/miniforge/releases/download/$MINI
 #
 # conda
 #
-cd /opt/MagAOX/vendor
+cd /opt/MagAOX/vendor || exit 1
 if [[ ! -d /opt/conda ]]; then
     _cached_fetch "$MINIFORGE3_URL" $MINIFORGE3_INSTALLER || exit 1
     bash $MINIFORGE3_INSTALLER -b -p /opt/conda || exit 1
