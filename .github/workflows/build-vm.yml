@@ -1,12 +1,13 @@
 name: Build virtual machine
 on:
-  workflow_run:
-    workflows: ["Container build"]
-    types: [completed]
-    branches: [main]
+  - push
+  # workflow_run:
+  #   workflows: ["Container build"]
+  #   types: [completed]
+  #   branches: [main]
 jobs:
   build-vm-stage1:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         os: [macos-latest]
@@ -64,10 +65,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           retention-days: 1
-          name: arm_stage1_vm
+          name: stage1_vm
           path: xvm/stage1_outputs.tar
   build-vm-stage2:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         os: [macos-latest]
@@ -101,7 +102,7 @@ jobs:
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
-            name: arm_stage1_vm
+            name: stage1_vm
             path: xvm/
       - name: Extract previous job outputs
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
@@ -123,10 +124,10 @@ jobs:
       - name: Upload stage 2 outputs
         uses: actions/upload-artifact@v4
         with:
-          name: arm_stage2_vm
+          name: stage2_vm
           path: xvm/stage2_outputs.tar
   build-vm-stage3:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         os: [macos-latest]
@@ -153,7 +154,7 @@ jobs:
       - name: Download Rocky VM with dependencies
         uses: actions/download-artifact@v4
         with:
-            name: arm_stage2_vm
+            name: stage2_vm
             path: xvm/
       - name: Extract previous job outputs
         run: |
