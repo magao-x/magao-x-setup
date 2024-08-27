@@ -30,5 +30,14 @@ $qemuSystemCommand \
     -cdrom ./input/iso/Rocky-${rockyVersion}-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
 || exit 1
-mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2
 echo "Created VM and installed Rocky Linux"
+
+echo "Starting up the VM for MagAO-X 3rd party dependencies installation..."
+$qemuSystemCommand &
+sleep 60
+updateGuestRepoCheckout
+ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_dependencies.sh || exit 1
+# wait for the backgrounded qemu process to exit:
+wait
+mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2
+echo "Finished installing MagAO-X dependencies."

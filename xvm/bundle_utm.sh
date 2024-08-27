@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+if [[ -z $vmArch ]]; then
+    vmArch=$(uname -p)
+fi
 ls -lah
 mkdir -p ./output/bundle/
 ls -R ./utm
@@ -7,4 +10,4 @@ ls -R ./output/bundle/MagAO-X.utm
 mv ./output/xvm.qcow2 ./output/bundle/MagAO-X.utm/Data/xvm.qcow2
 cp ./output/xvm_key ./output/xvm_key.pub ./output/bundle/
 cd ./output/bundle/
-tar -cJvf ./MagAO-X_UTM.tar.xz ./*
+tar -cJvf ./MagAO-X_UTM_${vmArch}.tar.xz ./*
