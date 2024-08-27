@@ -1,5 +1,5 @@
 FROM rockylinux/rockylinux:9-ubi-init
-ENV MAGAOX_ROLE container
+ENV MAGAOX_ROLE=container
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
 ADD ./steps/install_rocky_9_packages.sh /setup/steps/
