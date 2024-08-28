@@ -60,6 +60,10 @@ User=xdev
 Session=plasma
 HERE
 
+# Disable KDE welcome screen
+sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key LastSeenVersion 5.27.11
+sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key ShouldShow false
+
 # Disable all screen locking
 sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
 sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false
@@ -89,6 +93,9 @@ chown xdev:xdev /home/xdev/.ssh/authorized_keys
 sudo -u xdev chmod 0600 /home/xdev/.ssh/authorized_keys
 # Restore SELinux context
 restorecon -R /home/xdev/.ssh/
+
+# Disable KDE connect because it's not useful and pops up errors on boot
+dnf -y remove kde-connect kde-connectd kde-connect-libs kde-connect-nautilus --noautoremove
 
 # enable CodeReady Builder (CRB) repository
 dnf config-manager --set-enabled crb
