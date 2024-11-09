@@ -3,18 +3,18 @@ if [[ -z $vmArch ]]; then
     echo "Set vmArch environment variable to aarch64 or x86_64"
     exit 1
 fi
-if [[ $(uname -p) == "arm" && $CI != "true" ]]; then
+if [[ $vmArch == arm && $(uname -p) == "arm" && $CI != "true" ]]; then
     qemuMachineFlags="-machine type=virt,highmem=on -cpu host"
-elif [[ $(uname -p) == "arm" ]]; then
+elif [[ $vmArch == arm && $(uname -p) == "arm" ]]; then
     qemuMachineFlags="-machine type=virt -cpu max"
-elif [[ $(uname -p) == "x86_64" ]]; then
-    qemuMachineFlags=""
+else
+    qemuMachineFlags="-cpu max"
 fi
 export qemuMachineFlags
 
 qemuDisplay=${qemuDisplay:-}
 if [[ ! -z $qemuDisplay ]]; then
-    ioFlag="-display $qemuDisplay"
+    ioFlag="-display $qemuDisplay -serial vc"
 else
     ioFlag='-serial stdio -display none'
 fi
@@ -28,22 +28,42 @@ if [[ $CI == true ]]; then
 else
     qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
 fi
-
-qemuSystemCommand="qemu-system-${vmArch} \
-    -name xvm \
-    -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
-    -device virtio-keyboard-pci -device virtio-mouse-pci \
-    -smp $nCpus \
-    $qemuAccelFlags \
-    $qemuMachineFlags \
-    -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
-    -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
-    -drive file=output/xvm.qcow2,format=qcow2 \
-    -device virtio-gpu-pci \
-    -device virtio-net-pci,netdev=user.0 \
-    -boot c \
-    -m ${ramMB}M \
-    $ioFlag "
+if [[ $vmArch == arm ]]; then
+    qemuSystemCommand="qemu-system-${vmArch} \
+        -name xvm \
+        -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -device virtio-keyboard-pci -device virtio-mouse-pci \
+        -smp $nCpus \
+        $qemuAccelFlags \
+        $qemuMachineFlags \
+        -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
+        -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
+        -drive file=output/xvm.qcow2,format=qcow2 \
+        -device virtio-gpu-pci \
+        -device virtio-net-pci,netdev=user.0 \
+        -device usb-kbd \
+        -device usb-mouse \
+        -m ${ramMB}M \
+        $ioFlag "
+elif [[ $vmArch == x86_64 ]]; then
+    qemuSystemCommand="qemu-system-${vmArch} \
+        -name xvm \
+        -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -device virtio-keyboard-pci -device virtio-mouse-pci \
+        -smp $nCpus \
+        $qemuAccelFlags \
+        $qemuMachineFlags \
+        -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
+        -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
+        -drive file=output/xvm.qcow2,format=qcow2 \
+        -device virtio-gpu-pci \
+        -device virtio-net-pci,netdev=user.0 \
+        -m ${ramMB}M \
+        $ioFlag "
+else
+    echo 'set $vmArch'
+    exit 1
+fi
 export qemuSystemCommand
 
 export rockyVersion=${rockyVersion:-9.4}

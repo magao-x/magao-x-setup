@@ -107,6 +107,7 @@ dnf config-manager --set-enabled crb
 firefox
 vim
 nano
+kate
 git
 qemu-guest-agent
 spice-vdagent
