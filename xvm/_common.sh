@@ -28,7 +28,7 @@ if [[ $CI == true ]]; then
 else
     qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
 fi
-if [[ $vmArch == arm ]]; then
+if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
         -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
