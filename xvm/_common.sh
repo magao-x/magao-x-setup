@@ -3,9 +3,9 @@ if [[ -z $vmArch ]]; then
     echo "Set vmArch environment variable to aarch64 or x86_64"
     exit 1
 fi
-if [[ $vmArch == arm && $(uname -p) == "arm" && $CI != "true" ]]; then
+if [[ $vmArch == aarch64 && $(uname -p) == "arm" && $CI != "true" ]]; then
     qemuMachineFlags="-machine type=virt,highmem=on -cpu host"
-elif [[ $vmArch == arm && $(uname -p) == "arm" ]]; then
+elif [[ $vmArch == aarch64 ]]; then
     qemuMachineFlags="-machine type=virt -cpu max"
 else
     qemuMachineFlags="-cpu max"
