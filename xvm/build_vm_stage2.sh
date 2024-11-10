@@ -7,10 +7,10 @@ elif [[ ! -e ./output/xvm.qcow2 ]]; then
     echo "No existing xvm.qcow2 found to use in stage 3"
     exit 1
 fi
-$qemuSystemCommand &
+$qemuSystemCommand || exit 1 &
 sleep 60
 updateGuestRepoCheckout  # since the previous stage VM may be from cache
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_provision_up_to_build.sh || exit 1
+ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_provision_up_to_build.sh
 # wait for the backgrounded qemu process to exit:
 wait
 mv -v ./output/xvm.qcow2 ./output/xvm_stage2.qcow2

@@ -33,10 +33,10 @@ $qemuSystemCommand \
 echo "Created VM and installed Rocky Linux"
 
 echo "Starting up the VM for MagAO-X 3rd party dependencies installation..."
-$qemuSystemCommand &
+$qemuSystemCommand || exit 1 &
 sleep 60
 updateGuestRepoCheckout
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_dependencies.sh || exit 1
+ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_dependencies.sh
 # wait for the backgrounded qemu process to exit:
 wait
 mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2
