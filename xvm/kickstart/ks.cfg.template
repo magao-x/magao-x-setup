@@ -53,21 +53,33 @@ yum clean all
 echo "xdev ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xdev
 chmod 440 /etc/sudoers.d/xdev
 
+# Passwordless sudo for the user 'xsup'
+echo "xsup ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xsup
+chmod 440 /etc/sudoers.d/xsup
+
 # Set up auto-login
 cat <<'HERE' | sudo tee -a /etc/sddm.conf
 [Autologin]
-User=xdev
+User=xsup
 Session=plasma
 HERE
 
 # Disable KDE welcome screen
 sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key LastSeenVersion 5.27.11
 sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key ShouldShow false
+sudo -u xsup kwriteconfig5 --file plasma-welcomerc --group General --key LastSeenVersion 5.27.11
+sudo -u xsup kwriteconfig5 --file plasma-welcomerc --group General --key ShouldShow false
 
 # Disable all screen locking
 sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
 sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false
 cat <<'HERE' | sudo -u xdev tee -a /home/xdev/.config/powermanagementprofilesrc
+[AC]
+icon=battery-charging
+HERE
+sudo -u xsup kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
+sudo -u xsup kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false
+cat <<'HERE' | sudo -u xsup tee -a /home/xsup/.config/powermanagementprofilesrc
 [AC]
 icon=battery-charging
 HERE
@@ -93,6 +105,14 @@ chown xdev:xdev /home/xdev/.ssh/authorized_keys
 sudo -u xdev chmod 0600 /home/xdev/.ssh/authorized_keys
 # Restore SELinux context
 restorecon -R /home/xdev/.ssh/
+
+# Install SSH key (using include from pre-install script)
+sudo -u xsup mkdir -m0700 /home/xsup/.ssh/
+%include /tmp/ssh_key_install.cfg
+chown xsup:xsup /home/xsup/.ssh/authorized_keys
+sudo -u xsup chmod 0600 /home/xsup/.ssh/authorized_keys
+# Restore SELinux context
+restorecon -R /home/xsup/.ssh/
 
 # Disable KDE connect because it's not useful and pops up errors on boot
 dnf -y remove kde-connect kde-connectd kde-connect-libs kde-connect-nautilus --noautoremove
