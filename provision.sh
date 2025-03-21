@@ -85,6 +85,9 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
     sudo -H bash -l "$DIR/steps/configure_etc_hosts.sh"
     log_info "Configure NFS exports from RTC -> AOC and ICC -> AOC"
     sudo -H bash -l "$DIR/steps/configure_nfs.sh"
+else
+    log_info "Configure hostname aliases for VPN"
+    sudo -H bash -l "$DIR/steps/configure_etc_hosts_vpn.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == TIC ]]; then

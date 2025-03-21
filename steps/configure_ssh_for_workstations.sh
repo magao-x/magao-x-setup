@@ -24,7 +24,6 @@ else
 fi
 if [[ ! -e $HOME/.ssh/config ]]; then
   cat << "HERE" | tee $HOME/.ssh/config
-IdentityFile ~/.ssh/id_ed25519
 Host aoc exao1
   HostName exao1.magao-x.org
 Host rtc exao2
@@ -33,11 +32,6 @@ Host rtc exao2
 Host icc exao3
   HostName icc
   ProxyJump aoc
-Host tic exao0
-  HostName exao0.as.arizona.edu
-Host toc corona
-  HostName 192.168.1.62
-  ProxyJump exao0
 Host *
   User YOURMAGAOXUSERNAME
 HERE
