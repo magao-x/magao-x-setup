@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source ./_common.sh
-set -x
+set -xe
 if [[ -e ./output/xvm_stage1.qcow2 ]]; then
     echo "Stage one image populated from cache. Skipping stage one."
     exit 0
@@ -27,7 +27,7 @@ fi
 
 echo "Starting VM installation process..."
 $qemuSystemCommand \
-    -cdrom ./input/iso/Rocky-${rockyVersion}-${vmArch}-minimal.iso \
+    -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
 || exit 1
 echo "Created VM and installed Rocky Linux"

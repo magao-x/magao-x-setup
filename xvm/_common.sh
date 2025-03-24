@@ -32,7 +32,6 @@ if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
         -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
-        -device qemu-xhci \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
@@ -41,6 +40,7 @@ if [[ $vmArch == aarch64 ]]; then
         -drive file=output/xvm.qcow2,format=qcow2 \
         -device virtio-gpu-pci \
         -device virtio-net-pci,netdev=user.0 \
+        -device qemu-xhci \
         -device usb-kbd \
         -device usb-mouse \
         -m ${ramMB}M \
@@ -66,7 +66,7 @@ else
 fi
 export qemuSystemCommand
 
-export rockyVersion=${rockyVersion:-9.4}
+export rockyVersion=${rockyVersion:-9.5}
 
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."

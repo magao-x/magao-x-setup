@@ -4,7 +4,7 @@ source ./_common.sh
 if [[ -e ./output/xvm_stage2.qcow2 ]]; then
     cp ./output/xvm_stage1.qcow2 ./output/xvm.qcow2
 elif [[ ! -e ./output/xvm.qcow2 ]]; then
-    echo "No existing xvm.qcow2 found to use in stage 3"
+    echo "No existing xvm.qcow2 found to use in stage 2"
     exit 1
 fi
 $qemuSystemCommand || exit 1 &
