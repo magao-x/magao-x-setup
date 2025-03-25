@@ -162,6 +162,14 @@ jobs:
             tar -xvf stage2_outputs.tar
             rm stage2_outputs.tar
             mv -v output/xvm_stage2.qcow2 output/xvm.qcow2
+      - name: Install pigz for Ubuntu
+        if: runner.os == 'Linux'
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y pigz
+      - name: Install pigz for macOS
+        if: runner.os == 'macOS'
+        run: brew install pigz
       - name: Install MagAO-X software
         run: |
             cd $GITHUB_WORKSPACE/xvm/
