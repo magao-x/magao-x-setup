@@ -41,6 +41,9 @@ mount /dev/disk/by-label/OEMDRV /tmp/oemdrv
 echo -n 'echo "' > /tmp/ssh_key_install.cfg
 cat /tmp/oemdrv/authorized_keys | tr -d '\n' >> /tmp/ssh_key_install.cfg
 echo '" > /home/xdev/.ssh/authorized_keys' >> /tmp/ssh_key_install.cfg
+echo -n 'echo "' > /tmp/ssh_key_install.cfg
+cat /tmp/oemdrv/authorized_keys | tr -d '\n' >> /tmp/ssh_key_install.cfg
+echo '" > /home/xsup/.ssh/authorized_keys' >> /tmp/ssh_key_install.cfg
 umount /tmp/oemdrv
 %end
 
@@ -99,18 +102,14 @@ HERE
 
 # Install SSH key (using include from pre-install script)
 sudo -u xdev mkdir -m0700 /home/xdev/.ssh/
-%include /tmp/ssh_key_install.cfg
-chown xdev:xdev /home/xdev/.ssh/authorized_keys
-sudo -u xdev chmod 0600 /home/xdev/.ssh/authorized_keys
-# Restore SELinux context
-restorecon -R /home/xdev/.ssh/
-
-# Install SSH key (using include from pre-install script)
 sudo -u xsup mkdir -m0700 /home/xsup/.ssh/
 %include /tmp/ssh_key_install.cfg
+chown xdev:xdev /home/xdev/.ssh/authorized_keys
 chown xsup:xsup /home/xsup/.ssh/authorized_keys
+sudo -u xdev chmod 0600 /home/xdev/.ssh/authorized_keys
 sudo -u xsup chmod 0600 /home/xsup/.ssh/authorized_keys
 # Restore SELinux context
+restorecon -R /home/xdev/.ssh/
 restorecon -R /home/xsup/.ssh/
 
 # Disable KDE connect because it's not useful and pops up errors on boot
