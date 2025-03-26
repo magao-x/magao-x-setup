@@ -15,5 +15,4 @@ expect {
     }
 }
 
-# Allow interaction after sending keys
-interact
+expect eof
