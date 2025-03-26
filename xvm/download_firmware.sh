@@ -10,6 +10,6 @@ curl -OL ${indexPage}/${rpmName} || exit 1
 if [[ $(uname -o) == Darwin ]]; then
     tar xvf $rpmName || exit 1
 else
-    rpm2archive $rpmName || exit 1
+    rpm2archive $rpmName > $rpmName.tgz || exit 1
     tar xvf $rpmName.tgz || exit 1
 fi
