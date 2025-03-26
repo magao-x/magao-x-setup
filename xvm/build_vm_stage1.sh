@@ -26,19 +26,10 @@ else
 fi
 
 echo "Starting VM installation process..."
-($qemuSystemCommand \
+python wrap_qemu_stage1.py $qemuSystemCommand \
     -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
-    -serial stdio \
-    -monitor tcp:localhost:4444,server,nowait \
-) | while read -r line; do
-    echo "$line"
-    if [[ "$line" == *"Test this media"* ]]; then
-        # Send keys via QEMU monitor over TCP
-        (echo "sendkey up"; sleep 0.1; echo "sendkey ret") | nc localhost 4444
-    fi
-done
-wait
+    -serial stdio
 echo "Created VM and installed Rocky Linux"
 
 echo "Starting up the VM for MagAO-X 3rd party dependencies installation..."
