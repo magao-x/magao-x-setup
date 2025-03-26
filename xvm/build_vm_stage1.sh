@@ -26,14 +26,24 @@ else
 fi
 
 echo "Starting VM installation process..."
-$qemuSystemCommand \
+mkfifo qemu_output
+($qemuSystemCommand \
     -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
-|| exit 1
+    -monitor stdio \
+| tee qemu_output ) &
+while read -r line; do
+    echo "$line"
+    if [[ "$line" == *"Test this media"* ]]; then  # Change this to match the string you are looking for
+        echo "sendkey up" > qemu_output
+        echo "sendkey ret" > qemu_output
+    fi
+done < qemu_output
+wait
 echo "Created VM and installed Rocky Linux"
 
 echo "Starting up the VM for MagAO-X 3rd party dependencies installation..."
-$qemuSystemCommand || exit 1 &
+$qemuSystemCommand -serial stdio || exit 1 &
 sleep 60
 updateGuestRepoCheckout
 ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_install_dependencies.sh

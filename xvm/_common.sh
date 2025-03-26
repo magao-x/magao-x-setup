@@ -16,7 +16,7 @@ qemuDisplay=${qemuDisplay:-}
 if [[ ! -z $qemuDisplay ]]; then
     ioFlag="-display $qemuDisplay -serial vc"
 else
-    ioFlag='-serial stdio -display none'
+    ioFlag='-display none'
 fi
 export ioFlag
 
