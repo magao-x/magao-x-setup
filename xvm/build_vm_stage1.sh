@@ -26,7 +26,7 @@ else
 fi
 
 echo "Starting VM installation process..."
-./wrap_qemu_stage1.exp $qemuSystemCommand \
+python ./wrap_qemu_stage1.py $qemuSystemCommand \
     -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
     -serial stdio
