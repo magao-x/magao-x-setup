@@ -12,12 +12,12 @@ while True:
     if not line:
         break  # QEMU exited
 
-    sys.stdout.write(repr(line).encode('utf8'))  # Print output to console
+    sys.stdout.write(repr(line))  # Print output to console
 
     if b"Test this media" in line:  # Change this to your specific trigger string
         print("Detected boot prompt! Sending keys...")
         time.sleep(0.1)
-        proc.stdin.write("sendkey up\n")
+        proc.stdin.write(b"sendkey up\n")
         time.sleep(0.1)
-        proc.stdin.write("sendkey ret\n")
+        proc.stdin.write(b"sendkey ret\n")
         proc.stdin.flush()
