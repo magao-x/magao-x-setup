@@ -10,7 +10,7 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         # vmArch: [aarch64, x86_64]
         vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
@@ -73,7 +73,7 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         # vmArch: [aarch64, x86_64]
         vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
@@ -134,7 +134,7 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         # vmArch: [aarch64, x86_64]
         vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
