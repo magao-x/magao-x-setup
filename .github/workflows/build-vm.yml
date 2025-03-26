@@ -96,12 +96,12 @@ jobs:
         if: runner.os == 'Linux' && steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm rpm2cpio
+          sudo apt-get install -y qemu-system-arm rpm2cpio expect
       - name: Install QEMU for macOS
         if: runner.os == 'macOS' && steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
           sysctl machdep.cpu
-          brew install qemu
+          brew install qemu expect
       - name: Download initial Rocky VM
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4

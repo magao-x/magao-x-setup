@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+
+# Get the full QEMU command line from script arguments
+set qemu_cmd [lrange $argv 0 end]
+
+# Spawn QEMU with the provided command
+spawn {*}$qemu_cmd
+
+# Monitor serial output for boot prompt
+expect {
+    "Test this" {
+        send_user "Detected boot prompt! Sending keys...\n"
+        send "\033\[A"   ;# Send 'Up Arrow'
+        send "\r"      ;# Send 'Enter'
+    }
+}
+
+# Allow interaction after sending keys
+interact

@@ -12,7 +12,7 @@ while True:
     if not line:
         break  # QEMU exited
 
-    sys.stdout.write(repr(line))
+    sys.stdout.write(repr(line) + '\n')
 
     if b"Test this media" in line:
         print("Detected boot prompt! Sending keys...")
