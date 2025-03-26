@@ -10,10 +10,12 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [macos-14]
+        os: [ubuntu-latest]
+        # vmArch: [aarch64, x86_64]
+        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ matrix.vmArch }}
     permissions:
       contents: read
       packages: write
@@ -71,10 +73,12 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [macos-14]
+        os: [ubuntu-latest]
+        # vmArch: [aarch64, x86_64]
+        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ matrix.vmArch }}
     needs: build-vm-stage1
     permissions:
       contents: read
@@ -130,10 +134,12 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [macos-14]
+        os: [ubuntu-latest]
+        # vmArch: [aarch64, x86_64]
+        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ matrix.vmArch }}
     needs: build-vm-stage2
     permissions:
       contents: read
