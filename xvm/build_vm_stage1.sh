@@ -30,13 +30,13 @@ mkfifo qemu_output
 ($qemuSystemCommand \
     -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
-    -monitor stdio \
-| tee qemu_output ) &
-while read -r line; do
+    -serial stdio \
+    -monitor tcp:localhost:4444,server,nowait \
+) | while read -r line; do
     echo "$line"
-    if [[ "$line" == *"Test this media"* ]]; then  # Change this to match the string you are looking for
-        echo "sendkey up" > qemu_output
-        echo "sendkey ret" > qemu_output
+    if [[ "$line" == *"Test this media"* ]]; then
+        # Send keys via QEMU monitor over TCP
+        (echo "sendkey up"; sleep 0.1; echo "sendkey ret") | nc localhost 4444
     fi
 done < qemu_output
 wait
