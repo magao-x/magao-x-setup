@@ -70,6 +70,6 @@ export rockyVersion=${rockyVersion:-9.5}
 
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."
-    rsync --progress -a --exclude xvm/output --exclude xvm/input -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' ../ xdev@localhost:magao-x-setup/
+    rsync --progress -a --exclude xvm/output --exclude xvm/input -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' ../ xsup@localhost:magao-x-setup/
     echo "Finished updating checkout in guest"
 }

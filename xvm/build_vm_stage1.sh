@@ -10,7 +10,7 @@ mkdir -p output input
 qemu-img create -f qcow2 output/xvm.qcow2 64G
 # make ssh key pair
 if [[ ! -e ./output/xvm_key ]]; then
-    ssh-keygen -q -t ed25519 -f ./output/xvm_key -N ''
+    ssh-keygen -q -t ed25519 -f ./output/xvm_key -N '' -C 'xvm'
 fi
 # create oemdrv disk image for kickstart files and key
 bash create_oemdrv.sh
@@ -36,7 +36,7 @@ echo "Starting up the VM for MagAO-X 3rd party dependencies installation..."
 $qemuSystemCommand || exit 1 &
 sleep 60
 updateGuestRepoCheckout
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_dependencies.sh
+ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_install_dependencies.sh
 # wait for the backgrounded qemu process to exit:
 wait
 mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2

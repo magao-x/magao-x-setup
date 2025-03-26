@@ -11,7 +11,7 @@ fi
 $qemuSystemCommand || exit 1 &
 sleep 60
 updateGuestRepoCheckout  # since the previous stage VM may be from cache
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xdev@localhost 'bash -s' < ./guest_install_magao-x_in_vm.sh
+ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_install_magao-x_in_vm.sh
 # wait for the backgrounded qemu process to exit:
 wait
 echo "Finished installing MagAO-X software."

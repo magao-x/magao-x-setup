@@ -30,7 +30,7 @@ clearpart --none --initlabel
 # Root password
 rootpw --plaintext xvmroot
 # User account
-user --groups=wheel,magaox,magaox-dev --name=xdev --plaintext --password=xdev --gecos="MagAO-X Developer"
+user --groups=wheel,magaox,magaox-dev --name=xsup --plaintext --password=xsup --gecos="MagAO-X User"
 
 %pre
 echo 'In pre-install script...' > /dev/kmsg
@@ -40,9 +40,6 @@ mount /dev/disk/by-label/OEMDRV /tmp/oemdrv
 # Write the SSH key to a file for inclusion in the post-install script
 echo -n 'echo "' > /tmp/ssh_key_install.cfg
 cat /tmp/oemdrv/authorized_keys | tr -d '\n' >> /tmp/ssh_key_install.cfg
-echo '" > /home/xdev/.ssh/authorized_keys' >> /tmp/ssh_key_install.cfg
-echo -n 'echo "' > /tmp/ssh_key_install.cfg
-cat /tmp/oemdrv/authorized_keys | tr -d '\n' >> /tmp/ssh_key_install.cfg
 echo '" > /home/xsup/.ssh/authorized_keys' >> /tmp/ssh_key_install.cfg
 umount /tmp/oemdrv
 %end
@@ -50,10 +47,6 @@ umount /tmp/oemdrv
 %post --erroronfail
 echo 'In post-install script...' > /dev/kmsg
 yum clean all
-
-# Passwordless sudo for the user 'xdev'
-echo "xdev ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xdev
-chmod 440 /etc/sudoers.d/xdev
 
 # Passwordless sudo for the user 'xsup'
 echo "xsup ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xsup
@@ -67,18 +60,10 @@ Session=plasma
 HERE
 
 # Disable KDE welcome screen
-sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key LastSeenVersion 5.27.11
-sudo -u xdev kwriteconfig5 --file plasma-welcomerc --group General --key ShouldShow false
 sudo -u xsup kwriteconfig5 --file plasma-welcomerc --group General --key LastSeenVersion 5.27.11
 sudo -u xsup kwriteconfig5 --file plasma-welcomerc --group General --key ShouldShow false
 
 # Disable all screen locking
-sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
-sudo -u xdev kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false
-cat <<'HERE' | sudo -u xdev tee -a /home/xdev/.config/powermanagementprofilesrc
-[AC]
-icon=battery-charging
-HERE
 sudo -u xsup kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
 sudo -u xsup kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false
 cat <<'HERE' | sudo -u xsup tee -a /home/xsup/.config/powermanagementprofilesrc
@@ -101,15 +86,11 @@ AllowSuspendThenHibernate=no
 HERE
 
 # Install SSH key (using include from pre-install script)
-sudo -u xdev mkdir -m0700 /home/xdev/.ssh/
 sudo -u xsup mkdir -m0700 /home/xsup/.ssh/
 %include /tmp/ssh_key_install.cfg
-chown xdev:xdev /home/xdev/.ssh/authorized_keys
 chown xsup:xsup /home/xsup/.ssh/authorized_keys
-sudo -u xdev chmod 0600 /home/xdev/.ssh/authorized_keys
 sudo -u xsup chmod 0600 /home/xsup/.ssh/authorized_keys
 # Restore SELinux context
-restorecon -R /home/xdev/.ssh/
 restorecon -R /home/xsup/.ssh/
 
 # Disable KDE connect because it's not useful and pops up errors on boot
