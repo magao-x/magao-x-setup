@@ -26,7 +26,6 @@ else
 fi
 
 echo "Starting VM installation process..."
-mkfifo qemu_output
 ($qemuSystemCommand \
     -cdrom ./input/iso/Rocky-9-latest-${vmArch}-minimal.iso \
     -drive file=input/oemdrv.qcow2,format=qcow2 \
@@ -38,7 +37,7 @@ mkfifo qemu_output
         # Send keys via QEMU monitor over TCP
         (echo "sendkey up"; sleep 0.1; echo "sendkey ret") | nc localhost 4444
     fi
-done < qemu_output
+done
 wait
 echo "Created VM and installed Rocky Linux"
 
