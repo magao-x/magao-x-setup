@@ -8,7 +8,11 @@ if [[ ! -e Rocky-9-latest-${vmArch}-minimal.iso ]]; then
     curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/Rocky-9-latest-${vmArch}-minimal.iso.CHECKSUM > Rocky-9-latest-${vmArch}-minimal.iso.CHECKSUM || exit 1
     cat Rocky-9-latest-${vmArch}-minimal.iso.CHECKSUM
     du Rocky-9-latest-${vmArch}-minimal.iso
-    sha256sum Rocky-9-latest-${vmArch}-minimal.iso
+    if [[ $(uname -o) == Darwin ]]; then
+        shasum -a 256 Rocky-9-latest-${vmArch}-minimal.iso
+    else
+        sha256sum Rocky-9-latest-${vmArch}-minimal.iso
+    fi
 else
     echo "Rocky Linux ${vmArch} minimal ISO already downloaded."
 fi
