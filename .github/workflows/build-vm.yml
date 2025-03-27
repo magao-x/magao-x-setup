@@ -13,7 +13,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
     permissions:
       contents: read
       packages: write
@@ -74,7 +74,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
     needs: build-vm-stage1
     permissions:
       contents: read
@@ -133,7 +133,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
+      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
     needs: build-vm-stage2
     permissions:
       contents: read
