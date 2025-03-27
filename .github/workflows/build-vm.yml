@@ -11,11 +11,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        # vmArch: [aarch64, x86_64]
-        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.vmArch }}
+      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
     permissions:
       contents: read
       packages: write
@@ -74,11 +72,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        # vmArch: [aarch64, x86_64]
-        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.vmArch }}
+      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
     needs: build-vm-stage1
     permissions:
       contents: read
@@ -135,11 +131,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        # vmArch: [aarch64, x86_64]
-        vmArch: [aarch64]
     runs-on: ${{ matrix.os }}
     env:
-      vmArch: ${{ matrix.vmArch }}
+      vmArch: ${{ matrix.os == 'macos-14' && 'aarch64' || 'x86_64' }}
     needs: build-vm-stage2
     permissions:
       contents: read
