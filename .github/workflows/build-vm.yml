@@ -31,7 +31,7 @@ jobs:
         id: cache-vm-stage1
         with:
           path: xvm/stage1_outputs.tar
-          key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!xvm/input/**','!xvm/output/**') }}
+          key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
@@ -44,7 +44,7 @@ jobs:
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm rpm2cpio
+          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio
       - name: Install QEMU for macOS
         if: runner.os == 'macOS' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -87,7 +87,7 @@ jobs:
         id: cache-vm-stage2
         with:
           path: xvm/stage2_outputs.tar
-          key: xvm-stage2-${{ env.vmArch }}-${{ hashFiles('**','!xvm/input/**','!xvm/output/**') }}
+          key: xvm-stage2-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
       - name: Install QEMU for Ubuntu
         if: runner.os == 'Linux' && steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
