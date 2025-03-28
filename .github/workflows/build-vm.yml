@@ -10,7 +10,7 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
