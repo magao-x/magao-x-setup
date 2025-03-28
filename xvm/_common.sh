@@ -71,13 +71,13 @@ export rockyVersion=${rockyVersion:-9.5}
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."
     count=0
-    while $(( count < 10 )); do
+    while [ "$count" -lt 10 ]; do
         rsync \
             --progress -a --exclude xvm/output --exclude xvm/input \
             -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' \
             ../ xsup@localhost:magao-x-setup/ \
             && break
-        count=$((count + 1))
+        ((count++))
         echo "Retrying in 10 sec..."
         sleep 10
     done
