@@ -101,10 +101,10 @@ else
 fi
 log_info "chronyd enabled"
 if [[ $ID == "ubuntu" ]]; then
-	sudo systemctl start chrony || exit 1
+	sudo systemctl restart chrony || exit 1
 	systemctl status chrony | cat || exit 1
 else
-	sudo systemctl start chronyd || exit 1
+	sudo systemctl restart chronyd || exit 1
 	systemctl status chronyd | cat || exit 1
 fi
 log_info "chronyd started"
