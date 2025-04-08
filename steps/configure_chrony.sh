@@ -36,12 +36,25 @@ HERE
     if [[ ! $? ]]; then
         exit_with_error "Couldn't create $CHRONYCONF_PATH"
     fi
-elif [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
-    log_info "Configuring chronyd for $MAGAOX_ROLE as a time minion to exao1"
+elif [[ $MAGAOX_ROLE == ICC ]]; then
+    log_info "Configuring chronyd for ICC as a time minion over direct point-to-point to RTC"
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server exao1 iburst
+server rtc-from-icc iburst
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+HERE
+    if [[ ! $? ]]; then
+        exit_with_error "Couldn't create $CHRONYCONF_PATH"
+    fi
+elif [[ $MAGAOX_ROLE == AOC ]]; then
+    log_info "Configuring chronyd for AOC as a time minion to RTC"
+    sudo tee $CHRONYCONF_PATH <<'HERE'
+# chrony.conf installed by MagAO-X
+# for time minion
+server rtc iburst
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
