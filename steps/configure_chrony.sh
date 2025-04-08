@@ -17,6 +17,7 @@ if [[ $MAGAOX_ROLE == RTC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time master
+ratelimit interval -5
 server lbtntp.as.arizona.edu iburst
 server ntp1.lco.cl iburst
 server ntp2.lco.cl iburst
@@ -41,7 +42,7 @@ elif [[ $MAGAOX_ROLE == ICC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server rtc-from-icc iburst
+server rtc-from-icc iburst minpoll -4
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -54,7 +55,7 @@ elif [[ $MAGAOX_ROLE == AOC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server rtc iburst
+server rtc iburst minpoll -4
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -67,6 +68,7 @@ elif [[ $MAGAOX_ROLE == TIC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time master
+ratelimit interval -5
 server lbtntp.as.arizona.edu iburst
 pool 0.rocky.pool.ntp.org iburst
 allow 192.168.1.0/24
