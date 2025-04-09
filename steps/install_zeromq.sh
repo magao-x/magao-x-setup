@@ -6,7 +6,7 @@ cd /opt/MagAOX/vendor || exit 1
 
 source /etc/os-release
 
-if [[ $VERSION_ID == "24.04" ]]; then
+if [[ $VERSION_ID == "24.04" || $ID == fedora ]]; then
     ZEROMQ_VERSION=4.3.5
 else
     ZEROMQ_VERSION=4.3.4

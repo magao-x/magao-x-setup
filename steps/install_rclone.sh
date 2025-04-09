@@ -4,11 +4,11 @@ source $DIR/../_common.sh
 set -uo pipefail
 cd /opt/MagAOX/vendor || exit 1
 PACKAGE_VERSION=1.60.0
-arch=$(uname -p)
+arch=$(uname -a)
 PACKAGE_DIR=rclone-v${PACKAGE_VERSION}-linux
-if [[ $arch == "x86_64" ]]; then
+if [[ $arch == *"x86_64"* ]]; then
     PACKAGE_DIR="$PACKAGE_DIR-amd64"
-elif [[ $arch == "aarch64" ]]; then
+elif [[ $arch == *"aarch64"* ]]; then
     PACKAGE_DIR="$PACKAGE_DIR-arm64"
 else
     exit_with_error "Unknown arch: $arch"

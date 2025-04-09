@@ -2,7 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
-EIGEN_VERSION="3.3.4"
+EIGEN_VERSION="3.4.0"
 #
 # Eigen
 #

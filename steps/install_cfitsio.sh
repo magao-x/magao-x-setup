@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
 cd /opt/MagAOX/vendor || exit 1
-CFITSIO_VERSION="3.47"
+CFITSIO_VERSION="4.6.2"
 #
 # CFITSIO
 #
@@ -15,6 +15,5 @@ cd cfitsio-$CFITSIO_VERSION || exit 1
 if [[ ! (( -e /usr/local/lib/libcfitsio.a ) && ( -e /usr/local/lib/libcfitsio.so )) ]]; then
     ./configure --prefix=/usr/local || exit 1
     make || exit 1
-    make shared || exit 1
     make install || exit 1
 fi
