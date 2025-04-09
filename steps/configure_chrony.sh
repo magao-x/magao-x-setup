@@ -42,7 +42,7 @@ elif [[ $MAGAOX_ROLE == ICC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server rtc-from-icc iburst minpoll -4
+server rtc-from-icc iburst minpoll -4 maxpoll -4 xleave
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -55,7 +55,7 @@ elif [[ $MAGAOX_ROLE == AOC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server rtc iburst minpoll -4
+server rtc iburst iburst minpoll -4 maxpoll -4 xleave
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -84,7 +84,7 @@ elif [[ $MAGAOX_ROLE == TOC ]]; then
     sudo tee $CHRONYCONF_PATH <<'HERE'
 # chrony.conf installed by MagAO-X
 # for time minion
-server tic iburst
+server tic iburst minpoll -4 maxpoll -4 xleave
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -109,7 +109,8 @@ else
 	sudo systemctl restart chronyd || exit 1
 	systemctl status chronyd | cat || exit 1
 fi
-log_info "chronyd started"
+log_info "chronyd started, waiting 5 sec..."
+sleep 5
 chronyc sources || exit 1
 sudo chronyc makestep || exit 1
 log_info "forced time sync"
