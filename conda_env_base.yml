@@ -35,3 +35,4 @@ dependencies:
   - pip:
       - hcipy
       - poppy
+      - fixr>=0.2.1
