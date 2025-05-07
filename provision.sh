@@ -78,7 +78,7 @@ if [[ $VM_KIND != "none" ]]; then
 fi
 
 bash -l "$DIR/steps/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
-sudo -H bash -l "$DIR/steps/configure_xsup_aliases.sh"
+sudo -H bash -l "$DIR/steps/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
     log_info "Configure hostname aliases for instrument LAN"
