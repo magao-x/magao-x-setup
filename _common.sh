@@ -200,6 +200,12 @@ function createuser() {
     log_success "Linked $link_name -> $data_path"
   fi
 }
+function get_instrument_uid() {
+  getent passwd $instrument_user | cut -d: -f3
+}
+function get_instrument_gid() {
+  getent group $instrument_group | cut -d: -f3
+}
 # We work around the buggy devtoolset /bin/sudo wrapper in provision.sh, but
 # that means we have to explicitly enable it ourselves.
 # (This crap again: https://bugzilla.redhat.com/show_bug.cgi?id=1319936)
