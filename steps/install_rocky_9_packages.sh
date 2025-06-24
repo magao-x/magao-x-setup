@@ -29,7 +29,6 @@ if [[ $MAGAOX_ROLE != container ]]; then
         pciutils \
         lm_sensors \
         hddtemp \
-        util-linux-user \
         libusb-devel \
         libusbx-devel \
         usbutils \
@@ -38,6 +37,7 @@ fi
 yum install -y \
     gcc-gfortran \
     which \
+    util-linux-user \
     openssh \
     cmake3 \
     vim \
