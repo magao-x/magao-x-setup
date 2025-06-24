@@ -18,10 +18,23 @@ echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
 ldconfig -v || exit 1
 
 # Install build tools and utilities
+
+if [[ $MAGAOX_ROLE != container ]]; then
+    log_info "Installing hardware-specific packages"
+    yum install -y \
+        kernel-devel \
+        kernel-modules-extra \
+        mlocate \
+        pciutils \
+        lm_sensors \
+        hddtemp \
+        util-linux-user \
+        libusb-devel \
+        libusbx-devel \
+        usbutils \
+    || exit 1
+fi
 yum install -y \
-    util-linux-user \
-    kernel-devel \
-    kernel-modules-extra \
     gcc-gfortran \
     which \
     openssh \
@@ -29,14 +42,11 @@ yum install -y \
     vim \
     nano \
     wget \
-    mlocate \
     htop \
     zlib-devel \
     libudev-devel \
     ncurses-devel \
     nmap-ncat \
-    lm_sensors \
-    hddtemp \
     readline-devel \
     pkgconfig \
     bison \
@@ -45,10 +55,6 @@ yum install -y \
     autossh \
     check-devel \
     subunit-devel \
-    pciutils \
-    libusb-devel \
-    libusbx-devel \
-    usbutils \
     tmux \
     boost-devel \
     gsl \
