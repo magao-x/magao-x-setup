@@ -74,6 +74,7 @@ function updateGuestRepoCheckout() {
     while [ "$count" -lt 10 ]; do
         rsync \
             --progress -a --exclude xvm/output --exclude xvm/input \
+            --exclude .git \
             -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' \
             ../ xsup@localhost:magao-x-setup/ \
             && break

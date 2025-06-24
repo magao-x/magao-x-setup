@@ -21,6 +21,7 @@ ldconfig -v || exit 1
 
 if [[ $MAGAOX_ROLE != container ]]; then
     log_info "Installing hardware-specific packages"
+    # and also mlocate because it needs a background service that won't run in a container
     yum install -y \
         kernel-devel \
         kernel-modules-extra \
