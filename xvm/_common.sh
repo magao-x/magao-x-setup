@@ -66,7 +66,7 @@ else
 fi
 export qemuSystemCommand
 
-export rockyVersion=${rockyVersion:-9.5}
+export rockyVersion=${rockyVersion:-9}
 
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."
