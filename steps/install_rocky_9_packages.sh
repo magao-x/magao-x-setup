@@ -38,6 +38,7 @@ yum install -y \
     gcc-gfortran \
     which \
     util-linux-user \
+    shadow-utils \
     openssh \
     cmake3 \
     vim \
