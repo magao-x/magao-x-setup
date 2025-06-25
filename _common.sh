@@ -91,7 +91,7 @@ function _cached_fetch() {
   url=$1
   filename=$2
   dest=$PWD
-  if [[ $filename == *levmar* || $filename == *cfitsio* ]]; then
+  if [[ $filename == *levmar* ]]; then
     EXTRA_CURL_OPTS='-A "Mozilla/5.0"'
   else
     EXTRA_CURL_OPTS=''

@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
-set -xuo pipefail
+set -uo pipefail
 cd /opt/MagAOX/vendor || exit 1
 CFITSIO_VERSION="4.6.2"
 #
