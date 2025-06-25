@@ -219,7 +219,7 @@ fi
 sudo -H bash -l "$DIR/steps/install_aliases.sh"
 
 ## Clone sources to /opt/MagAOX/source/MagAOX unless building in CI or building the container
-if [[ -z $CI && $MAGAOX_ROLE != container && ! -e /opt/MagAOX/source/MagAOX ]]; then
+if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then
     git clone https://github.com/magao-x/MagAOX.git /opt/MagAOX/source/MagAOX || exit_with_error "Could not clone MagAOX"
     normalize_git_checkout /opt/MagAOX/source/MagAOX || exit_with_error "Could not normalize permissions on MagAOX checkout"
 fi
