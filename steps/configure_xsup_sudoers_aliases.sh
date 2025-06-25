@@ -8,8 +8,9 @@ source $DIR/../_common.sh
 set -o pipefail
 
 echo "alias teldump='logdump --dir=/opt/MagAOX/telem --ext=.bintel'" | sudo tee /etc/profile.d/teldump.sh
-
-cat <<'HERE' > /tmp/sudoers_xsup
+scratchFile=/tmp/sudoers_xsup
+targetFile=/etc/sudoers.d/xsup
+cat <<'HERE' > $scratchFile
 # keep MAGAOX_ROLE set for any sudo'd command
 Defaults env_keep += "MAGAOX_ROLE"
 # keep entire environment when becoming xsup
@@ -19,8 +20,16 @@ Defaults>xsup !secure_path
 %magaox ALL = (xsup) NOPASSWD: ALL
 %magaox ALL = (root) NOPASSWD: /opt/MagAOX/bin/magaox_pidfile
 HERE
-visudo -cf /tmp/sudoers_xsup || exit_with_error "visudo syntax check failed on /tmp/sudoers_xsup"
-sudo mv /tmp/sudoers_xsup /etc/sudoers.d/xsup
+visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
+
+sudo install \
+    --owner=root \
+    --group=root \
+    --mode=u=r--g=r--o=--- \
+    $scratchFile \
+    $targetFile \
+|| exit_with_error "Could not install drop-in file to $targetFile"
+
 
 cat <<'HERE' | sudo tee /etc/profile.d/xsupify.sh || exit 1
 #!/usr/bin/env bash
