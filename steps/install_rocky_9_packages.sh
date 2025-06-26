@@ -34,7 +34,8 @@ if [[ $MAGAOX_ROLE != container ]]; then
         usbutils \
     || exit 1
 fi
-yum install -y \
+# For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
+yum install -y --skip-broken \
     gcc-gfortran \
     which \
     util-linux-user \
