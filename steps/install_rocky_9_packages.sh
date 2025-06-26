@@ -8,10 +8,21 @@ if ! dnf config-manager -h >/dev/null; then
     dnf install -y 'dnf-command(config-manager)' || exit 1
 fi
 dnf config-manager --set-enabled crb || exit 1
+log_info "CRB enabled"
 dnf install -y epel-release || exit 1
+log_info "EPEL repository enabled"
+dnf clean all || exit 1
+log_info "Cleared dnf cache"
+dnf check || exit 1
+log_info "Checked dnf for errors"
+dnf check-update || exit 1
+log_info "Checked dnf for updates"
+dnf update -y || exit 1
+log_info "Updated dnf packages"
 
 # needed for (at least) git:
-yum groupinstall -y 'Development Tools' || exit 1
+log_info "Installing Development Tools group"
+dnf groupinstall -y 'Development Tools' || exit 1
 
 # Search /usr/local/lib by default for dynamic library loading
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
