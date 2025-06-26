@@ -7,18 +7,19 @@ log_info "Make Extra Packages for Enterprise Linux available in /etc/yum.repos.d
 if ! dnf config-manager -h >/dev/null; then
     dnf install -y 'dnf-command(config-manager)' || exit 1
 fi
+log_info "Enabling CRB"
 dnf config-manager --set-enabled crb || exit 1
-log_info "CRB enabled"
+log_info "Enabling EPEL repository"
 dnf install -y epel-release || exit 1
-log_info "EPEL repository enabled"
+log_info "Clearing dnf cache"
 dnf clean all || exit 1
-log_info "Cleared dnf cache"
+log_info "Checking dnf for errors"
 dnf check || exit 1
-log_info "Checked dnf for errors"
-dnf check-update || exit 1
-log_info "Checked dnf for updates"
+log_info "Checking dnf for updates"
+dnf check-update
+log_info "Updating dnf packages"
 dnf update -y || exit 1
-log_info "Updated dnf packages"
+log_info "Done updating dnf packages"
 
 # needed for (at least) git:
 log_info "Installing Development Tools group"
