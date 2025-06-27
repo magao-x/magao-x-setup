@@ -47,7 +47,7 @@ if [[ $MAGAOX_ROLE != container ]]; then
     || exit 1
 fi
 # For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
-yum install -y --skip-broken \
+yum install -y \
     gcc-gfortran \
     which \
     util-linux-user \
