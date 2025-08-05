@@ -17,8 +17,9 @@ sudo install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/sys
 sudo install -m 700 $DIR/../systemd_units/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
 
 CREDS_FILE=/root/irods_credentials.env
-log_info "Making a template credentials file in $CREDS_FILE"
-echo <<'HERE' | sudo tee $CREDS_FILE || exit 1
+if [[ ! -e $CREDS_FILE ]]; then
+    log_info "Making a template credentials file in $CREDS_FILE"
+    cat <<'HERE' | sudo tee $CREDS_FILE || exit 1
 IRODSFS_USER=exao_dap
 IRODSFS_PASSWORD=
 IRODSFS_HOST=data.cyverse.org
@@ -28,6 +29,9 @@ IRODSFS_MOUNT=/srv/cyverse
 UNIX_USER=xbackup
 UNIX_GROUP=magaox
 HERE
-log_info "Don't forget to fill in IRODSFS_PASSWORD!"
+    log_info "Don't forget to fill in IRODSFS_PASSWORD!"
+else
+    log_info "$CREDS_FILE already exists, not overwriting"
+fi
 sudo systemctl daemon-reload
 sudo systemctl enable mount_irodsfs.service
