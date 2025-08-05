@@ -14,7 +14,7 @@ sudo umount /srv/cyverse
 sudo mkdir -p $PREFIX/bin $PREFIX/etc || exit 1
 sudo install ./irodsfs $PREFIX/bin/irodsfs || exit 1
 sudo install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/system/mount_irodsfs.service || exit 1
-sudo install -m 700 $DIR/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
+sudo install -m 700 $DIR/../systemd_units/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
 
 CREDS_FILE=/root/irods_credentials.env
 log_info "Making a template credentials file in $CREDS_FILE"
