@@ -6,8 +6,13 @@ source $DIR/_common.sh
 creategroup $instrument_group
 creategroup $instrument_dev_group
 
-if [[ $MAGAOX_ROLE != vm ]]; then
+if [[ $MAGAOX_ROLE != vm && $MAGAOX_ROLE != container ]]; then
   createuser xsup
+  if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC]]; then
+    # Instrument computers should have a backup user to own the irodsfs mount
+    createuser xbackup
+    sudo passwd --lock xbackup
+  fi
   if [[ $MAGAOX_ROLE == AOC ]]; then
     createuser guestobs
     sudo passwd --lock guestobs  # SSH login still possible

@@ -1,0 +1,19 @@
+[Unit]
+Description=Mount iRODS via irodsfs as user xsup
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/opt/irodsfs/bin/mount_irodsfs.sh
+Restart=on-failure
+TimeoutSec=30
+Environment=PATH=/opt/irodsfs/bin:/usr/local/bin:/usr/bin:/bin
+RuntimeDirectory=irodsfs
+RuntimeDirectoryMode=0750
+# Uncomment this line if you want to inspect log files after exit
+# RuntimeDirectoryPreserve=yes
+WorkingDirectory=/run/irodsfs
+
+[Install]
+WantedBy=multi-user.target
