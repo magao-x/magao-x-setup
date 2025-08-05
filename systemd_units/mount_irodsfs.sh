@@ -8,6 +8,11 @@ fi
 TARGET_UID=$(getent passwd $UNIX_USER | cut -d: -f3)
 TARGET_GID=$(getent group $UNIX_GROUP | cut -d: -f3)
 
+if [[ -z $TARGET_UID || -z $TARGET_GID ]]; then
+    echo "Missing UID or GID. Does user $UNIX_USER or group $UNIX_GROUP not exist?"
+    exit 1
+fi
+
 mkdir -pv $IRODSFS_MOUNT
 umount $IRODSFS_MOUNT
 chown -v $TARGET_UID:$TARGET_GID $IRODSFS_MOUNT
