@@ -33,5 +33,7 @@ HERE
 else
     log_info "$CREDS_FILE already exists, not overwriting"
 fi
+sudo chmod -v 0600 $CREDS_FILE
+sudo chown -v root:root $CREDS_FILE
 sudo systemctl daemon-reload
 sudo systemctl enable mount_irodsfs.service
