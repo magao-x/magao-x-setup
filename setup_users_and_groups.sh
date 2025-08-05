@@ -21,7 +21,7 @@ if [[ $MAGAOX_ROLE != vm && $MAGAOX_ROLE != container ]]; then
     sudo gpasswd -a guestobs guestobs || true
     sudo mkdir -p /data/obs
     sudo chown xsup:guestobs /data/obs
-    sudo chmod -R u=rwX,g=rX,o=rX /data/obs
+    sudo chmod u=rwX,g=rX,o=rX /data/obs/*
     link_if_necessary /data/obs /home/guestobs/obs
     if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
       sudo gpasswd -a xsup guestobs
