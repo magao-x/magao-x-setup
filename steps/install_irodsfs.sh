@@ -17,7 +17,7 @@ sudo install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/sys
 sudo install -m 700 $DIR/../systemd_units/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
 
 CREDS_FILE=/root/irods_credentials.env
-if [[ ! -e $CREDS_FILE ]]; then
+if sudo test -e $CREDS_FILE; then
     log_info "Making a template credentials file in $CREDS_FILE"
     cat <<'HERE' | sudo tee $CREDS_FILE || exit 1
 IRODSFS_USER=exao_dap
