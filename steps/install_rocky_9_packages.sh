@@ -32,8 +32,9 @@ ldconfig -v || exit 1
 # Install build tools and utilities
 
 if [[ $MAGAOX_ROLE != container ]]; then
-    log_info "Installing hardware-specific packages"
-    # and also mlocate because it needs a background service that won't run in a container
+    log_info "Installing packages not needed in containers"
+    # mlocate needs a background service that won't run in a container
+    # age is used for secrets management but containers won't ship secrets
     yum install -y \
         kernel-devel \
         kernel-modules-extra \
@@ -44,6 +45,7 @@ if [[ $MAGAOX_ROLE != container ]]; then
         libusb-devel \
         libusbx-devel \
         usbutils \
+        age \
     || exit 1
 fi
 # For some reason (mirror sync?) some packages from EPEL will occasionally fail to install

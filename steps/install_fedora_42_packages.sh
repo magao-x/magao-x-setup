@@ -73,6 +73,7 @@ dnf install -y \
     fftw-libs-long \
     fftw-static \
     flexiblas-openblas-serial \
+    age \
 || exit 1
 
 if [[ $(uname -p) == "x86_64" ]]; then
