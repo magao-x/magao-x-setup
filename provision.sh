@@ -52,6 +52,14 @@ fi
 source $roleScript
 echo "Got MAGAOX_ROLE=$MAGAOX_ROLE"
 export MAGAOX_ROLE
+currentHostname=$(hostnamectl hostname)
+if [[ $MAGAOX_ROLE == AOC && $currentHostname != exao1 ]]; then
+    exit_with_error "Configure the correct hostname for AOC"
+elif [[ $MAGAOX_ROLE == RTC && $currentHostname != exao2 ]]; then
+    exit_with_error "Configure the correct hostname for RTC"
+elif [[ $MAGAOX_ROLE == ICC && $currentHostname != exao3 ]]; then
+    exit_with_error "Configure the correct hostname for ICC"
+fi
 
 # The VM and CI provisioning doesn't run setup_users_and_groups.sh
 # separately as in the instrument instructions; we have to run it
@@ -228,6 +236,12 @@ fi
 if [[ -z $CI && $MAGAOX_ROLE != container ]]; then
     cd /opt/MagAOX/source/MagAOX
     bash -l "$DIR/steps/install_MagAOX.sh" || exit 1
+fi
+
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
+    bash -l "$DIR/steps/install_age.sh" || exit_with_error "Failed to build and install age to decrypt secrets"
+    bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
+    bash -l "$DIR/steps/obtain_secrets.sh" $currentHostname || exit_with_error "Failed to obtain secrets from xwcl/hush-hush"
 fi
 
 if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != vm ]]; then
