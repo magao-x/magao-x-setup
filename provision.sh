@@ -239,7 +239,6 @@ if [[ -z $CI && $MAGAOX_ROLE != container ]]; then
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    bash -l "$DIR/steps/install_age.sh" || exit_with_error "Failed to build and install age to decrypt secrets"
     bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
     bash -l "$DIR/steps/obtain_secrets.sh" $currentHostname || exit_with_error "Failed to obtain secrets from xwcl/hush-hush"
 fi
