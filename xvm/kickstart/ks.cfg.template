@@ -49,8 +49,8 @@ echo 'In post-install script...' > /dev/kmsg
 yum clean all
 
 # Passwordless sudo for the user 'xsup'
-echo "xsup ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xsup
-chmod 440 /etc/sudoers.d/xsup
+echo "xsup ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/xsup_in_vm_passwordless
+chmod 440 /etc/sudoers.d/xsup_in_vm_passwordless
 
 # Set up auto-login
 cat <<'HERE' | sudo tee -a /etc/sddm.conf
