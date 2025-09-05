@@ -28,7 +28,8 @@ visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on /tmp/s
 sudo install \
     --owner=root \
     --group=root \
-    --mode=u=r--g=r--o=--- \
+    --mode=440 \
     $scratchFile \
     $targetFile \
 || exit_with_error "Could not install drop-in file to $targetFile"
+sudo ls -la /etc/sudoers.d/

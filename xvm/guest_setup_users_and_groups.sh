@@ -1,4 +1,9 @@
 #/usr/bin/env bash
+function shutdownVM() {
+    echo 'Shutting down VM from within guest...'
+    sudo shutdown -P now
+}
+trap shutdownVM EXIT
 set -x
 sudo mkdir -p /etc/profile.d || exit 1
 echo 'export MAGAOX_ROLE=workstation' | sudo tee /etc/profile.d/magaox.sh || exit 1
