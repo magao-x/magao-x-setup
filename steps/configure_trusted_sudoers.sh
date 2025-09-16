@@ -10,11 +10,11 @@ scratchFile=/tmp/sudoers_trusted
 targetFile=/etc/sudoers.d/trusted
 
 echo '# file automatically created by configure_trusted_sudoers.sh, do not edit' > $scratchFile || exit_with_error "Could not create $scratchFile"
-
+trustedGroups="%xwcl-admin %xwcl-dev"
 if [[ $ID == rocky || $ID == fedora ]]; then
-    echo "User_Alias TRUSTED = %wheel" > $scratchFile
+    echo "User_Alias TRUSTED = $trustedGroups %wheel" > $scratchFile
 elif [[ $ID == ubuntu ]]; then
-    echo "User_Alias TRUSTED = %sudo" > $scratchFile
+    echo "User_Alias TRUSTED = $trustedGroups %sudo" > $scratchFile
 else
     exit_with_error "Got ID=$ID, only know rocky and ubuntu"
 fi
@@ -22,6 +22,8 @@ fi
 cat <<'HERE' | tee -a $scratchFile
 Defaults:TRUSTED !env_reset
 Defaults:TRUSTED !secure_path
+%xwcl-admin  ALL=(ALL)       ALL
+%xwcl-dev    ALL=(ALL)       ALL
 HERE
 
 visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on /tmp/sudoers_xsup"
