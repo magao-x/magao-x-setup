@@ -22,11 +22,13 @@ fi
 cat <<'HERE' | tee -a $scratchFile
 Defaults:TRUSTED !env_reset
 Defaults:TRUSTED !secure_path
-%xwcl-admin  ALL=(ALL)       ALL
-%xwcl-dev    ALL=(ALL)       ALL
+# LDAP group for admins
+%xwcl-admin    ALL=(ALL)       ALL
+# local and LDAP group for developers that should have sudo
+%magaox-dev    ALL=(ALL)       ALL
 HERE
 
-visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on /tmp/sudoers_xsup"
+visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
 sudo install \
     --owner=root \
     --group=root \
