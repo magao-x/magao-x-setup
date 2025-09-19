@@ -11,8 +11,8 @@ c.JupyterHub.cookie_max_age_days = 28
 c.JupyterHub.spawner_class = 'sudo'
 
 # Only specified users may log in to JupyterHub
-c.PAMAuthenticator.allowed_groups = set('jupyterhub', 'xwcl-admin',)
+c.PAMAuthenticator.allowed_groups = {'jupyterhub', 'xwcl-admin'}
 
 # Which groups should get admin access
-c.PAMAuthenticator.admin_groups = {'wheel', 'sudo'}
+c.PAMAuthenticator.admin_groups = {'wheel', 'xwcl-admin'}
 
