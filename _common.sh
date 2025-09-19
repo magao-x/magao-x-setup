@@ -167,9 +167,21 @@ function createLocalFallbackGroup() {
     echo "Supply group name and gid"
     return 1
   fi
+  members=""
+  if [[ $# -gt 2 ]]; then
+    shift 2
+    members=$(IFS=,; echo "$*")
+  fi
+  if [[ -n $members ]]; then
+    group_line="$groupName:x:$gid:$members"
+    gshadow_line="$groupName:!::$members"
+  else
+    group_line="$groupName:x:$gid:"
+    gshadow_line="$groupName:!::"
+  fi
   if ! getent group "$groupName" | grep -qE "^$groupName:x:$gid:"; then
-      echo "$groupName:x:$gid:" | sudo tee -a /etc/group
-      echo "$groupName:!::" | sudo tee -a /etc/gshadow
+      echo $group_line | sudo tee -a /etc/group
+      echo $gshadow_line | sudo tee -a /etc/gshadow
   fi
 }
 
