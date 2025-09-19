@@ -1,3 +1,3 @@
 # the command(s) the Hub can run on behalf of users without needing a password
 Cmnd_Alias JUPYTER_CMD = ${SUDOSPAWNER_PATH}
-${JUPYTERHUB_SUDOSPAWNER_USER} ALL=(%jupyterhub) NOPASSWD:JUPYTER_CMD
+${JUPYTERHUB_USER} ALL=(%jupyterhub) NOPASSWD:JUPYTER_CMD
