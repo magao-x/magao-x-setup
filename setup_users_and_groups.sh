@@ -3,8 +3,10 @@ set -uo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/_common.sh
 
-creategroup $instrument_group
-creategroup $instrument_dev_group
+# Note that these GIDs are set on purpose to match
+# the LDAP server at accounts.xwcl.science
+createLocalFallbackGroup $instrument_group 2000 || exit_with_error "Couldn't create local fallback for group $instrument_group"
+createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
 if [[ $MAGAOX_ROLE != vm && $MAGAOX_ROLE != container ]]; then
   createuser xsup
@@ -16,7 +18,7 @@ if [[ $MAGAOX_ROLE != vm && $MAGAOX_ROLE != container ]]; then
   if [[ $MAGAOX_ROLE == AOC ]]; then
     createuser guestobs
     sudo passwd --lock guestobs  # SSH login still possible
-    creategroup guestobs
+    sudo groupadd -f guestobs || exit_with_error "Couldn't add guestobs group"
     sudo gpasswd -d guestobs magaox || true  # prevent access for shenanigans
     sudo gpasswd -a guestobs guestobs || true
     sudo mkdir -p /data/obs

@@ -160,12 +160,16 @@ function clone_or_update_and_cd() {
 
 DEFAULT_PASSWORD="extremeAO!"
 
-function creategroup() {
-  if [[ ! $(getent group $1) ]]; then
-    sudo groupadd $1 || return 1
-    echo "Added group $1"
-  else
-    echo "Group $1 exists"
+function createLocalFallbackGroup() {
+  groupName=$1
+  gid=$2
+  if [[ -z $groupName || -z $gid ]]; then
+    echo "Supply group name and gid"
+    return 1
+  fi
+  if ! getent group "$groupName" | grep -qE "^$groupName:x:$gid:"; then
+      echo "$groupName:x:$gid:" | sudo tee -a /etc/group
+      echo "$groupName:!::" | sudo tee -a /etc/gshadow
   fi
 }
 
