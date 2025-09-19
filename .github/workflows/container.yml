@@ -1,7 +1,8 @@
 name: Container build
 on:
-  - push
-
+  push:
+  schedule:
+    - cron: '0 0 1 * *'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
