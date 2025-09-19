@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+dependencies:
+  - jupyterhub
+  - jupyterlab
+  - pip:
+    - sudospawner
