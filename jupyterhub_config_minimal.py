@@ -8,7 +8,7 @@ c = get_config()  #noqa
 c.JupyterHub.cookie_max_age_days = 28
 
 # Unprivileged jupyterhub needs help to spawn per-user servers
-c.JupyterHub.spawner_class = 'sudo'
+c.JupyterHub.spawner_class = 'sudospawner.SudoSpawner'
 
 # Only specified users may log in to JupyterHub
 c.PAMAuthenticator.allowed_groups = {'jupyterhub', 'xwcl-admin'}
