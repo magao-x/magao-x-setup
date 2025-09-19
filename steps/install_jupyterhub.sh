@@ -31,6 +31,8 @@ fi
 
 touch $scratchFile
 chmod 600 $scratchFile
+export SUDOSPAWNER_PATH
+export JUPYTERHUB_SUDOSPAWNER_USER
 cat $DIR/install_jupyterhub_sudoers.template | \
     envsubst '$SUDOSPAWNER_PATH $JUPYTERHUB_SUDOSPAWNER_USER' | \
     tee $scratchFile
