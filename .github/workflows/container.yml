@@ -5,7 +5,7 @@ on:
     - cron: '0 0 1 * *'
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/magao-x-build
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-rocky-develop:
