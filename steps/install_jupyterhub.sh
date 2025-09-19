@@ -29,12 +29,12 @@ if [[ ! -e $SUDOSPAWNER_PATH ]]; then
     exit_with_error "sudospawner is not where we expect; bailing"
 fi
 
-cat <<"HERE" | tee -a $scratchFile
-# the command(s) the Hub can run on behalf of the above users without needing a password
-Cmnd_Alias JUPYTER_CMD = ${SUDOSPAWNER_PATH}
-${JUPYTERHUB_SUDOSPAWNER_USER} ALL=(%jupyterhub) NOPASSWD:JUPYTER_CMD
-HERE
-
+touch $scratchFile
+chmod 600 $scratchFile
+cat $DIR/install_jupyterhub_sudoers.template | \
+    envsubst '$SUDOSPAWNER_PATH $JUPYTERHUB_SUDOSPAWNER_USER' | \
+    tee $scratchFile
+cat $scratchFile
 visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
 sudo install \
     --owner=root \
