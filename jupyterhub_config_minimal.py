@@ -6,6 +6,8 @@ c = get_config()  #noqa
 #          Default is two weeks.
 #  Default: 14
 c.JupyterHub.cookie_max_age_days = 28
+# Where to store cookie secret (has to be r/w for it to autogenerate)
+c.JupyterHub.cookie_secret_file = '/var/lib/jupyterhub/jupyterhub_cookie_secret'
 # JupyterHub launched by SystemD gets read-only view of /etc/jupyterhub,
 # requiring configuration of PID file location.
 c.ConfigurableHTTPProxy.pid_file = '/run/jupyterhub/jupyterhub-proxy.pid'
