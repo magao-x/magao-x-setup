@@ -27,7 +27,7 @@ sudo chown -R $JUPYTERHUB_USER:$JUPYTERHUB_GROUP /etc/jupyterhub || exit_with_er
 
 sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-can-setattr.te jupyterhub-can-setattr || exit_with_error "Couldn't load SELinux policy for JupyterHub"
 
-sudo install -o root -g root cp $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
+sudo install -o root -g root $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
 sudo systemctl daemon-reload || exit_with_error "SystemD reload failed"
 sudo systemctl enable --now /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't enable SystemD unit for JupyterHub"
 log_success "JupyterHub configured!"
