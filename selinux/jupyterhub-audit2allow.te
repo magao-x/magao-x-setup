@@ -1,0 +1,11 @@
+
+module jupyterhub-audit2allow 1.0;
+
+require {
+	type var_run_t;
+	type init_t;
+	class file setattr;
+}
+
+#============= init_t ==============
+allow init_t var_run_t:file setattr;

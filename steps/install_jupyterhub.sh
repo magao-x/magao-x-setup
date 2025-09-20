@@ -31,30 +31,5 @@ sudo mkdir -p /etc/jupyterhub || exit_with_error "Couldn't make /etc/jupyterhub"
 sudo cp -v $DIR/../jupyterhub_config_minimal.py /etc/jupyterhub/jupyterhub_config.py || exit_with_error "Couldn't copy JupyterHub config"
 sudo chown -R $JUPYTERHUB_USER:$JUPYTERHUB_GROUP /etc/jupyterhub || exit_with_error "Couldn't normalize ownership of JupyterHub files"
 
-# Set up sudo to let unprivileged jupyterhub service start kernels as other users
-scratchFile=/tmp/sudoers_jupyterhub
-targetFile=/etc/sudoers.d/jupyterhub
+sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-audit2allow.te || exit_with_error "Couldn't load SELinux policy for JupyterHub"
 
-SUDOSPAWNER_PATH="/opt/conda/envs/${JUPYTERHUB_ENV_NAME}/bin/sudospawner"
-if [[ ! -e $SUDOSPAWNER_PATH ]]; then
-    exit_with_error "sudospawner is not where we expect; bailing"
-fi
-
-touch $scratchFile
-chmod 600 $scratchFile
-export SUDOSPAWNER_PATH
-export JUPYTERHUB_USER
-cat $DIR/install_jupyterhub_sudoers.template | \
-    envsubst '$SUDOSPAWNER_PATH $JUPYTERHUB_USER' | \
-    tee $scratchFile
-cat $scratchFile
-visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
-sudo install \
-    --owner=root \
-    --group=root \
-    --mode=440 \
-    $scratchFile \
-    $targetFile \
-|| exit_with_error "Could not install drop-in file to $targetFile"
-sudo ls -la /etc/sudoers.d/
-sudo stat $targetFile
