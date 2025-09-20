@@ -15,16 +15,10 @@ sudo -H mamba env update -n $JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub
 # lock = disable annoying popup about jupyter news
 sudo -H /opt/conda/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
 
-# Set up unprivileged service user
-if ! getent passwd $JUPYTERHUB_USER; then
-    log_info "No $JUPYTERHUB_USER user yet, creating..."
-    sudo useradd --system --no-user-group --shell /sbin/nologin $JUPYTERHUB_USER || exit_with_error "Could not create the JupyterHub service account"
-    log_info "done!"
-fi
-
 # Note that this GID is set on purpose to match
 # the LDAP server at accounts.xwcl.science
 createLocalFallbackGroup $JUPYTERHUB_GROUP 2003 $JUPYTERHUB_USER $instrument_user || exit_with_error "Couldn't create local fallback for group $JUPYTERHUB_GROUP"
+sudo gpasswd -a $instrument_user $JUPYTERHUB_GROUP || exit_with_error "Couldn't add $instrument_user to $JUPYTERHUB_GROUP"
 
 # Set up service config dir
 sudo mkdir -p /etc/jupyterhub || exit_with_error "Couldn't make /etc/jupyterhub"
@@ -33,3 +27,7 @@ sudo chown -R $JUPYTERHUB_USER:$JUPYTERHUB_GROUP /etc/jupyterhub || exit_with_er
 
 sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-audit2allow.te || exit_with_error "Couldn't load SELinux policy for JupyterHub"
 
+sudo install -o root -g root cp $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
+sudo systemctl daemon-reload || exit_with_error "SystemD reload failed"
+sudo systemctl enable --now /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't enable SystemD unit for JupyterHub"
+log_success "JupyterHub configured!"

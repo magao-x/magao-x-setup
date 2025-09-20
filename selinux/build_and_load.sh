@@ -15,6 +15,6 @@ checkmodule -M -m -o ${MODULE_NAME}.mod ${POLICY_FILE}
 semodule_package -o ${MODULE_NAME}.pp -m ${MODULE_NAME}.mod
 
 # Load the module into SELinux
-semodule -i ${MODULE_NAME}.pp
+sudo semodule -i ${MODULE_NAME}.pp
 
 echo "SELinux module '${MODULE_NAME}' installed successfully."

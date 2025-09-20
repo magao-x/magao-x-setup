@@ -1,0 +1,25 @@
+[Unit]
+Description=JupyterHub multi-user notebook server
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/etc/jupyterhub
+Environment="PATH=/opt/conda/envs/jupyterhub/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/opt/conda/envs/jupyterhub/bin/jupyterhub -f jupyterhub_config.py
+
+# keep sensible hardening that doesn't break Node/V8
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+NoNewPrivileges=true
+
+# runtime/persistent dirs for the Hub itself
+RuntimeDirectory=jupyterhub
+RuntimeDirectoryMode=0755
+StateDirectory=jupyterhub
+StateDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target
