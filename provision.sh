@@ -199,6 +199,9 @@ fi
 sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
 sudo -H bash -l "$DIR/steps/configure_python.sh" || exit_with_error "Couldn't configure Python environments"
 source /opt/conda/bin/activate
+if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container ]]; then
+    sudo -H bash -l "$DIR/steps/install_jupyterhub.sh" || exit_with_error "Couldn't set up JupyterHub service"
+fi
 
 # Install first-party deps
 bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on /opt/conda/bin/python existing for plugin build

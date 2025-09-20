@@ -2,6 +2,8 @@
 
 c = get_config()  #noqa
 
+# External-facing port
+c.JupyterHub.port = 9999
 ## Number of days for a login cookie to be valid.
 #          Default is two weeks.
 #  Default: 14
@@ -17,3 +19,5 @@ c.JupyterHub.db_url = 'sqlite:////var/lib/jupyterhub/jupyterhub.sqlite'
 c.PAMAuthenticator.allowed_groups = {'jupyterhub', 'xwcl-admin'}
 # Which groups should get admin access
 c.PAMAuthenticator.admin_groups = {'wheel', 'xwcl-admin'}
+## Path to the notebook directory for the single-user server.
+c.Spawner.notebook_dir = '/data/users/{username}'

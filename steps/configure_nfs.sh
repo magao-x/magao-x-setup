@@ -23,7 +23,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
     exportHosts=""
     for host in aoc rtc icc; do
         if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
-            exportHosts="$host(ro,sync,all_squash) $exportHosts"
+            exportHosts="$host(rw,sync) $exportHosts"
         fi
     done
     exportDataLine="/data      $exportHosts"
@@ -41,15 +41,23 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         fi
     fi
 
+    # every host mounts the other two hosts' /data arrays
     for host in aoc rtc icc; do
         if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
             mountPath=/srv/$host/data
             sudo mkdir -p $mountPath || exit 1
             if ! grep -q $mountPath /etc/fstab; then
-                echo "$host:/data $mountPath	nfs	ro,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+                echo "$host:/data $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
             fi
         fi
     done
+    if [[ $MAGAOX_ROLE != AOC ]]; then
+        mountPath=/data/users
+        sudo mkdir -p $mountPath || exit 1
+        if ! grep -q $mountPath /etc/fstab; then
+            echo "aoc:/data/users $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+        fi
+    fi
     if [[ $MAGAOX_ROLE != AOC ]]; then
         mountPath=/srv/$host/backups
         sudo mkdir -p $mountPath || exit 1
