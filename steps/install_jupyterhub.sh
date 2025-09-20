@@ -3,7 +3,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -o pipefail
 
-JUPYTERHUB_USER=jupyterhub
 JUPYTERHUB_GROUP=jupyterhub
 JUPYTERHUB_ENV_NAME=jupyterhub
 
@@ -17,13 +16,12 @@ sudo -H /opt/conda/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@j
 
 # Note that this GID is set on purpose to match
 # the LDAP server at accounts.xwcl.science
-createLocalFallbackGroup $JUPYTERHUB_GROUP 2003 $JUPYTERHUB_USER $instrument_user || exit_with_error "Couldn't create local fallback for group $JUPYTERHUB_GROUP"
-sudo gpasswd -a $instrument_user $JUPYTERHUB_GROUP || exit_with_error "Couldn't add $instrument_user to $JUPYTERHUB_GROUP"
+createLocalFallbackGroup $JUPYTERHUB_GROUP 2003 $instrument_user || exit_with_error "Couldn't create local fallback for group $JUPYTERHUB_GROUP"
 
 # Set up service config dir
 sudo mkdir -p /etc/jupyterhub || exit_with_error "Couldn't make /etc/jupyterhub"
 sudo cp -v $DIR/../jupyterhub_config_minimal.py /etc/jupyterhub/jupyterhub_config.py || exit_with_error "Couldn't copy JupyterHub config"
-sudo chown -R $JUPYTERHUB_USER:$JUPYTERHUB_GROUP /etc/jupyterhub || exit_with_error "Couldn't normalize ownership of JupyterHub files"
+sudo chown -R root:root /etc/jupyterhub || exit_with_error "Couldn't normalize ownership of JupyterHub files"
 
 sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-can-setattr.te jupyterhub-can-setattr || exit_with_error "Couldn't load SELinux policy for JupyterHub"
 

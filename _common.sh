@@ -182,6 +182,8 @@ function createLocalFallbackGroup() {
   if ! getent group "$groupName" | grep -qE "^$groupName:x:$gid:"; then
       echo $group_line | sudo tee -a /etc/group
       echo $gshadow_line | sudo tee -a /etc/gshadow
+  else
+    log_info "Already have group $groupName locally"
   fi
 }
 
