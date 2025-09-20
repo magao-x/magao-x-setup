@@ -8,8 +8,6 @@ c = get_config()  #noqa
 c.JupyterHub.cookie_max_age_days = 28
 # Unprivileged jupyterhub needs help to spawn per-user servers
 c.JupyterHub.spawner_class = "systemd"
-# Per-user runtime dir with templated values
-c.SystemdSpawner.runtime_dir = '/run/user/{uid}/jupyter-singleuser'
 # JupyterHub launched by SystemD gets read-only view of /etc/jupyterhub,
 # requiring configuration of PID file location.
 c.ConfigurableHTTPProxy.pid_file = '/run/jupyterhub/jupyterhub-proxy.pid'
