@@ -25,7 +25,7 @@ sudo mkdir -p /etc/jupyterhub || exit_with_error "Couldn't make /etc/jupyterhub"
 sudo cp -v $DIR/../jupyterhub_config_minimal.py /etc/jupyterhub/jupyterhub_config.py || exit_with_error "Couldn't copy JupyterHub config"
 sudo chown -R $JUPYTERHUB_USER:$JUPYTERHUB_GROUP /etc/jupyterhub || exit_with_error "Couldn't normalize ownership of JupyterHub files"
 
-sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-audit2allow.te || exit_with_error "Couldn't load SELinux policy for JupyterHub"
+sudo bash $DIR/../selinux/build_and_load.sh $DIR/../selinux/jupyterhub-can-setattr.te jupyterhub-can-setattr || exit_with_error "Couldn't load SELinux policy for JupyterHub"
 
 sudo install -o root -g root cp $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
 sudo systemctl daemon-reload || exit_with_error "SystemD reload failed"

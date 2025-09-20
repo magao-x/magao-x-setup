@@ -1,5 +1,5 @@
 
-module jupyterhub-audit2allow 1.0;
+module jupyterhub-can-setattr 1.0;
 
 require {
 	type var_run_t;
