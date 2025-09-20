@@ -4,8 +4,6 @@ dependencies:
   - jupyterhub
   - jupyterlab
 
-  # when declaring pip dependencies, you also need to install
+  # if declaring pip dependencies, you also need to install
   # pip itself:
   - pip
-  - pip:
-    - jupyterhub-systemdspawner
