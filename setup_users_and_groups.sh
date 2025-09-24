@@ -8,41 +8,40 @@ source $DIR/_common.sh
 createLocalFallbackGroup $instrument_group 2000 || exit_with_error "Couldn't create local fallback for group $instrument_group"
 createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
-if [[ $MAGAOX_ROLE != vm ]]; then
-  createuser xsup
-  if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    # Instrument computers should have a backup user to own the irodsfs mount
-    createuser xbackup
-    sudo passwd --lock xbackup
+createuser xsup
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
+  # Instrument computers should have a backup user to own the irodsfs mount
+  createuser xbackup
+  sudo passwd --lock xbackup
+fi
+if [[ $MAGAOX_ROLE == AOC ]]; then
+  createuser guestobs
+  sudo passwd --lock guestobs  # SSH login still possible
+  sudo groupadd -f guestobs || exit_with_error "Couldn't add guestobs group"
+  sudo gpasswd -d guestobs magaox || true  # prevent access for shenanigans
+  sudo gpasswd -a guestobs guestobs || true
+  sudo mkdir -p /data/obs
+  sudo chown xsup:guestobs /data/obs
+  sudo chmod u=rwX,g=rX,o=rX /data/obs/*
+  link_if_necessary /data/obs /home/guestobs/obs
+  if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
+    sudo gpasswd -a xsup guestobs
+    log_success "Added xsup to group guestobs"
   fi
-  if [[ $MAGAOX_ROLE == AOC ]]; then
-    createuser guestobs
-    sudo passwd --lock guestobs  # SSH login still possible
-    sudo groupadd -f guestobs || exit_with_error "Couldn't add guestobs group"
-    sudo gpasswd -d guestobs magaox || true  # prevent access for shenanigans
-    sudo gpasswd -a guestobs guestobs || true
-    sudo mkdir -p /data/obs
-    sudo chown xsup:guestobs /data/obs
-    sudo chmod u=rwX,g=rX,o=rX /data/obs/*
-    link_if_necessary /data/obs /home/guestobs/obs
-    if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
-      sudo gpasswd -a xsup guestobs
-      log_success "Added xsup to group guestobs"
-    fi
-  fi
-  if sudo test ! -e /home/xsup/.ssh/id_ed25519; then
-    $REAL_SUDO -u xsup ssh-keygen -t ed25519 -N "" -f /home/xsup/.ssh/id_ed25519 -q
-  fi
-  if ! grep -q $instrument_dev_group /etc/pam.d/su; then
-    cat <<'HERE' | sudo sed -i '/pam_rootok.so$/r /dev/stdin' /etc/pam.d/su
+fi
+if sudo test ! -e /home/xsup/.ssh/id_ed25519; then
+  $REAL_SUDO -u xsup ssh-keygen -t ed25519 -N "" -f /home/xsup/.ssh/id_ed25519 -q
+fi
+if ! grep -q $instrument_dev_group /etc/pam.d/su; then
+  cat <<'HERE' | sudo sed -i '/pam_rootok.so$/r /dev/stdin' /etc/pam.d/su
 auth            [success=ignore default=1] pam_succeed_if.so user = xsup
 auth            sufficient      pam_succeed_if.so use_uid user ingroup magaox-dev
 HERE
-    log_info "Modified /etc/pam.d/su"
-  else
-    log_info "/etc/pam.d/su already includes reference to magaox-dev, not modifying"
-  fi
+  log_info "Modified /etc/pam.d/su"
+else
+  log_info "/etc/pam.d/su already includes reference to magaox-dev, not modifying"
 fi
+
 if [[ $EUID != 0 ]]; then
   if [[ -z $(groups | tr ' ' '\n' | grep 'magaox-dev$') ]]; then
     sudo gpasswd -a $USER $instrument_dev_group
