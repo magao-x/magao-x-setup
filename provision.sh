@@ -84,8 +84,9 @@ if [[ $VM_KIND != "none" ]]; then
     git config --global --replace-all safe.directory '*'
     sudo -H git config --global --replace-all safe.directory '*'
 fi
-
-bash -l "$DIR/steps/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
+if [[ $USER != ubuntu ]]; then
+    bash -l "$DIR/steps/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
+fi
 sudo -H bash -lx "$DIR/steps/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
