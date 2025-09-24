@@ -55,9 +55,9 @@ apt-get install -y \
     libfftw3-bin \
     libfftw3-dev \
     libfftw3-doc \
-    libfftw3-single \
-    libfftw3-long \
-    libfftw3-double \
+    libfftw3-single3 \
+    libfftw3-long3 \
+    libfftw3-double3 \
 || exit 1
 
 if [[ $(uname -p) == "x86_64" ]]; then
