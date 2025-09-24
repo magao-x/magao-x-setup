@@ -9,6 +9,16 @@ createLocalFallbackGroup $instrument_group 2000 || exit_with_error "Couldn't cre
 createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
 createuser xsup
+if [[ $MAGAOX_ROLE == container ]]; then
+  createuser xdev
+  if [[ $ID == ubuntu ]]; then
+    sudo_group=wheel
+  else
+    sudo_group=sudo
+  fi
+  gpasswd -a $instrument_dev_group xdev
+  gpasswd -a $sudo_group xdev
+fi
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
   # Instrument computers should have a backup user to own the irodsfs mount
   createuser xbackup
