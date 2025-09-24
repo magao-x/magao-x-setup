@@ -200,7 +200,7 @@ fi
 sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
 sudo -H bash -l "$DIR/steps/configure_python.sh" || exit_with_error "Couldn't configure Python environments"
 source /opt/conda/bin/activate
-if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container ]]; then
+if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != workstation ]]; then
     sudo -H bash -l "$DIR/steps/install_jupyterhub.sh" || exit_with_error "Couldn't set up JupyterHub service"
 fi
 
