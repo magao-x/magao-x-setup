@@ -250,9 +250,11 @@ fi
 if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != vm ]]; then
     sudo -H bash -l "$DIR/steps/configure_startup_services.sh"
 
-    log_info "Generating subuid and subgid files, may need to run podman system migrate"
-    sudo -H python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
-    sudo -H podman system migrate || exit_with_error "Could not run podman system migrate"
+    if [[ $VM_KIND != "none" ]]; then
+        log_info "Generating subuid and subgid files, may need to run podman system migrate"
+        sudo -H python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
+        sudo -H podman system migrate || exit_with_error "Could not run podman system migrate"
+    fi
 fi
 
 log_success "Provisioning complete"
