@@ -61,7 +61,7 @@ apt-get install -y \
 || exit 1
 
 if [[ $(uname -p) == "x86_64" ]]; then
-    apt-get install -y libfftw3-quad || exit 1
+    apt-get install -y libfftw3-quad3 || exit 1
 else
     log_info "libfftw3-quad not available on $(uname -p) host"
 fi
