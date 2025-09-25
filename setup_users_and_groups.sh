@@ -11,6 +11,9 @@ createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't
 createuser xsup
 if [[ $MAGAOX_ROLE == container ]]; then
   createuser xdev
+  # Defines $ID and $VERSION_ID so we can detect which distribution we're on
+  source /etc/os-release
+
   if [[ $ID == ubuntu ]]; then
     sudo_group=wheel
   else
