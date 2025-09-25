@@ -9,7 +9,7 @@ createLocalFallbackGroup $instrument_group 2000 || exit_with_error "Couldn't cre
 createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
 createuser xsup
-if [[ $MAGAOX_ROLE == container ]]; then
+if [[ "$VM_KIND" != *container* ]]; then
   createuser xdev
   # Defines $ID and $VERSION_ID so we can detect which distribution we're on
   source /etc/os-release

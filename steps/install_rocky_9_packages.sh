@@ -31,7 +31,7 @@ ldconfig -v || exit 1
 
 # Install build tools and utilities
 
-if [[ $MAGAOX_ROLE != container ]]; then
+if [[ "$VM_KIND" != *container* ]]; then
     log_info "Installing packages not needed in containers"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets
@@ -115,12 +115,9 @@ mkdir -p /etc/profile.d/ || exit 1
 echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /etc/profile.d/99-pkg-config.sh || exit 1
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
-    dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
-    dnf install tailscale || exit 1
-    systemctl enable --now tailscaled || exit 1
-fi
-
+dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
+dnf install tailscale || exit 1
+systemctl enable --now tailscaled || exit 1
 
 # install postgresql 15 client for RHEL 9
 dnf module install -y postgresql:15/client || exit 1

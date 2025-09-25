@@ -236,8 +236,8 @@ if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then
     normalize_git_checkout /opt/MagAOX/source/MagAOX || exit_with_error "Could not normalize permissions on MagAOX checkout"
 fi
 
-## Build the MagAOX instrument software, unless this is a CI process (where we can invoke it as a separate stage)
-if [[ -z $CI && $MAGAOX_ROLE != container ]]; then
+## Build the MagAOX instrument software, unless this is a container build or CI process (where we can invoke it as a separate stage)
+if [[ -z $CI && "$VM_KIND" != *container* ]]; then
     cd /opt/MagAOX/source/MagAOX
     bash -l "$DIR/steps/install_MagAOX.sh" || exit 1
 fi
@@ -247,7 +247,7 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
     bash -l "$DIR/steps/obtain_secrets.sh" $currentHostname || exit_with_error "Failed to obtain secrets from xwcl/hush-hush"
 fi
 
-if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != vm ]]; then
+if [[ $MAGAOX_ROLE != ci && "$VM_KIND" == "none" ]]; then
     sudo -H bash -l "$DIR/steps/configure_startup_services.sh"
 
     if [[ $VM_KIND != "none" ]]; then
