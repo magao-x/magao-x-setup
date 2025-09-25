@@ -16,7 +16,7 @@ RUN bash -lx provision.sh
 USER xsup
 
 # Now reuse previous layers to build all the GUIs
-FROM headless as gui
+FROM cli as gui
 USER root
 ENV MAGAOX_ROLE=workstation
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
