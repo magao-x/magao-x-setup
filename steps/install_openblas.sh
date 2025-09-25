@@ -14,7 +14,6 @@ if [[ ! -d ./OpenBLAS-${VERSION} ]]; then
     tar xf $DOWNLOAD_FILE || exit 1
 fi
 cd ./OpenBLAS-${VERSION} || exit 1
-make clean || exit 1
 make USE_OPENMP=1 || exit 1
 sudo make install PREFIX=/usr/local || exit 1
 log_info "Finished OpenBLAS source install"
