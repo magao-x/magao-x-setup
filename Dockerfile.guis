@@ -1,8 +1,0 @@
-ARG BASE_IMAGE=magao-x/magao-x-setup:main
-FROM ${BASE_IMAGE}
-USER root
-ENV MAGAOX_ROLE=workstation
-RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
-WORKDIR /opt/MagAOX/source/magao-x-setup
-RUN bash -lx provision.sh
-USER xsup
