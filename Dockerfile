@@ -1,5 +1,5 @@
 # Staged build: dependencies and CLI tools first
-FROM rockylinux/rockylinux:9-ubi-init as cli
+FROM rockylinux/rockylinux:9-ubi-init AS cli
 ENV MAGAOX_ROLE=container
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
@@ -16,7 +16,7 @@ RUN bash -lx provision.sh
 USER xsup
 
 # Now reuse previous layers to build all the GUIs
-FROM cli as gui
+FROM cli AS gui
 USER root
 ENV MAGAOX_ROLE=workstation
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
