@@ -221,7 +221,7 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == workstation ]]; then
     bash -l "$DIR/steps/install_sup.sh"
 fi
 
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci || $MAGAOX_ROLE == container ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci ]]; then
     # realtime image viewer
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
     echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | sudo -H tee /etc/profile.d/rtimv_config_path.sh
