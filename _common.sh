@@ -5,7 +5,7 @@ VM_KIND=$(systemd-detect-virt || true)
 instrument_user=xsup
 instrument_group=magaox
 instrument_dev_group=magaox-dev
-if [[ $MAGAOX_ROLE == ci || $MAGAOX_ROLE == container ]]; then
+if [[ $MAGAOX_ROLE == ci ]]; then
   instrument_user=root
   instrument_group=root
   instrument_dev_group=root
