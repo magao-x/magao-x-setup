@@ -42,7 +42,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          push: ${{ github.ref == 'refs/heads/dev' }}
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   build-and-push-rocky-guis:
@@ -81,7 +81,7 @@ jobs:
         with:
           context: .
           file: Dockerfile.guis
-          push: ${{ github.ref == 'refs/heads/dev' }}
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
