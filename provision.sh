@@ -2,6 +2,9 @@
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/_common.sh
+if [[ $VM_KIND != "none" ]]; then
+    echo "Detected virtualization: $VM_KIND"
+fi
 set -x
 # CentOS + devtoolset-7 aliases sudo, but breaks command line arguments for it,
 # so if we need those, we must use $_REAL_SUDO.
@@ -38,10 +41,7 @@ fi
 source /etc/os-release
 
 roleScript=/etc/profile.d/magaox_role.sh
-VM_KIND=$(systemd-detect-virt)
-if [[ $VM_KIND != "none" ]]; then
-    echo "Detected virtualization: $VM_KIND"
-fi
+
 if [[ ! -e $roleScript && ! -z $MAGAOX_ROLE ]]; then
     echo "export MAGAOX_ROLE=$MAGAOX_ROLE" | $_REAL_SUDO tee $roleScript
 fi
@@ -226,9 +226,6 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation 
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
     echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | sudo -H tee /etc/profile.d/rtimv_config_path.sh
 fi
-
-# aliases to improve ergonomics of MagAO-X ops
-sudo -H bash -l "$DIR/steps/install_aliases.sh"
 
 ## Clone sources to /opt/MagAOX/source/MagAOX unless building in CI or building the container
 if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then

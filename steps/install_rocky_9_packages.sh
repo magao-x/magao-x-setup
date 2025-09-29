@@ -116,7 +116,7 @@ echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /e
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ "$VM_KIND" != *container* ]]; then
-    dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
+    dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo -y || exit 1
     dnf install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi

@@ -1,6 +1,11 @@
 #!/bin/bash
 SETUPDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-VM_KIND=$(systemd-detect-virt || true)
+
+if systemd-detect-virt --container; then
+    VM_KIND=container
+else
+    VM_KIND=$(systemd-detect-virt)
+fi
 
 instrument_user=xsup
 instrument_group=magaox
