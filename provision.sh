@@ -52,15 +52,16 @@ fi
 source $roleScript
 echo "Got MAGAOX_ROLE=$MAGAOX_ROLE"
 export MAGAOX_ROLE
-currentHostname=$(hostnamectl hostname)
-if [[ $MAGAOX_ROLE == AOC && $currentHostname != exao1 ]]; then
-    exit_with_error "Configure the correct hostname for AOC"
-elif [[ $MAGAOX_ROLE == RTC && $currentHostname != exao2 ]]; then
-    exit_with_error "Configure the correct hostname for RTC"
-elif [[ $MAGAOX_ROLE == ICC && $currentHostname != exao3 ]]; then
-    exit_with_error "Configure the correct hostname for ICC"
+if [[ $VM_KIND != "container" ]]; then
+    currentHostname=$(hostnamectl hostname)
+    if [[ $MAGAOX_ROLE == AOC && $currentHostname != exao1 ]]; then
+        exit_with_error "Configure the correct hostname for AOC"
+    elif [[ $MAGAOX_ROLE == RTC && $currentHostname != exao2 ]]; then
+        exit_with_error "Configure the correct hostname for RTC"
+    elif [[ $MAGAOX_ROLE == ICC && $currentHostname != exao3 ]]; then
+        exit_with_error "Configure the correct hostname for ICC"
+    fi
 fi
-
 # The VM and CI provisioning doesn't run setup_users_and_groups.sh
 # separately as in the instrument instructions; we have to run it
 if [[ $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci ]]; then

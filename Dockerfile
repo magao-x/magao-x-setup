@@ -23,4 +23,5 @@ ENV MAGAOX_ROLE=workstation
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN bash -lx provision.sh
+RUN dnf install -y xterm
 USER xsup
