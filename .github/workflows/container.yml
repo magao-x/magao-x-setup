@@ -52,7 +52,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build-and-push-arm:
-    needs: build-and-push-rocky
     runs-on: ubuntu-latest
     permissions:
       contents: read
