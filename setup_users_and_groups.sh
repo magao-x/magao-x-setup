@@ -22,7 +22,7 @@ if [[ "$VM_KIND" != *container* ]]; then
   gpasswd -a $instrument_dev_group xdev
   gpasswd -a $sudo_group xdev
 fi
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
   # Instrument computers should have a backup user to own the irodsfs mount
   createuser xbackup
   sudo passwd --lock xbackup
