@@ -67,9 +67,6 @@ fi
 if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
   clone_or_update_and_cd magao-x "cacao-${MAGAOX_ROLE,,}" /data || exit 1
   link_if_necessary "/data/cacao-${MAGAOX_ROLE,,}" /opt/MagAOX/cacao || exit 1
-  sudo install $DIR/../systemd_units/cacao_startup_if_present.service /etc/systemd/system/ || exit 1
-  sudo -H systemctl daemon-reload || true
-  sudo systemctl enable cacao_startup_if_present.service || true
 else
   make_on_data_array "cacao-${MAGAOX_ROLE,,}" /opt/MagAOX || exit 1
   sudo ln -sf "/opt/MagAOX/cacao-${MAGAOX_ROLE,,}" /opt/MagAOX/cacao || exit 1
