@@ -4,10 +4,12 @@ source $DIR/../_common.sh
 set -uo pipefail
 
 COMMIT_ISH=dev
-orgname=milk-org
+orgname=xwcl
 reponame=milk
 parentdir=/opt/MagAOX/source
 noUpdatesThanks=$parentdir/$reponame/NO_UPDATES_THANKS
+
+export CACAO_REPOSITORY='git@github.com:jaredmales/cacao.git'
 
 if [[ -e $noUpdatesThanks ]]; then
   log_info "Lock file at $noUpdatesThanks indicates it's all good, no updates thanks"
