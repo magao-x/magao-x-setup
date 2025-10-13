@@ -16,6 +16,13 @@ if [[ $MAGAOX_ROLE == ci ]]; then
   instrument_dev_group=root
 fi
 
+REAL_SUDO="$(which sudo)"
+if [[ "$EUID" == 0 ]]; then
+  SUDO=""
+else
+  SUDO="$REAL_SUDO -H"
+fi
+
 function log_error() {
     echo -e "$(tput setaf 1 2>/dev/null)$1$(tput sgr0 2>/dev/null)"
 }
@@ -46,7 +53,7 @@ function link_if_necessary() {
       echo "$thelinkname exists, but is not a symlink and we want the destination to be $thedir."
       return 1
     else
-      sudo ln -sv "$thedir" "$thelinkname"
+      $SUDO ln -sv "$thedir" "$thelinkname"
     fi
   fi
 }
@@ -55,7 +62,7 @@ function setgid_all() {
     # n.b. can't be recursive because g+s on files means something else
     # so we find all directories and individually chmod them:
     if [[ "$EUID" != 0 ]]; then
-      find $1 -type d -exec sudo chmod g+rxs {} \; || return 1
+      find $1 -type d -exec $SUDO chmod g+rxs {} \; || return 1
     else
       find $1 -type d -exec chmod g+rxs {} \; || return 1
     fi
@@ -80,15 +87,15 @@ function make_on_data_array() {
 
   if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
     REAL_DIR=/data/$TARGET_NAME
-    sudo mkdir -pv $REAL_DIR || return 1
+    $SUDO mkdir -pv $REAL_DIR || return 1
     link_if_necessary $REAL_DIR $PARENT_DIR/$TARGET_NAME || return 1
   else
     REAL_DIR=$PARENT_DIR/$TARGET_NAME
-    sudo mkdir -pv $REAL_DIR || return 1
+    $SUDO mkdir -pv $REAL_DIR || return 1
   fi
 
-  sudo chown -RP $instrument_user:$instrument_group $REAL_DIR || return 1
-  sudo chmod -R u=rwX,g=rwX,o=rX $REAL_DIR || return 1
+  $SUDO chown -RP $instrument_user:$instrument_group $REAL_DIR || return 1
+  $SUDO chmod -R u=rwX,g=rwX,o=rX $REAL_DIR || return 1
   setgid_all $REAL_DIR || return 1
 }
 
@@ -118,11 +125,11 @@ function normalize_git_checkout() {
   pushd $destdir || return 1
   git config core.sharedRepository group || return 1
   git submodule update --init --recursive
-  sudo chown -R :$instrument_dev_group $destdir || return 1
-  sudo chmod -R g=rwX $destdir || return 1
+  $SUDO chown -R :$instrument_dev_group $destdir || return 1
+  $SUDO chmod -R g=rwX $destdir || return 1
   # n.b. can't be recursive because g+s on files means something else
   # so we find all directories and individually chmod them:
-  sudo find $destdir -type d -exec chmod g+s {} \; || return 1
+  $SUDO find $destdir -type d -exec chmod g+s {} \; || return 1
   log_success "Normalized permissions on $destdir"
   popd || return 1
 }
@@ -145,7 +152,7 @@ function clone_or_update_and_cd() {
       echo "Cloning new copy of $orgname/$reponame"
       CLONE_DEST=/tmp/${reponame}_$(date +"%s")
       git clone https://github.com/$orgname/$reponame.git $CLONE_DEST || return 1
-      sudo rsync -a $CLONE_DEST/ $destdir/ || return 1
+      $SUDO rsync -a $CLONE_DEST/ $destdir/ || return 1
       cd $destdir/ || return 1
       log_success "Cloned new $destdir"
       rm -rf $CLONE_DEST
@@ -185,8 +192,8 @@ function createLocalFallbackGroup() {
     gshadow_line="$groupName:!::"
   fi
   if ! getent group "$groupName" | grep -qE "^$groupName:x:$gid:"; then
-      echo $group_line | sudo tee -a /etc/group
-      echo $gshadow_line | sudo tee -a /etc/gshadow
+      echo $group_line | $SUDO tee -a /etc/group
+      echo $gshadow_line | $SUDO tee -a /etc/gshadow
   else
     log_info "Already have group $groupName locally"
   fi
@@ -197,29 +204,29 @@ function createuser() {
   if getent passwd $username > /dev/null 2>&1; then
     log_info "User account $username exists"
   else
-    sudo useradd -U $username || return 1
-    echo -e "$DEFAULT_PASSWORD\n$DEFAULT_PASSWORD" | sudo -H passwd $username || exit 1
+    $SUDO useradd -U $username || return 1
+    echo -e "$DEFAULT_PASSWORD\n$DEFAULT_PASSWORD" | $SUDO passwd $username || exit 1
     log_success "Created user account $username with default password $DEFAULT_PASSWORD"
   fi
-  sudo usermod -a -G magaox $username || return 1
+  $SUDO usermod -a -G magaox $username || return 1
   log_info "Added user $username to group magaox"
-  sudo mkdir -p /home/$username/.ssh || return 1
-  sudo touch /home/$username/.ssh/authorized_keys || return 1
-  sudo chmod -R u=rwx,g=,o= /home/$username/.ssh || return 1
-  sudo chmod u=rw,g=,o= /home/$username/.ssh/authorized_keys || return 1
-  sudo chown -R $username:$instrument_group /home/$username || return 1
-  sudo -H chsh $username -s $(which bash) || return 1
+  $SUDO mkdir -p /home/$username/.ssh || return 1
+  $SUDO touch /home/$username/.ssh/authorized_keys || return 1
+  $SUDO chmod -R u=rwx,g=,o= /home/$username/.ssh || return 1
+  $SUDO chmod u=rw,g=,o= /home/$username/.ssh/authorized_keys || return 1
+  $SUDO chown -R $username:$instrument_group /home/$username || return 1
+  $SUDO chsh $username -s $(which bash) || return 1
   log_info "Append an ecdsa or ed25519 key to /home/$username/.ssh/authorized_keys to enable SSH login"
 
   data_path="/data/users/$username/"
-  sudo -H mkdir -p "$data_path" || return 1
-  sudo -H chown "$username:$instrument_group" "$data_path" || return 1
-  sudo -H chmod g+rxs "$data_path" || return 1
+  $SUDO mkdir -p "$data_path" || return 1
+  $SUDO chown "$username:$instrument_group" "$data_path" || return 1
+  $SUDO chmod g+rxs "$data_path" || return 1
   log_success "Created $data_path"
 
   link_name="/home/$username/data"
-  if sudo test ! -L "$link_name"; then
-    sudo -H ln -sv "$data_path" "$link_name" || return 1
+  if $SUDO test ! -L "$link_name"; then
+    $SUDO ln -sv "$data_path" "$link_name" || return 1
     log_success "Linked $link_name -> $data_path"
   fi
 }
@@ -229,7 +236,7 @@ function get_instrument_uid() {
 function get_instrument_gid() {
   getent group $instrument_group | cut -d: -f3
 }
-# We work around the buggy devtoolset /bin/sudo wrapper in provision.sh, but
+# We work around the buggy devtoolset /bin/$SUDO wrapper in provision.sh, but
 # that means we have to explicitly enable it ourselves.
 # (This crap again: https://bugzilla.redhat.com/show_bug.cgi?id=1319936)
 # Also, we control whether to build with the devtoolset gcc7 compiler or the
@@ -250,7 +257,5 @@ if [[ $PATH != "*/usr/local/bin*" ]]; then
     export PATH="/usr/local/bin:$PATH"
 fi
 if [[ $(which sudo) == *devtoolset* ]]; then
-  REAL_SUDO=/usr/bin/sudo
-else
-  REAL_SUDO=$(which sudo)
+  exit_with_error "Devtoolset mucking with sudo"
 fi
