@@ -30,7 +30,8 @@ clearpart --none --initlabel
 # Root password
 rootpw --plaintext xvmroot
 # User account
-user --groups=wheel,magaox,magaox-dev --name=xsup --plaintext --password=xsup --gecos="MagAO-X User"
+# dialout - needed for USB passthru
+user --groups=wheel,dialout,magaox,magaox-dev --name=xsup --plaintext --password=xsup --gecos="MagAO-X User"
 
 %pre
 echo 'In pre-install script...' > /dev/kmsg
