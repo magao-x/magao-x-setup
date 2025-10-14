@@ -59,7 +59,7 @@ else
   log_info "/etc/pam.d/su already includes reference to magaox-dev, not modifying"
 fi
 
-if [[ ! -z "$1" && getent passwd "$1" > /dev/null 2>&1 ]]; then
+if [[ -n "$1" ]] && getent passwd "$1" > /dev/null 2>&1; then
   interactiveUser="$1"
   if [[ -z $(groups | tr ' ' '\n' | grep 'magaox-dev$') ]]; then
     $SUDO gpasswd -a $interactiveUser $instrument_dev_group
