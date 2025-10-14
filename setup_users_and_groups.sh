@@ -4,7 +4,7 @@ if [[ "$EUID" != 0 ]]; then
     sudo -H bash -l $0 "$USER"
     exit $?
 fi
-set -uo pipefail
+set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/_common.sh
 
