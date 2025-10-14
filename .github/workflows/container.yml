@@ -2,7 +2,7 @@ name: Container build
 on:
   push:
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '24 2 */7 * *'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
