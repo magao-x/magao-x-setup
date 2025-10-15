@@ -3,8 +3,8 @@ FROM rockylinux/rockylinux:9-ubi-init AS cli
 ENV MAGAOX_ROLE=container
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
+RUN dnf clean all && dnf makecache
 RUN dnf install -y 'dnf-command(config-manager)' sudo passwd shadow-utils
-RUN dnf clean all
 ADD ./steps/install_rocky_9_packages.sh /setup/steps/
 RUN bash /setup/steps/install_rocky_9_packages.sh
 ADD ./setup_users_and_groups.sh /setup/
