@@ -2,7 +2,10 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -o pipefail
-
+# Uses Software Collections package for GCC 14
+if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
+    source /opt/rh/gcc-toolset-14/enable
+fi
 # install milkzmq
 MILKZMQ_COMMIT_ISH=master
 orgname=jaredmales

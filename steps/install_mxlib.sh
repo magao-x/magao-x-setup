@@ -9,7 +9,10 @@ MXLIBROOT=/opt/MagAOX/source/mxlib
 #
 # mxLib
 #
-
+# Uses Software Collections package for GCC 14
+if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
+    source /opt/rh/gcc-toolset-14/enable
+fi
 MXLIB_COMMIT_ISH=magaox
 orgname=jaredmales
 reponame=mxlib
