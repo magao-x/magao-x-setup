@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
 
-COMMIT_ISH=dev
+COMMIT_ISH=magaox
 orgname=xwcl
 reponame=milk
 parentdir=/opt/MagAOX/source
