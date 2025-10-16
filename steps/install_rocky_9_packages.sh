@@ -25,6 +25,9 @@ log_info "Done updating dnf packages"
 log_info "Installing Development Tools group"
 dnf groupinstall -y 'Development Tools' || exit 1
 
+# needed for MagAO-X
+dnf install -y gcc-toolset-14 || exit 1
+
 # Search /usr/local/lib by default for dynamic library loading
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
 ldconfig -v || exit 1
