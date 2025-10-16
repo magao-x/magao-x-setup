@@ -21,7 +21,7 @@ clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 
 git config core.sharedRepository group || exit 1
 git checkout $MXLIB_COMMIT_ISH || exit 1
-mkdir _build || exit 1
+mkdir -p _build || exit 1
 cd _build || exit 1
 cmake -DMXLIB_USE_CUDA=OFF -DMXLIB_USE_ISIO=OFF .. || exit 1
 sudo make install || exit 1
