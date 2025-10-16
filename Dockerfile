@@ -5,8 +5,10 @@ RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
 ADD ./steps/install_rocky_9_packages.sh /setup/steps/
 RUN dnf clean all && \
+    dnf --refresh makecache && \
     dnf install -y 'dnf-command(config-manager)' && \
     dnf config-manager --set-enabled crb && \
+    dnf clean all && \
     dnf --refresh makecache && \
     bash /setup/steps/install_rocky_9_packages.sh
 ADD ./setup_users_and_groups.sh /setup/
