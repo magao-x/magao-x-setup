@@ -28,6 +28,7 @@ elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
         qwt-qt5-devel \
         wmctrl \
         xorg-x11-xauth \
+        xterm \
     || exit 1
 fi
 
