@@ -7,8 +7,18 @@ ADD ./steps/install_rocky_9_packages.sh /setup/steps/
 RUN dnf clean all && \
     dnf --refresh makecache && \
     dnf install -y 'dnf-command(config-manager)' && \
-    dnf config-manager --set-enabled crb && \
-    dnf clean all && \
+    dnf config-manager --set-enabled crb
+RUN sed -i \
+  -e 's|^mirrorlist=|#mirrorlist=|' \
+  -e 's|^#baseurl=http|baseurl=http|' \
+  /etc/yum.repos.d/Rocky-CRB.repo \
+  && sed -i \
+  -e 's|^mirrorlist=|#mirrorlist=|' \
+  -e 's|^#baseurl=http|baseurl=http|' \
+  /etc/yum.repos.d/Rocky-AppStream.repo \
+  -e 's|^#baseurl=http|baseurl=https|' \
+  /etc/yum.repos.d/Rocky-AppStream.repo
+RUN dnf clean all && \
     dnf --refresh makecache && \
     bash /setup/steps/install_rocky_9_packages.sh
 ADD ./setup_users_and_groups.sh /setup/
