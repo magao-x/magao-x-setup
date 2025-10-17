@@ -11,13 +11,7 @@ RUN dnf clean all && \
 RUN sed -i \
   -e 's|^mirrorlist=|#mirrorlist=|' \
   -e 's|^#baseurl=http|baseurl=http|' \
-  /etc/yum.repos.d/Rocky-CRB.repo \
-  && sed -i \
-  -e 's|^mirrorlist=|#mirrorlist=|' \
-  -e 's|^#baseurl=http|baseurl=http|' \
-  /etc/yum.repos.d/Rocky-AppStream.repo \
-  -e 's|^#baseurl=http|baseurl=https|' \
-  /etc/yum.repos.d/Rocky-AppStream.repo
+  /etc/yum.repos.d/rocky.repo
 RUN dnf clean all && \
     dnf --refresh makecache && \
     bash /setup/steps/install_rocky_9_packages.sh
