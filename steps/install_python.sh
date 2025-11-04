@@ -9,7 +9,7 @@ source $DIR/../_common.sh
 set -uo pipefail
 
 MINIFORGE3_VERSION="24.3.0-0"
-MINIFORGE3_INSTALLER="Miniforge3-$MINIFORGE3_VERSION-Linux-$(uname -p).sh"
+MINIFORGE3_INSTALLER="Miniforge3-$MINIFORGE3_VERSION-Linux-$(uname -m).sh"
 MINIFORGE3_URL="https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE3_VERSION/$MINIFORGE3_INSTALLER"
 #
 # conda
