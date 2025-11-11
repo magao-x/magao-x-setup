@@ -12,22 +12,35 @@ need xorriso
 need sed
 need awk
 need grep
-# isoinfo is optional but preferred for label reading
-HAS_ISOINFO=true; command -v isoinfo >/dev/null 2>&1 || HAS_ISOINFO=false
-
-# Optional (for BIOS hybrid MBR) – not needed for aarch64
-ISOHYBRID_MBR=""
-for p in \
-  /usr/share/syslinux/isohdpfx.bin \
-  /usr/lib/ISOLINUX/isohdpfx.bin \
-  /usr/lib/syslinux/bios/isohdpfx.bin \
-  /usr/lib/syslinux/isohdpfx.bin
-do [[ -r "$p" ]] && { ISOHYBRID_MBR="$p"; break; }; done
 
 ISO_DIR="$(cd "$(dirname "$ISO")" && pwd)"
 ISO_BASE="$(basename "$ISO")"
 OUT_ISO="${ISO_DIR}/${ISO_BASE%.iso}-cmdline.iso"
 
+# -------- Volume label (preserve EXACTLY) --------
+get_label() {
+  local in="$1" lbl=""
+  if command -v isoinfo >/dev/null 2>&1; then
+    lbl="$(isoinfo -d -i "$in" 2>/dev/null | sed -n 's/^Volume id: //p' | head -n1)"
+  fi
+  if [[ -z "$lbl" ]]; then
+    # xorriso -pvd_info prints:  Volume id    : 'Rocky-...'
+    # Extract between single quotes if present; otherwise after colon.
+    lbl="$(xorriso -indev "$in" -pvd_info 2>/dev/null \
+      | awk '
+        /Volume id/{
+          if (match($0, /'\''([^'\'']+)'\'')/) { print substr($0, RSTART+1, RLENGTH-2); exit }
+          sub(/^.*Volume id[[:space:]]*:[[:space:]]*/, "", $0); print; exit
+        }')"
+  fi
+  echo "$lbl"
+}
+
+VOL_ID="$(get_label "$ISO")"
+[[ -z "$VOL_ID" ]] && die "Could not read ISO volume label"
+echo "Original volume label: '$VOL_ID'"
+
+# -------- Extract --------
 WORKDIR="$(mktemp -d -t rockyiso.XXXXXXXX)"
 trap 'rm -rf "$WORKDIR"' EXIT
 EXTRACT="$WORKDIR/extract"; mkdir -p "$EXTRACT"
@@ -35,83 +48,46 @@ EXTRACT="$WORKDIR/extract"; mkdir -p "$EXTRACT"
 echo "Extracting ISO..."
 xorriso -osirrox on -indev "$ISO" -extract / "$EXTRACT" >/dev/null
 
-# --- Get original Volume Label exactly ---
-VOL_ID=""
-if $HAS_ISOINFO; then
-  VOL_ID="$(isoinfo -d -i "$ISO" 2>/dev/null | awk -F': ' '/Volume id:/ {print $2; exit}')"
-fi
-if [[ -z "$VOL_ID" ]]; then
-  VOL_ID="$(xorriso -indev "$ISO" -pvd_info 2>/dev/null | sed -n "s/^Volume id[[:space:]]*:[[:space:]]*'\\{0,1\\}\\([^']*\\).*/\\1/p" | head -n1)"
-fi
-[[ -z "$VOL_ID" ]] && die "Could not read ISO volume label"
-
-echo "Original volume label: '$VOL_ID'"
-
-# --- Patch helpers ---
-patch_isolinux() {
+# -------- Patchers (append ONLY inst.cmdline) --------
+append_cmdline_to_isolinux() {
   local f="$1"; [[ -f "$f" ]] || return 0
   echo "Patching ISOLINUX: $f"
-  # Ensure inst.stage2 points to LABEL and add inst.cmdline once
   sed -Ei '/^[[:space:]]*append /{
-      s|(.*)inst\.stage2=[^[:space:]]*|\1|g
-      s|^( *append .*)|\1 inst.stage2=hd:LABEL='"$VOL_ID"'|
-      /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
+    /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
   }' "$f"
 }
 
-patch_grub_vars() {
+append_cmdline_to_grub_vars() {
   local f="$1"; [[ -f "$f" ]] || return 0
-  echo "Patching GRUB (vars): $f"
-  # Rocky aarch64 minimal sets args via: set kernelopts="..."
-  # Some variants use: set kargs="..."
-  # Normalize both:
-  sed -Ei \
-    -e 's/^( *set +(kernelopts|kargs)=)(["'\'']?)(.*)\3$/\1\3\4\3/' \
-    -e '/^( *set +(kernelopts|kargs)=)/{
-          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)(["'\'']?$)/\1\3\4/
-        }' "$f"
-
-  # Replace any inst.stage2=... token; if missing, append ours.
-  # Ensure inst.cmdline present exactly once.
-  sed -Ei \
-    -e '/^( *set +(kernelopts|kargs)=)/{
-          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)inst\.stage2=[^[:space:]"]*/\1\3/g
-        }' \
-    -e '/^( *set +(kernelopts|kargs)=)/{
-          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)/\1\3 inst.stage2=hd:LABEL='"$VOL_ID"'/ 
-        }' \
-    -e '/^( *set +(kernelopts|kargs)=)/{
-          /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)/\1\3 inst.cmdline/
-        }' "$f"
+  echo "Patching GRUB (kernelopts/kargs): $f"
+  # Ensure quoting is preserved; just append inst.cmdline once.
+  sed -Ei '/^[[:space:]]*set[[:space:]]+(kernelopts|kargs)=/{
+    /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|(^( *set +(kernelopts|kargs)=)(["'\'']?)(.*)(\4)$)|\1\4\5 inst.cmdline\4|
+  }' "$f"
 }
 
-# For completeness, also patch any direct linux/linuxefi lines (x86_64 DVDs)
-patch_grub_linux() {
+append_cmdline_to_grub_linux() {
   local f="$1"; [[ -f "$f" ]] || return 0
   echo "Patching GRUB (linux lines): $f"
-  sed -Ei -e "/^( *linux(efi)? +)/{
-      s|(.*)inst\.stage2=[^[:space:]]*|\1|g
-      s|^( *linux(efi)? +.*)|\1 inst.stage2=hd:LABEL=${VOL_ID}|
-    }" \
-    -e "/^( *linux(efi)? +)/{
-      /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
-    }" "$f"
+  sed -Ei '/^( *linux(efi)? +)/{
+    /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
+  }' "$f"
 }
 
-# --- Apply patches across common locations ---
-patch_isolinux "$EXTRACT/isolinux/isolinux.cfg"
-patch_isolinux "$EXTRACT/isolinux/grub.conf"
+# Apply to common locations
+append_cmdline_to_isolinux "$EXTRACT/isolinux/isolinux.cfg"
+append_cmdline_to_isolinux "$EXTRACT/isolinux/grub.conf"
 
 for gf in \
   "$EXTRACT/EFI/BOOT/grub.cfg" \
   "$EXTRACT/EFI/rocky/grub.cfg" \
   "$EXTRACT/boot/grub2/grub.cfg"
 do
-  patch_grub_vars "$gf"
-  patch_grub_linux "$gf"
+  append_cmdline_to_grub_vars "$gf"
+  append_cmdline_to_grub_linux "$gf"
 done
 
-# --- Show resulting kernel arg sources for CI logs ---
+# Show results for CI logs
 echo "---- GRUB kernelopts/kargs after patch ----"
 grep -Eh '^[[:space:]]*set +(kernelopts|kargs)=' \
   "$EXTRACT/EFI/BOOT/grub.cfg" \
@@ -124,7 +100,7 @@ grep -Eho '^( *linux(efi)? +).*' \
   "$EXTRACT/boot/grub2/grub.cfg" 2>/dev/null || true
 echo "-------------------------------------------"
 
-# --- Detect boot assets and rebuild with SAME label ---
+# -------- Rebuild (preserve label) --------
 BIOS_BIN="isolinux/isolinux.bin"
 BIOS_CAT="isolinux/boot.cat"
 UEFI_IMG="images/efiboot.img"
@@ -133,6 +109,11 @@ have_uefi=false; [[ -f "$EXTRACT/$UEFI_IMG" ]] && have_uefi=true
 
 echo "Rebuilding ISO -> $OUT_ISO"
 if $have_bios && $have_uefi; then
+  # Optional isohybrid MBR (only matters for BIOS/x86_64)
+  ISOHYBRID_MBR=""
+  for p in /usr/share/syslinux/isohdpfx.bin /usr/lib/ISOLINUX/isohdpfx.bin /usr/lib/syslinux/bios/isohdpfx.bin /usr/lib/syslinux/isohdpfx.bin; do
+    [[ -r "$p" ]] && { ISOHYBRID_MBR="$p"; break; }
+  done
   xorriso -as mkisofs \
     -V "$VOL_ID" \
     ${ISOHYBRID_MBR:+-isohybrid-mbr "$ISOHYBRID_MBR"} \
@@ -156,7 +137,6 @@ elif $have_uefi; then
 elif $have_bios; then
   xorriso -as mkisofs \
     -V "$VOL_ID" \
-    ${ISOHYBRID_MBR:+-isohybrid-mbr "$ISOHYBRID_MBR"} \
     -o "$OUT_ISO" \
     -J -R -l -iso-level 3 \
     -b "$BIOS_BIN" -c "$BIOS_CAT" \
@@ -166,7 +146,7 @@ else
   die "No recognizable boot assets found (no $UEFI_IMG and no $BIOS_BIN)."
 fi
 
-NEW_VOL="$(xorriso -indev "$OUT_ISO" -pvd_info 2>/dev/null | sed -n "s/^Volume id[[:space:]]*:[[:space:]]*'\\{0,1\\}\\([^']*\\).*/\\1/p" | head -n1)"
+NEW_VOL="$(get_label "$OUT_ISO")"
 echo "New ISO volume label: '$NEW_VOL'"
 
 echo "Done. Rebuilt ISO at: $OUT_ISO"

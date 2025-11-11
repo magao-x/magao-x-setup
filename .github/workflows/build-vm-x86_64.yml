@@ -37,7 +37,7 @@ jobs:
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio xorriso isolinux
+          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio xorriso isolinux genisoimage
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
