@@ -34,8 +34,8 @@ jobs:
       - name: Install QEMU and ISO tools
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
-          sudo dnf update -y
-          sudo dnf install -y qemu-system-arm rpm2cpio lorax
+          dnf update -y
+          dnf install -y qemu-system-arm rpm2cpio lorax
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
