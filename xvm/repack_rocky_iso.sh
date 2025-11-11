@@ -13,25 +13,20 @@ need sed
 need awk
 need grep
 
+# --- Determine output path ---
 ISO_DIR="$(cd "$(dirname "$ISO")" && pwd)"
 ISO_BASE="$(basename "$ISO")"
 OUT_ISO="${ISO_DIR}/${ISO_BASE%.iso}-cmdline.iso"
 
-# -------- Volume label (preserve EXACTLY) --------
+# --- Read ISO label safely ---
 get_label() {
   local in="$1" lbl=""
   if command -v isoinfo >/dev/null 2>&1; then
     lbl="$(isoinfo -d -i "$in" 2>/dev/null | sed -n 's/^Volume id: //p' | head -n1)"
   fi
   if [[ -z "$lbl" ]]; then
-    # xorriso -pvd_info prints:  Volume id    : 'Rocky-...'
-    # Extract between single quotes if present; otherwise after colon.
     lbl="$(xorriso -indev "$in" -pvd_info 2>/dev/null \
-      | awk '
-        /Volume id/{
-          if (match($0, /'\''([^'\'']+)'\'')/) { print substr($0, RSTART+1, RLENGTH-2); exit }
-          sub(/^.*Volume id[[:space:]]*:[[:space:]]*/, "", $0); print; exit
-        }')"
+      | awk -F"'" '/Volume id/{if (NF>1){print $2}else{sub(/^.*Volume id[[:space:]]*:[[:space:]]*/,"");print;exit}}' | head -n1)"
   fi
   echo "$lbl"
 }
@@ -40,7 +35,7 @@ VOL_ID="$(get_label "$ISO")"
 [[ -z "$VOL_ID" ]] && die "Could not read ISO volume label"
 echo "Original volume label: '$VOL_ID'"
 
-# -------- Extract --------
+# --- Extract ISO ---
 WORKDIR="$(mktemp -d -t rockyiso.XXXXXXXX)"
 trap 'rm -rf "$WORKDIR"' EXIT
 EXTRACT="$WORKDIR/extract"; mkdir -p "$EXTRACT"
@@ -48,7 +43,7 @@ EXTRACT="$WORKDIR/extract"; mkdir -p "$EXTRACT"
 echo "Extracting ISO..."
 xorriso -osirrox on -indev "$ISO" -extract / "$EXTRACT" >/dev/null
 
-# -------- Patchers (append ONLY inst.cmdline) --------
+# --- Patching helpers ---
 append_cmdline_to_isolinux() {
   local f="$1"; [[ -f "$f" ]] || return 0
   echo "Patching ISOLINUX: $f"
@@ -59,8 +54,7 @@ append_cmdline_to_isolinux() {
 
 append_cmdline_to_grub_vars() {
   local f="$1"; [[ -f "$f" ]] || return 0
-  echo "Patching GRUB (kernelopts/kargs): $f"
-  # Ensure quoting is preserved; just append inst.cmdline once.
+  echo "Patching GRUB vars: $f"
   sed -Ei '/^[[:space:]]*set[[:space:]]+(kernelopts|kargs)=/{
     /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|(^( *set +(kernelopts|kargs)=)(["'\'']?)(.*)(\4)$)|\1\4\5 inst.cmdline\4|
   }' "$f"
@@ -68,13 +62,13 @@ append_cmdline_to_grub_vars() {
 
 append_cmdline_to_grub_linux() {
   local f="$1"; [[ -f "$f" ]] || return 0
-  echo "Patching GRUB (linux lines): $f"
+  echo "Patching GRUB linux lines: $f"
   sed -Ei '/^( *linux(efi)? +)/{
     /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
   }' "$f"
 }
 
-# Apply to common locations
+# --- Apply patches ---
 append_cmdline_to_isolinux "$EXTRACT/isolinux/isolinux.cfg"
 append_cmdline_to_isolinux "$EXTRACT/isolinux/grub.conf"
 
@@ -87,20 +81,19 @@ do
   append_cmdline_to_grub_linux "$gf"
 done
 
-# Show results for CI logs
-echo "---- GRUB kernelopts/kargs after patch ----"
-grep -Eh '^[[:space:]]*set +(kernelopts|kargs)=' \
+# --- Dump all patched GRUB configs for inspection ---
+for gf in \
   "$EXTRACT/EFI/BOOT/grub.cfg" \
   "$EXTRACT/EFI/rocky/grub.cfg" \
-  "$EXTRACT/boot/grub2/grub.cfg" 2>/dev/null || true
-echo "---- Direct linux lines (if any) ----"
-grep -Eho '^( *linux(efi)? +).*' \
-  "$EXTRACT/EFI/BOOT/grub.cfg" \
-  "$EXTRACT/EFI/rocky/grub.cfg" \
-  "$EXTRACT/boot/grub2/grub.cfg" 2>/dev/null || true
-echo "-------------------------------------------"
+  "$EXTRACT/boot/grub2/grub.cfg"
+do
+  [[ -f "$gf" ]] || continue
+  echo "================= BEGIN DUMP: $gf ================="
+  cat "$gf"
+  echo "================== END DUMP: $gf =================="
+done
 
-# -------- Rebuild (preserve label) --------
+# --- Rebuild ISO with same label ---
 BIOS_BIN="isolinux/isolinux.bin"
 BIOS_CAT="isolinux/boot.cat"
 UEFI_IMG="images/efiboot.img"
@@ -109,7 +102,6 @@ have_uefi=false; [[ -f "$EXTRACT/$UEFI_IMG" ]] && have_uefi=true
 
 echo "Rebuilding ISO -> $OUT_ISO"
 if $have_bios && $have_uefi; then
-  # Optional isohybrid MBR (only matters for BIOS/x86_64)
   ISOHYBRID_MBR=""
   for p in /usr/share/syslinux/isohdpfx.bin /usr/lib/ISOLINUX/isohdpfx.bin /usr/lib/syslinux/bios/isohdpfx.bin /usr/lib/syslinux/isohdpfx.bin; do
     [[ -r "$p" ]] && { ISOHYBRID_MBR="$p"; break; }
@@ -148,5 +140,4 @@ fi
 
 NEW_VOL="$(get_label "$OUT_ISO")"
 echo "New ISO volume label: '$NEW_VOL'"
-
 echo "Done. Rebuilt ISO at: $OUT_ISO"
