@@ -30,16 +30,16 @@ jobs:
         with:
           path: xvm/stage1_outputs.tar
           key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
+      - name: Install QEMU and ISO tools for Ubuntu
+        if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio xorriso isolinux
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
           cd $GITHUB_WORKSPACE/xvm/
           bash download_rocky_iso.sh
-      - name: Install QEMU for Ubuntu
-        if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
