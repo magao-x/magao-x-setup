@@ -3,12 +3,16 @@ if [[ -z $vmArch ]]; then
     echo "Set vmArch environment variable to aarch64 or x86_64"
     exit 1
 fi
-if [[ $vmArch == aarch64 && $(uname -p) == "arm" && $CI != "true" ]]; then
+if [[ $vmArch == "aarch64" && $(uname -m) == "arm" ]]; then
     qemuMachineFlags="-machine type=virt,highmem=on -cpu host"
-elif [[ $vmArch == aarch64 ]]; then
+elif [[ $vmArch == "aarch64" ]]; then
     qemuMachineFlags="-machine type=virt -cpu max"
+elif [[ $vmArch == "x86_64" && $(uname -m) == "x86_64" ]]; then
+    qemuMachineFlags="-machine q35 -cpu host"
+elif [[ $vmArch == "x86_64" ]]; then
+    qemuMachineFlags="-machine q35"
 else
-    qemuMachineFlags="-cpu max"
+    qemuMachineFlags="-machine type=virt -cpu max"
 fi
 export qemuMachineFlags
 
@@ -20,14 +24,10 @@ else
 fi
 export ioFlag
 
-nCpus=3
+nCpus=$(nproc || echo '3')
 ramMB=8192
 
-if [[ $CI == true ]]; then
-    qemuAccelFlags="-accel tcg,thread=multi"
-else
-    qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
-fi
+qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
@@ -49,15 +49,12 @@ elif [[ $vmArch == x86_64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
         -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
-        -device virtio-keyboard-pci -device virtio-mouse-pci \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
-        -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
-        -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
         -drive file=output/xvm.qcow2,format=qcow2 \
-        -device virtio-gpu-pci \
-        -device virtio-net-pci,netdev=user.0 \
+        -netdev user,id=net0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -device e1000,netdev=net0 \
         -m ${ramMB}M \
         $ioFlag "
 else

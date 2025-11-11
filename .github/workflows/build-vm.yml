@@ -1,18 +1,17 @@
-name: Build virtual machine
+name: Build virtual machine (ARM)
 on:
-  workflow_run:
-    workflows: ["Container build"]
-    types: [completed]
+  push:
     branches: [main]
+  # workflow_run:
+  #   workflows: ["Container build"]
+  #   types: [completed]
+  #   branches: [main]
 jobs:
   build-vm-stage1:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    runs-on: ${{ matrix.os }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04-arm
     env:
-      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
+      vmArch: aarch64
     permissions:
       contents: read
       packages: write
@@ -36,19 +35,11 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/xvm/
           bash download_rocky_iso.sh
-      - name: Install Homebrew
-        if: runner.os == 'macOS' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install QEMU for Ubuntu
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio
-      - name: Install QEMU for macOS
-        if: runner.os == 'macOS' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-          sysctl machdep.cpu
-          brew install qemu
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -68,12 +59,9 @@ jobs:
           path: xvm/stage1_outputs.tar
   build-vm-stage2:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04-arm
     env:
-      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
+      vmArch: aarch64
     needs: build-vm-stage1
     permissions:
       contents: read
@@ -92,11 +80,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-arm rpm2cpio expect
-      - name: Install QEMU for macOS
-        if: runner.os == 'macOS' && steps.cache-vm-stage2.outputs.cache-hit != 'true'
-        run: |
-          sysctl machdep.cpu
-          brew install qemu expect
       - name: Download initial Rocky VM
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
@@ -127,12 +110,9 @@ jobs:
           path: xvm/stage2_outputs.tar
   build-vm-stage3:
       # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-      strategy:
-        matrix:
-          os: [macos-latest]
-      runs-on: ${{ matrix.os }}
+      runs-on: ubuntu-24.04-arm
       env:
-        vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
+        vmArch: aarch64
       needs: build-vm-stage2
       permissions:
         contents: read
@@ -151,11 +131,6 @@ jobs:
           run: |
             sudo apt-get update
             sudo apt-get install -y qemu-system-arm rpm2cpio expect
-        - name: Install QEMU for macOS
-          if: runner.os == 'macOS' && steps.cache-vm-stage3.outputs.cache-hit != 'true'
-          run: |
-            sysctl machdep.cpu
-            brew install qemu expect
         - name: Download initial Rocky VM
           if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           uses: actions/download-artifact@v4
@@ -186,12 +161,9 @@ jobs:
             path: xvm/stage3_outputs.tar
   build-vm-stage4:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04-arm
     env:
-      vmArch: ${{ contains(matrix.os, 'macos') && 'aarch64' || 'x86_64' }}
+      vmArch: aarch64
     needs: build-vm-stage3
     permissions:
       contents: read
@@ -204,11 +176,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-arm rpm2cpio
-      - name: Install QEMU for macOS
-        if: runner.os == 'macOS'
-        run: |
-          sysctl machdep.cpu
-          brew install qemu
       - name: Download Rocky VM with dependencies
         uses: actions/download-artifact@v4
         with:

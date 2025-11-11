@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [[ -z $vmArch ]]; then
-    vmArch=$(uname -p)
+    vmArch=$(uname -m)
 fi
 ls -lah
 mkdir -p ./output/bundle/
