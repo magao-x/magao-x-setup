@@ -33,9 +33,10 @@ jobs:
           key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
       - name: Install QEMU and ISO tools
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        # Note that the package name for QEMU is different since we're in a Rocky container
         run: |
           dnf update -y
-          dnf install -y qemu-system-arm rpm2cpio lorax
+          dnf install -y qemu-system-aarch64 lorax
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
