@@ -24,10 +24,14 @@ else
 fi
 export ioFlag
 
-nCpus=$(nproc || echo '3')
+# nproc is unavailable on macOS, but GitHub Actions macOS ARM
+# runners have 3 CPUs visible so that's as good a default
+# as any
+nCpus=$(nproc 2>/dev/null || echo '3')
 ramMB=8192
 
 qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
+
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \

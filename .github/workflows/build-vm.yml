@@ -10,6 +10,7 @@ jobs:
   build-vm-stage1:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04-arm
+    container: rockylinux:9
     env:
       vmArch: aarch64
     permissions:
@@ -22,7 +23,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-iso
         with:
-          path: xvm/input/iso
+          path: xvm/input/iso/*-unattended.iso
           key: rocky-iso-${{ hashFiles('xvm/_common.sh','xvm/download_rocky_iso.sh') }}
       - name: Cache first stage VM
         uses: actions/cache@v4
@@ -30,11 +31,11 @@ jobs:
         with:
           path: xvm/stage1_outputs.tar
           key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
-      - name: Install QEMU and ISO tools for Ubuntu
+      - name: Install QEMU and ISO tools
         if: runner.os == 'Linux' && steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-arm qemu-system-x86 rpm2cpio xorriso isolinux genisoimage
+          sudo dnf update -y
+          sudo dnf install -y qemu-system-arm rpm2cpio lorax
       - name: Download Rocky ISO
         if: steps.cache-iso.outputs.cache-hit != 'true'
         run: |
@@ -79,7 +80,7 @@ jobs:
         if: runner.os == 'Linux' && steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm rpm2cpio expect
+          sudo apt-get install -y qemu-system-arm
       - name: Download initial Rocky VM
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
@@ -130,7 +131,7 @@ jobs:
           if: runner.os == 'Linux' && steps.cache-vm-stage3.outputs.cache-hit != 'true'
           run: |
             sudo apt-get update
-            sudo apt-get install -y qemu-system-arm rpm2cpio expect
+            sudo apt-get install -y qemu-system-arm
         - name: Download initial Rocky VM
           if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           uses: actions/download-artifact@v4
@@ -175,7 +176,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm rpm2cpio
+          sudo apt-get install -y qemu-system-arm
       - name: Download Rocky VM with dependencies
         uses: actions/download-artifact@v4
         with:

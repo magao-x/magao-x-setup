@@ -1,20 +1,48 @@
 #!/usr/bin/env bash
-source ./_common.sh
-mkdir -p ./input/iso
-cd ./input/iso
+set -euo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $DIR/_common.sh
+
+mkdir -p ./input/iso ./input/kickstart
 ISO_FILE=Rocky-9-latest-${vmArch}-minimal.iso
-if [[ ! -e ${ISO_FILE} ]]; then
-    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} > ${ISO_FILE}.part || exit 1
-    mv ${ISO_FILE}.part ${ISO_FILE}
-    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}.CHECKSUM > ${ISO_FILE}.CHECKSUM || exit 1
-    cat ${ISO_FILE}.CHECKSUM
-    du ${ISO_FILE}
-    if [[ $(uname -o) == Darwin ]]; then
-        shasum -a 256 ${ISO_FILE}
-    else
-        sha256sum ${ISO_FILE}
-    fi
+if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
+    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} > ./input/iso/${ISO_FILE}.part || exit 1
+    mv ./input/iso/${ISO_FILE}.part ./input/iso/${ISO_FILE}
+    du -h ./input/iso/${ISO_FILE}
 else
     echo "Rocky Linux ${vmArch} minimal ISO already downloaded."
 fi
-../../repack_rocky_iso.sh ./${ISO_FILE}
+
+if [[ ! -e ./input/iso/${ISO_FILE}.CHECKSUM ]]; then
+    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}.CHECKSUM > ./input/iso/${ISO_FILE}.CHECKSUM || exit 1
+    cat ./input/iso/${ISO_FILE}.CHECKSUM
+    if [[ $(uname -o) == Darwin ]]; then
+        shasum -a 256 ./input/iso/${ISO_FILE}
+    else
+        sha256sum ./input/iso/${ISO_FILE}
+    fi
+else
+    echo "Rocky Linux ${vmArch} minimal ISO checksum already downloaded."
+fi
+
+
+rebuildDest=./input/iso/rocky-${rockyVersion}-${vmArch}-unattended.iso
+rm -f $rebuildDest
+echo "Rebuild the ISO so that it includes the kickstart file"
+if [[ $(uname -o) == Darwin ]]; then
+    podman run \
+        -v "${DIR}/:/xvm" \
+        -it rockylinux:$rockyVersion \
+        bash /xvm/mkksisowrap.sh \
+        --ks /xvm/input/kickstart/ks.cfg \
+        --cmdline 'inst.cmdline' \
+        /xvm/input/iso/${ISO_FILE} \
+        /xvm/input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
+else
+    mkksiso \
+        --ks ./input/kickstart/ks.cfg \
+        --cmdline 'inst.cmdline' \
+        ./input/iso/${ISO_FILE} \
+        ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
+fi
+du -h $rebuildDest

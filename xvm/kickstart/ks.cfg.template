@@ -1,3 +1,14 @@
+# Use CDROM installation media
+cdrom
+cmdline
+eula --agreed
+
+# Set the first NIC to acquire IPv4 address via DHCP
+network --activate --device=link --bootproto=dhcp --hostname=xvm
+# Enable firewall, let SSH through
+firewall --enabled --service=ssh
+
+# Enable all the repositories we'll need
 repo --name="minimal" --baseurl=file:///run/install/sources/mount-0000-cdrom/minimal
 repo --name="base" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=rocky-BaseOS-${rockyVersion}&arch=${vmArch}
 repo --name="appstream" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=rocky-AppStream-${rockyVersion}&arch=${vmArch}
@@ -5,26 +16,13 @@ repo --name="crb" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=ro
 repo --name="epel" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=${vmArch}
 repo --name="epel-cisco-openh264" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-cisco-openh264-9&arch=${vmArch}
 
-cdrom
-graphical
-eula --agreed
-
-# Set the first NIC to acquire IPv4 address via DHCP
-network --device eth0 --bootproto=dhcp --hostname=xvm
-# Enable firewall, let SSH through
-firewall --enabled --service=ssh
-
 # System language, keyboard and timezone
 lang en_US.UTF-8
 keyboard --xlayouts='us'
 timezone UTC --utc
 
-# Use CDROM installation media
-cdrom
-
-# Generated using Blivet version 3.6.0
-autopart
 # Partition clearing information
+autopart
 clearpart --none --initlabel
 
 # Root password
