@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Make installer boot lines consistent:
-#   - Replace any inst.stage2=... with inst.stage2=hd:LABEL=<VOL>
-#   - Ensure inst.cmdline present (once)
-#   - Preserve original volume label exactly
-#
-# Works for UEFI-only (aarch64) and BIOS+UEFI (x86_64).
-
 die() { echo "ERROR: $*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null 2>&1 || die "Missing tool: $1"; }
 
@@ -19,8 +12,10 @@ need xorriso
 need sed
 need awk
 need grep
+# isoinfo is optional but preferred for label reading
+HAS_ISOINFO=true; command -v isoinfo >/dev/null 2>&1 || HAS_ISOINFO=false
 
-# Optional (BIOS hybrid MBR blob). Not needed for aarch64.
+# Optional (for BIOS hybrid MBR) – not needed for aarch64
 ISOHYBRID_MBR=""
 for p in \
   /usr/share/syslinux/isohdpfx.bin \
@@ -40,18 +35,60 @@ EXTRACT="$WORKDIR/extract"; mkdir -p "$EXTRACT"
 echo "Extracting ISO..."
 xorriso -osirrox on -indev "$ISO" -extract / "$EXTRACT" >/dev/null
 
-# Original volume label (preserve EXACTLY)
-VOL_ID="$(xorriso -indev "$ISO" -pvd_info 2>/dev/null | awk -F': ' '/Volume id/ {print $2; exit}')"
-[[ -z "$VOL_ID" ]] && VOL_ID="ROCKY_CMDLINE"
+# --- Get original Volume Label exactly ---
+VOL_ID=""
+if $HAS_ISOINFO; then
+  VOL_ID="$(isoinfo -d -i "$ISO" 2>/dev/null | awk -F': ' '/Volume id:/ {print $2; exit}')"
+fi
+if [[ -z "$VOL_ID" ]]; then
+  VOL_ID="$(xorriso -indev "$ISO" -pvd_info 2>/dev/null | sed -n "s/^Volume id[[:space:]]*:[[:space:]]*'\\{0,1\\}\\([^']*\\).*/\\1/p" | head -n1)"
+fi
+[[ -z "$VOL_ID" ]] && die "Could not read ISO volume label"
+
 echo "Original volume label: '$VOL_ID'"
 
-# Patching helpers
-patch_grubfile() {
-  local f="$1"
-  [[ -f "$f" ]] || return 0
-  echo "Patching GRUB: $f"
-  # Replace any existing inst.stage2=... token; if none, append ours.
-  # Then ensure inst.cmdline is present exactly once.
+# --- Patch helpers ---
+patch_isolinux() {
+  local f="$1"; [[ -f "$f" ]] || return 0
+  echo "Patching ISOLINUX: $f"
+  # Ensure inst.stage2 points to LABEL and add inst.cmdline once
+  sed -Ei '/^[[:space:]]*append /{
+      s|(.*)inst\.stage2=[^[:space:]]*|\1|g
+      s|^( *append .*)|\1 inst.stage2=hd:LABEL='"$VOL_ID"'|
+      /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
+  }' "$f"
+}
+
+patch_grub_vars() {
+  local f="$1"; [[ -f "$f" ]] || return 0
+  echo "Patching GRUB (vars): $f"
+  # Rocky aarch64 minimal sets args via: set kernelopts="..."
+  # Some variants use: set kargs="..."
+  # Normalize both:
+  sed -Ei \
+    -e 's/^( *set +(kernelopts|kargs)=)(["'\'']?)(.*)\3$/\1\3\4\3/' \
+    -e '/^( *set +(kernelopts|kargs)=)/{
+          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)(["'\'']?$)/\1\3\4/
+        }' "$f"
+
+  # Replace any inst.stage2=... token; if missing, append ours.
+  # Ensure inst.cmdline present exactly once.
+  sed -Ei \
+    -e '/^( *set +(kernelopts|kargs)=)/{
+          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)inst\.stage2=[^[:space:]"]*/\1\3/g
+        }' \
+    -e '/^( *set +(kernelopts|kargs)=)/{
+          s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)/\1\3 inst.stage2=hd:LABEL='"$VOL_ID"'/ 
+        }' \
+    -e '/^( *set +(kernelopts|kargs)=)/{
+          /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s/(^ *set +(kernelopts|kargs)=["'\'']?)(.*)/\1\3 inst.cmdline/
+        }' "$f"
+}
+
+# For completeness, also patch any direct linux/linuxefi lines (x86_64 DVDs)
+patch_grub_linux() {
+  local f="$1"; [[ -f "$f" ]] || return 0
+  echo "Patching GRUB (linux lines): $f"
   sed -Ei -e "/^( *linux(efi)? +)/{
       s|(.*)inst\.stage2=[^[:space:]]*|\1|g
       s|^( *linux(efi)? +.*)|\1 inst.stage2=hd:LABEL=${VOL_ID}|
@@ -61,33 +98,33 @@ patch_grubfile() {
     }" "$f"
 }
 
-patch_isolinux() {
-  local f="$1"
-  [[ -f "$f" ]] || return 0
-  echo "Patching ISOLINUX: $f"
-  sed -Ei '/^[[:space:]]*append /{
-      s|(.*)inst\.stage2=[^[:space:]]*|\1|g
-      s|^( *append .*initrd=[^[:space:]]+.*)|\1 inst.stage2=hd:LABEL='"$VOL_ID"'|
-      /(^|[[:space:]])inst\.cmdline([[:space:]]|$)/! s|$| inst.cmdline|
-  }' "$f"
-}
-
-# Apply patches
+# --- Apply patches across common locations ---
 patch_isolinux "$EXTRACT/isolinux/isolinux.cfg"
-patch_isolinux "$EXTRACT/isolinux/grub.conf"     # uncommon but harmless
-patch_grubfile "$EXTRACT/EFI/BOOT/grub.cfg"
-patch_grubfile "$EXTRACT/EFI/rocky/grub.cfg"
-patch_grubfile "$EXTRACT/boot/grub2/grub.cfg"
+patch_isolinux "$EXTRACT/isolinux/grub.conf"
 
-# Show the resulting linux lines for CI logs (sanity check)
-echo "---- Patched linux lines (for verification) ----"
+for gf in \
+  "$EXTRACT/EFI/BOOT/grub.cfg" \
+  "$EXTRACT/EFI/rocky/grub.cfg" \
+  "$EXTRACT/boot/grub2/grub.cfg"
+do
+  patch_grub_vars "$gf"
+  patch_grub_linux "$gf"
+done
+
+# --- Show resulting kernel arg sources for CI logs ---
+echo "---- GRUB kernelopts/kargs after patch ----"
+grep -Eh '^[[:space:]]*set +(kernelopts|kargs)=' \
+  "$EXTRACT/EFI/BOOT/grub.cfg" \
+  "$EXTRACT/EFI/rocky/grub.cfg" \
+  "$EXTRACT/boot/grub2/grub.cfg" 2>/dev/null || true
+echo "---- Direct linux lines (if any) ----"
 grep -Eho '^( *linux(efi)? +).*' \
   "$EXTRACT/EFI/BOOT/grub.cfg" \
   "$EXTRACT/EFI/rocky/grub.cfg" \
   "$EXTRACT/boot/grub2/grub.cfg" 2>/dev/null || true
-echo "------------------------------------------------"
+echo "-------------------------------------------"
 
-# Detect boot assets
+# --- Detect boot assets and rebuild with SAME label ---
 BIOS_BIN="isolinux/isolinux.bin"
 BIOS_CAT="isolinux/boot.cat"
 UEFI_IMG="images/efiboot.img"
@@ -129,11 +166,7 @@ else
   die "No recognizable boot assets found (no $UEFI_IMG and no $BIOS_BIN)."
 fi
 
-# Final verification: confirm the OUT_ISO label and show linux lines again
-NEW_VOL="$(xorriso -indev "$OUT_ISO" -pvd_info 2>/dev/null | awk -F': ' '/Volume id/ {print $2; exit}')"
+NEW_VOL="$(xorriso -indev "$OUT_ISO" -pvd_info 2>/dev/null | sed -n "s/^Volume id[[:space:]]*:[[:space:]]*'\\{0,1\\}\\([^']*\\).*/\\1/p" | head -n1)"
 echo "New ISO volume label: '$NEW_VOL'"
-if [[ "$NEW_VOL" != "$VOL_ID" ]]; then
-  echo "WARNING: New volume label differs from original!"
-fi
 
 echo "Done. Rebuilt ISO at: $OUT_ISO"
