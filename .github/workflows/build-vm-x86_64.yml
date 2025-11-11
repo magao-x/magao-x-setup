@@ -1,0 +1,229 @@
+name: Build virtual machine (x86_64)
+on:
+  push:
+    branches: [main]
+  # TODO: Re-enable workflow_run trigger after container build is working
+  # workflow_run:
+  #   workflows: ["Container build"]
+  #   types: [completed]
+  #   branches: [main]
+jobs:
+  build-vm-stage1:
+    # TODO: Re-enable this condition when using workflow_run trigger
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      vmArch: x86_64
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache Rocky ISO
+        uses: actions/cache@v4
+        id: cache-iso
+        with:
+          path: xvm/input/iso
+          key: rocky-iso-x86_64-${{ hashFiles('xvm/_common.sh','xvm/download_rocky_iso.sh') }}
+      - name: Cache first stage VM
+        uses: actions/cache@v4
+        id: cache-vm-stage1
+        with:
+          path: xvm/stage1_outputs.tar
+          key: xvm-stage1-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
+      - name: Download Rocky ISO
+        if: steps.cache-iso.outputs.cache-hit != 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/xvm/
+          bash download_rocky_iso.sh
+      - name: Install QEMU
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 rpm2cpio
+      - name: Show QEMU version and capabilities
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+          qemu-system-x86_64 --version
+          echo "Available accelerators:"
+          qemu-system-x86_64 -accel help 2>&1 || true
+      - name: Create VM and install Rocky 9 (with timeout wrapper)
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        timeout-minutes: 60
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            # Add timeout and periodic output to prevent job timeout
+            bash -x build_vm_stage1.sh 2>&1 | while IFS= read -r line; do
+              echo "$line"
+              # Periodically show we're still alive
+              if [[ "$line" == *"QEMU"* ]] || [[ "$line" == *"boot"* ]] || [[ "$line" == *"GRUB"* ]]; then
+                echo ">>> Still running at $(date) <<<"
+              fi
+            done
+      - name: Check for stage1 output
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/xvm/
+          ls -lah ./output/ || echo "No output directory"
+          if [[ ! -f ./output/xvm_stage1.qcow2 ]]; then
+            echo "ERROR: xvm_stage1.qcow2 not created!"
+            echo "Last 200 lines of any log files:"
+            find . -name "*.log" -exec tail -200 {} \; || true
+            exit 1
+          fi
+      - name: Bundle outputs as tar file
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -cvf stage1_outputs.tar ./output/
+            rm ./output/*
+      - name: Upload stage 1 outputs
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: stage1_vm_x86_64
+          path: xvm/stage1_outputs.tar
+  build-vm-stage2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      vmArch: x86_64
+    needs: build-vm-stage1
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache second stage VM
+        uses: actions/cache@v4
+        id: cache-vm-stage2
+        with:
+          path: xvm/stage2_outputs.tar
+          key: xvm-stage2-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
+      - name: Install QEMU
+        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 rpm2cpio expect
+      - name: Download initial Rocky VM
+        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@v4
+        with:
+            name: stage1_vm_x86_64
+            path: xvm/
+      - name: Extract previous job outputs
+        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -xvf stage1_outputs.tar
+            rm stage1_outputs.tar
+            mv -v output/xvm_stage1.qcow2 output/xvm.qcow2
+      - name: Install MagAO-X dependencies
+        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            bash build_vm_stage2.sh
+      - name: Bundle outputs as tar file
+        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -cvf stage2_outputs.tar ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
+      - name: Upload stage 2 outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage2_vm_x86_64
+          path: xvm/stage2_outputs.tar
+  build-vm-stage3:
+      runs-on: ubuntu-latest
+      timeout-minutes: 180
+      env:
+        vmArch: x86_64
+      needs: build-vm-stage2
+      permissions:
+        contents: read
+        packages: write
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+        - name: Cache third stage VM
+          uses: actions/cache@v4
+          id: cache-vm-stage3
+          with:
+            path: xvm/stage3_outputs.tar
+            key: xvm-stage3-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
+        - name: Install QEMU
+          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y qemu-system-x86 rpm2cpio expect
+        - name: Download stage 2 VM
+          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
+          uses: actions/download-artifact@v4
+          with:
+              name: stage2_vm_x86_64
+              path: xvm/
+        - name: Extract previous job outputs
+          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
+          run: |
+              cd $GITHUB_WORKSPACE/xvm/
+              tar -xvf stage2_outputs.tar
+              rm stage2_outputs.tar
+              mv -v output/xvm_stage2.qcow2 output/xvm.qcow2
+        - name: Provision up to MagAO-X build
+          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
+          run: |
+              cd $GITHUB_WORKSPACE/xvm/
+              bash build_vm_stage3.sh
+        - name: Bundle outputs as tar file
+          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
+          run: |
+              cd $GITHUB_WORKSPACE/xvm/
+              tar -cvf stage3_outputs.tar ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub
+        - name: Upload stage 3 outputs
+          uses: actions/upload-artifact@v4
+          with:
+            name: stage3_vm_x86_64
+            path: xvm/stage3_outputs.tar
+  build-vm-stage4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      vmArch: x86_64
+    needs: build-vm-stage3
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 rpm2cpio
+      - name: Download stage 3 VM
+        uses: actions/download-artifact@v4
+        with:
+            name: stage3_vm_x86_64
+            path: xvm/
+      - name: Extract previous job outputs
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -xvf stage3_outputs.tar
+            rm stage3_outputs.tar
+            mv -v output/xvm_stage3.qcow2 output/xvm.qcow2
+      - name: Install pigz
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y pigz
+      - name: Install MagAO-X software
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            bash build_vm_stage4.sh
+      - name: Upload virtual machine for VirtualBox/VMware
+        uses: actions/upload-artifact@v4
+        with:
+          name: ova_bundle_x86_64
+          path: xvm/output/bundle/MagAO-X_x86_64.ova
