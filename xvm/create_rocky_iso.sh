@@ -26,7 +26,7 @@ else
 fi
 
 
-rebuildDest=./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
+rebuildDest=./output/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
 if [[ $(uname -o) == Darwin ]]; then
