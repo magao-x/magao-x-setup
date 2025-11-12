@@ -50,6 +50,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     env:
       vmArch: aarch64
+    needs: build-vm-stage0
     permissions:
       contents: read
       packages: write
