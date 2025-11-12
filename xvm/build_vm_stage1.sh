@@ -5,33 +5,12 @@ if [[ -e ./output/xvm_stage1.qcow2 ]]; then
     echo "Stage one image populated from cache. Skipping stage one."
     exit 0
 fi
-mkdir -p output input
 # make disk drive image
 qemu-img create -f qcow2 output/xvm.qcow2 64G
-
-echo "create kickstart and oemdrv disk image for SSH key"
-bash create_kickstart.sh
-
-echo "download ISO and insert kickstart file"
-bash download_rocky_iso.sh
-
-echo "download firmware for EFI boot"
-bash download_firmware.sh
-
-if [[ $vmArch == aarch64 ]]; then
-    echo "Using AAVMF (ARM) firmware"
-    cp ./input/firmware/usr/share/AAVMF/AAVMF_VARS.fd ./output/firmware_vars.fd
-    cp ./input/firmware/usr/share/AAVMF/AAVMF_CODE.fd ./output/firmware_code.fd
-else
-    echo "Using OVMF (x86_64) firmware"
-    cp ./input/firmware/usr/share/edk2/ovmf/OVMF_VARS.fd ./output/firmware_vars.fd
-    cp ./input/firmware/usr/share/edk2/ovmf/OVMF_CODE.fd ./output/firmware_code.fd
-fi
 
 echo "Starting VM installation process..."
 python ./wrap_qemu_stage1.py $qemuSystemCommand \
     -cdrom input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
-    -drive file=input/oemdrv.qcow2,format=qcow2 \
     -serial stdio
 echo "Created VM and installed Rocky Linux"
 

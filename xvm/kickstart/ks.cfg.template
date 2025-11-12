@@ -31,18 +31,6 @@ rootpw --plaintext xvmroot
 # dialout - needed for USB passthru
 user --groups=wheel,dialout,magaox,magaox-dev --name=xsup --plaintext --password=xsup --gecos="MagAO-X User"
 
-%pre
-echo 'In pre-install script...' > /dev/kmsg
-# Get the SSH key from the OEMDRV partition
-mkdir -p /tmp/oemdrv
-mount /dev/disk/by-label/OEMDRV /tmp/oemdrv
-# Write the SSH key to a file for inclusion in the post-install script
-echo -n 'echo "' > /tmp/ssh_key_install.cfg
-cat /tmp/oemdrv/authorized_keys | tr -d '\n' >> /tmp/ssh_key_install.cfg
-echo '" > /home/xsup/.ssh/authorized_keys' >> /tmp/ssh_key_install.cfg
-umount /tmp/oemdrv
-%end
-
 %post --erroronfail
 echo 'In post-install script...' > /dev/kmsg
 yum clean all
@@ -86,7 +74,7 @@ HERE
 
 # Install SSH key (using include from pre-install script)
 sudo -u xsup mkdir -m0700 /home/xsup/.ssh/
-%include /tmp/ssh_key_install.cfg
+echo "$sshPublicKey" > /home/xsup/.ssh/authorized_keys
 chown xsup:xsup /home/xsup/.ssh/authorized_keys
 sudo -u xsup chmod 0600 /home/xsup/.ssh/authorized_keys
 # Restore SELinux context
