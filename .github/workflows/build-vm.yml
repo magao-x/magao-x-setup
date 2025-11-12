@@ -45,55 +45,55 @@ jobs:
           retention-days: 1
           name: stage0_vm
           path: xvm/stage0_outputs.tar
-  # build-vm-stage1:
-  #   # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  #   runs-on: ubuntu-24.04-arm
-  #   env:
-  #     vmArch: aarch64
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #     - name: Cache first stage VM
-  #       uses: actions/cache@v4
-  #       id: cache-vm-stage1
-  #       with:
-  #         path: xvm/stage1_outputs.tar
-  #         key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
-  #     - name: Install QEMU for Ubuntu
-  #       if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-  #       run: sudo apt-get update -y && sudo apt-get install -y qemu-system-arm
-  #     - name: Download Rocky install ISO and SSH keypair
-  #       if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #           name: stage0_vm
-  #           path: xvm/
-  #     - name: Extract previous job outputs
-  #       if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-  #       run: |
-  #           cd $GITHUB_WORKSPACE/xvm/
-  #           tar -xvf stage0_outputs.tar
-  #           rm stage0_outputs.tar
-  #     - name: Create VM and install Rocky 9
-  #       if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-  #       run: |
-  #           cd $GITHUB_WORKSPACE/xvm/
-  #           bash build_vm_stage1.sh
-  #     - name: Bundle outputs as tar file
-  #       if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-  #       run: |
-  #           cd $GITHUB_WORKSPACE/xvm/
-  #           tar -cvf stage1_outputs.tar ./output/
-  #           rm ./output/*
-  #     - name: Upload stage 1 outputs
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         retention-days: 1
-  #         name: stage1_vm
-  #         path: xvm/stage1_outputs.tar
+  build-vm-stage1:
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04-arm
+    env:
+      vmArch: aarch64
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache first stage VM
+        uses: actions/cache@v4
+        id: cache-vm-stage1
+        with:
+          path: xvm/stage1_outputs.tar
+          key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v1
+      - name: Install QEMU for Ubuntu
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: sudo apt-get update -y && sudo apt-get install -y qemu-system-arm
+      - name: Download Rocky install ISO and SSH keypair
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@v4
+        with:
+            name: stage0_vm
+            path: xvm/
+      - name: Extract previous job outputs
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -xvf stage0_outputs.tar
+            rm stage0_outputs.tar
+      - name: Create VM and install Rocky 9
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            bash build_vm_stage1.sh
+      - name: Bundle outputs as tar file
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+            cd $GITHUB_WORKSPACE/xvm/
+            tar -cvf stage1_outputs.tar ./output/
+            rm ./output/*
+      - name: Upload stage 1 outputs
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: stage1_vm
+          path: xvm/stage1_outputs.tar
   # build-vm-stage2:
   #   # if: ${{ github.event.workflow_run.conclusion == 'success' }}
   #   runs-on: ubuntu-24.04-arm
