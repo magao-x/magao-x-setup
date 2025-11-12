@@ -9,6 +9,7 @@ proc = subprocess.Popen(
     sys.argv[1:] + ["-monitor", "tcp:localhost:4444,server,nowait"],
     stdin=subprocess.PIPE,
     stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
     text=False,
 )
 
@@ -34,16 +35,19 @@ while True:
         last_line = b''
 
     if not skipped:
-        if b"Test this media" in last_line + line:
+        full_line = last_line + line
+        if b"Test this media" in full_line:
             print("Detected boot prompt! Sending keys...")
             time.sleep(0.1)
             sock.sendall(b"sendkey up\n")
             time.sleep(0.1)
             sock.sendall(b"sendkey ret\n")
             skipped = True
-        if b"Press [Esc] to abort check." in last_line + line:
+        if b"Press [Esc] to abort check." in full_line or b"Checking: " in full_line:
             print("Detected media integrity prompt! Sending keys...")
             time.sleep(0.1)
+            sock.sendall(b"sendkey esc\n")
+            time.sleep(0.5)
             sock.sendall(b"sendkey esc\n")
             skipped = True
         else:
