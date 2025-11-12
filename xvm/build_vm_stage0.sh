@@ -16,7 +16,7 @@ echo "create SSH key and kickstart file"
 bash create_kickstart.sh
 
 echo "download ISO and insert kickstart file"
-bash download_rocky_iso.sh
+bash create_rocky_iso.sh
 
 
 du -hs ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
