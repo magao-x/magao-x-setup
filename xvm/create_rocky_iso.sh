@@ -26,7 +26,7 @@ else
 fi
 
 
-rebuildDest=./input/iso/rocky-${rockyVersion}-${vmArch}-unattended.iso
+rebuildDest=./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
 if [[ $(uname -o) == Darwin ]]; then
@@ -37,12 +37,12 @@ if [[ $(uname -o) == Darwin ]]; then
         --ks /xvm/input/kickstart/ks.cfg \
         --cmdline 'inst.cmdline' \
         /xvm/input/iso/${ISO_FILE} \
-        /xvm/input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
+        /xvm/$rebuildDest
 else
     mkksiso \
         --ks ./input/kickstart/ks.cfg \
         --cmdline 'inst.cmdline' \
         ./input/iso/${ISO_FILE} \
-        ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso
+        $rebuildDest
 fi
 du -h $rebuildDest
