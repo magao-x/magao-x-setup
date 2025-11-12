@@ -7,10 +7,10 @@ if [[ $vmArch == "aarch64" && $(uname -m) == "arm" ]]; then
     qemuMachineFlags="-machine type=virt,highmem=on -cpu host"
 elif [[ $vmArch == "aarch64" ]]; then
     qemuMachineFlags="-machine type=virt -cpu max"
-elif [[ $vmArch == "x86_64" && $(uname -m) == "x86_64" ]]; then
+elif [[ $vmArch == "x86_64" && $(uname -m) == "x86_64" && -z $CI ]]; then
     qemuMachineFlags="-machine q35 -cpu host"
 elif [[ $vmArch == "x86_64" ]]; then
-    qemuMachineFlags="-machine q35"
+    qemuMachineFlags="-machine q35 -cpu max"
 else
     qemuMachineFlags="-machine type=virt -cpu max"
 fi
