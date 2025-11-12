@@ -29,7 +29,7 @@ python ./wrap_qemu_stage1.py $qemuSystemCommand \
 echo "Created VM and installed Rocky Linux"
 
 echo "Starting up the VM to add users and groups..."
-$qemuSystemCommand -serial stdio || exit 1 &
+$qemuSystemCommand -serial stdio & || exit 1
 echo "Updating guest repo checkout"
 echo "Waiting for VM to become ready..."
 sleep 20

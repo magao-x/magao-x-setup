@@ -37,7 +37,11 @@ else
     guestPort=2201
 fi
 
-qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
+if [[ -n "$CI" ]]; then
+    qemuAccelFlags="-accel tcg,thread=multi"
+else
+    qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
+fi
 
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
