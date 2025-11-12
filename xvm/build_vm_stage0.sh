@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 source ./_common.sh
 set -xe
-if [[ -e ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso && 
-      -e ./output/firmware_vars.fd && 
-      -e ./output/firmware_code.fd
+if [[ -e ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso &&
+      -e ./output/firmware_vars.fd &&
+      -e ./output/firmware_code.fd &&
       -e ./output/xvm_key &&
       -e ./output/xvm_key.pub
 ]]; then
