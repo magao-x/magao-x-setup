@@ -56,8 +56,8 @@ READ_TIMEOUT_SEC = 1
 while True:
     rready, _, _ = select.select([proc.stdout, sock], [], [], READ_TIMEOUT_SEC)
     if sock in rready:
-        socket_data = sock.recv()
-        print(f"[socket] {repr(socket_data)}", file=sys.stderr)
+        socket_data = sock.recv(256)
+        print(f"[socket] {repr(socket_data)} ({len(socket_data)})", file=sys.stderr)
 
     if proc.stdout in rready:
         line = proc.stdout.readline()
