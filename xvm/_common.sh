@@ -67,6 +67,7 @@ elif [[ $vmArch == x86_64 ]]; then
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
+        -device qemu-xhci \
         -device usb-kbd \
         -device usb-mouse \
         -drive file=output/xvm.qcow2,format=qcow2 \
