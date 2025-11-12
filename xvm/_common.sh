@@ -58,7 +58,7 @@ elif [[ $vmArch == x86_64 ]]; then
         $qemuMachineFlags \
         -drive file=output/xvm.qcow2,format=qcow2 \
         -netdev user,id=net0,hostfwd=tcp::2201-:22 \
-        -device e1000,netdev=net0 \
+        -device virtio-net-pci,netdev=user.0 \
         -m ${ramMB}M \
         $ioFlag "
 else
