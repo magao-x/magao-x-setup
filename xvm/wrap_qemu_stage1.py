@@ -12,7 +12,7 @@ qemu_port = temp.getsockname()[1]
 temp.close()
 
 # Use that port number to launch QEMU with a monitor socket listening
-qemu_args = sys.argv[1:] + ["-monitor", f"tcp:localhost:{qemu_port},server,nowait"]
+qemu_args = sys.argv[1:] + ["-monitor", f"tcp:localhost:{qemu_port},server"]
 print('Launching QEMU...')
 print(' '.join(qemu_args))
 proc = subprocess.Popen(
