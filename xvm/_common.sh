@@ -82,16 +82,22 @@ export rockyVersion=${rockyVersion:-9.6}
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."
     count=0
+    success=0
     while [ "$count" -lt 10 ]; do
         rsync \
             --progress -a --exclude xvm/output --exclude xvm/input \
             --exclude .git \
             -e "ssh -p ${guestPort} -o 'UserKnownHostsFile /dev/null' -o 'StrictHostKeyChecking=no' -i ./output/xvm_key" \
             ../ xsup@localhost:magao-x-setup/ \
-            && break
+            && success=1 && break
         ((count++))
         echo "Retrying in 10 sec..."
         sleep 10
     done
-    echo "Finished updating checkout in guest"
+    if [ "$success" -eq 0 ]; then
+        echo "Failed to rsync the updated setup scripts into the guest VM"
+        exit 1
+    else
+        echo "Finished updating checkout in guest"
+    fi
 }
