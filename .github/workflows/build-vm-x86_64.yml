@@ -76,6 +76,17 @@ jobs:
           qemu-system-x86_64 --version
           echo "Available accelerators:"
           qemu-system-x86_64 -accel help 2>&1 || true
+      - name: Download Rocky install ISO and SSH keypair
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@v4
+        with:
+            name: stage0_vm
+            path: xvm/
+      - name: Extract previous job outputs
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: |
+            tar -xvf stage0_outputs.tar
+            rm stage0_outputs.tar
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: bash -x build_vm_stage1.sh

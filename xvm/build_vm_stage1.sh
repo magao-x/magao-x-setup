@@ -5,9 +5,7 @@ if [[ -e ./output/xvm_stage1.qcow2 ]]; then
     echo "Stage one image populated from cache. Skipping stage one."
     exit 0
 fi
-pwd
-ls -R
-mkdir -p output input
+
 # make disk drive image
 qemu-img create -f qcow2 output/xvm.qcow2 64G
 
