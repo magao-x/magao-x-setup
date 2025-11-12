@@ -36,12 +36,14 @@ if [[ $(uname -o) == Darwin ]]; then
         bash /xvm/mkksisowrap.sh \
         --ks /xvm/input/kickstart/ks.cfg \
         --cmdline 'inst.cmdline' \
+        --cmdline 'console=ttyS0' \
         /xvm/input/iso/${ISO_FILE} \
         /xvm/$rebuildDest
 else
     mkksiso \
         --ks ./input/kickstart/ks.cfg \
         --cmdline 'inst.cmdline' \
+        --cmdline 'console=ttyS0' \
         ./input/iso/${ISO_FILE} \
         $rebuildDest
 fi

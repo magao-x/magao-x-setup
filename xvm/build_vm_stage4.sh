@@ -18,7 +18,9 @@ ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i .
 # wait for the backgrounded qemu process to exit:
 wait
 echo "Finished installing MagAO-X software."
-
+ls -la ./output
 echo "Bundling VM for distribution"
-bash -x bundle_utm.sh
-ls -la ./output/bundle/
+if [[ $vmArch == aarch64 ]]; then
+    bash -x bundle_utm.sh
+    ls -la ./output/bundle/
+fi
