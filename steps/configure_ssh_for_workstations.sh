@@ -34,7 +34,7 @@ HERE
         log_info "/home/$userName/.ssh/known_hosts exists, not overwriting"
     fi
     if [[ ! -e /home/$userName/.ssh/config ]]; then
-    cat << "HERE" | tee /home/$userName/.ssh/config
+    cat << "HERE" | sudo -u $userName tee /home/$userName/.ssh/config
 Host aoc exao1
 HostName exao1.magao-x.org
 Host rtc exao2
