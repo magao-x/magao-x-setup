@@ -83,7 +83,7 @@ jobs:
       - name: Bundle outputs as tar file
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
-            rm ./output/iso/Rocky-9.6-aarch64-unattended.iso
+            rm ./output/Rocky-9.6-aarch64-unattended.iso
             tar -cvf stage1_outputs.tar ./output/
             rm ./output/*
       - name: Upload stage 1 outputs
