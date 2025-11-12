@@ -14,7 +14,7 @@ echo "Waiting for VM to become ready..."
 sleep 20
 updateGuestRepoCheckout  # since the previous stage VM may be from cache
 echo "Provisioning up to MagAOX build"
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_provision_up_to_build.sh
+ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_provision_up_to_build.sh
 # wait for the backgrounded qemu process to exit:
 wait
 echo "Finished provisioning up to build"

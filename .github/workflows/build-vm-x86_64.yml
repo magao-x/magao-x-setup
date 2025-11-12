@@ -31,7 +31,7 @@ jobs:
           key: rocky-iso-${{ env.vmArch }}-${{ hashFiles('xvm/_common.sh','xvm/create_rocky_iso.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template') }}-v1
       - name: Install ISO tools
         if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
-        run: dnf update -y && dnf install -y lorax openssh gettext curl-minimal tar
+        run: dnf update -y && dnf install -y lorax openssh gettext curl-minimal tar python
       - name: Make install ISO and keys
         if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
         run: bash build_vm_stage0.sh
