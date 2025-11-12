@@ -67,6 +67,8 @@ elif [[ $vmArch == x86_64 ]]; then
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
+        -device usb-kbd \
+        -device usb-mouse \
         -drive file=output/xvm.qcow2,format=qcow2 \
         -device virtio-net-pci,netdev=user.0 \
         -m ${ramMB}M \
