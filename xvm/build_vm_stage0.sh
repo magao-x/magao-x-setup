@@ -18,7 +18,7 @@ bash create_kickstart.sh
 echo "download ISO and insert kickstart file"
 bash create_rocky_iso.sh
 
-du -hs ./input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
+du -hs ./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
     ./output/xvm_key \
     ./output/xvm_key.pub
 
