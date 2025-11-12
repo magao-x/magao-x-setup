@@ -1,4 +1,5 @@
 import subprocess
+import select
 import time
 import sys
 import socket
@@ -15,6 +16,9 @@ temp.close()
 qemu_args = sys.argv[1:] + ["-monitor", f"tcp:localhost:{qemu_port},server"]
 print('Launching QEMU...')
 print(' '.join(qemu_args))
+print('\n'*5)
+sys.stdout.buffer.flush()
+
 proc = subprocess.Popen(
     qemu_args,
     stdin=subprocess.PIPE,
@@ -44,27 +48,37 @@ else:
     print("Unable to connect to QEMU monitor port")
     sys.exit(1)
 
-while True:
-    line = proc.stdout.readline()
-    if not line:
-        break  # QEMU exited
+print('\n'*5)
+sys.stdout.buffer.flush()
 
-    print(line)
-    sys.stdout.buffer.flush()
+while True:
+    rready, _, _ = select.select([proc.stdout, sock], [], [], timeout=1)
+    if proc.stdout in rready:
+        line = proc.stdout.readline()
+        if not line:
+            # qemu exited
+            sys.exit(0)
+
+        print(line)
+        sys.stdout.buffer.flush()
+    
+    if sock in rready:
+        socket_data = sock.recv()
+        print(f"[socket] {repr(socket_data)}", file=sys.stderr)
 
     if "Test this media" in line:
         print("Detected boot prompt! Sending keys...", file=sys.stderr)
         time.sleep(0.1)
-        sock.sendall(b"sendkey up\n")
+        sock.sendall(b"sendkey up\n\r\n")
         time.sleep(0.1)
-        sock.sendall(b"sendkey ret\n")
+        sock.sendall(b"sendkey ret\n\r\n")
         last_line = b''
     elif "Press [Esc] to abort check." in line:
         print("Detected media integrity prompt! Sending keys...", file=sys.stderr)
         time.sleep(0.1)
-        sock.sendall(b"sendkey esc\n")
+        sock.sendall(b"sendkey esc\n\r\n")
         time.sleep(0.5)
-        sock.sendall(b"sendkey esc\n")
+        sock.sendall(b"sendkey esc\n\r\n")
         last_line = b''
     elif "Checking:" in line:
         print("Somehow it's still going.")
