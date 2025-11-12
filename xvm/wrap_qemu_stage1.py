@@ -14,7 +14,7 @@ proc = subprocess.Popen(
 )
 
 sock = None
-last_line = None
+last_line = b''
 skipped = False
 
 while True:
@@ -22,7 +22,7 @@ while True:
     if not line:
         break  # QEMU exited
 
-    sys.stdout.buffer.write(line)
+    sys.stdout.buffer.write(repr(line).encode('utf8'))
     sys.stdout.buffer.flush()
 
     if sock is None:
@@ -30,25 +30,20 @@ while True:
         sock.connect(("localhost", 4444))
         print("Connected to localhost:4444")
 
-
-    if last_line is None:
+    full_line = last_line + line
+    if b"Test this media" in full_line:
+        print("Detected boot prompt! Sending keys...", file=sys.stderr)
+        time.sleep(0.1)
+        sock.sendall(b"sendkey up\n")
+        time.sleep(0.1)
+        sock.sendall(b"sendkey ret\n")
         last_line = b''
-
-    if not skipped:
-        full_line = last_line + line
-        if b"Test this media" in full_line:
-            print("Detected boot prompt! Sending keys...")
-            time.sleep(0.1)
-            sock.sendall(b"sendkey up\n")
-            time.sleep(0.1)
-            sock.sendall(b"sendkey ret\n")
-            skipped = True
-        if b"Press [Esc] to abort check." in full_line or b"Checking: " in full_line:
-            print("Detected media integrity prompt! Sending keys...")
-            time.sleep(0.1)
-            sock.sendall(b"sendkey esc\n")
-            time.sleep(0.5)
-            sock.sendall(b"sendkey esc\n")
-            skipped = True
-        else:
-            last_line = line
+    if b"Press [Esc] to abort check." in full_line or b"Checking: " in full_line:
+        print("Detected media integrity prompt! Sending keys...", file=sys.stderr)
+        time.sleep(0.1)
+        sock.sendall(b"sendkey esc\n")
+        time.sleep(0.5)
+        sock.sendall(b"sendkey esc\n")
+        last_line = b''
+    else:
+        last_line = line
