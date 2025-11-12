@@ -8,6 +8,19 @@ fi
 # make disk drive image
 qemu-img create -f qcow2 output/xvm.qcow2 64G
 
+echo "download firmware for EFI boot"
+bash download_firmware.sh
+
+if [[ $vmArch == aarch64 ]]; then
+    echo "Using AAVMF (ARM) firmware"
+    cp ./input/firmware/usr/share/AAVMF/AAVMF_VARS.fd ./output/firmware_vars.fd
+    cp ./input/firmware/usr/share/AAVMF/AAVMF_CODE.fd ./output/firmware_code.fd
+else
+    echo "Using OVMF (x86_64) firmware"
+    cp ./input/firmware/usr/share/edk2/ovmf/OVMF_VARS.fd ./output/firmware_vars.fd
+    cp ./input/firmware/usr/share/edk2/ovmf/OVMF_CODE.fd ./output/firmware_code.fd
+fi
+
 echo "Starting VM installation process..."
 python ./wrap_qemu_stage1.py $qemuSystemCommand \
     -cdrom input/iso/Rocky-${rockyVersion}-${vmArch}-unattended.iso \

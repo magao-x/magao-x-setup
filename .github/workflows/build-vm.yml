@@ -31,9 +31,9 @@ jobs:
       - name: Install ISO tools
         if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
         run: dnf update -y && dnf install -y lorax
-      - name: Download Rocky ISO
+      - name: Make install ISO and keys
         if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
-        run: bash download_rocky_iso.sh
+        run: bash build_vm_stage0.sh
       - name: Bundle outputs as tar file
         if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
         run: |
