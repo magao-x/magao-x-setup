@@ -51,8 +51,14 @@ else:
 print('\n'*5)
 sys.stdout.buffer.flush()
 
+READ_TIMEOUT_SEC = 1
+
 while True:
-    rready, _, _ = select.select([proc.stdout, sock], [], [], timeout=1)
+    rready, _, _ = select.select([proc.stdout, sock], [], [], READ_TIMEOUT_SEC)
+    if sock in rready:
+        socket_data = sock.recv()
+        print(f"[socket] {repr(socket_data)}", file=sys.stderr)
+
     if proc.stdout in rready:
         line = proc.stdout.readline()
         if not line:
@@ -62,25 +68,23 @@ while True:
         print(line)
         sys.stdout.buffer.flush()
     
-    if sock in rready:
-        socket_data = sock.recv()
-        print(f"[socket] {repr(socket_data)}", file=sys.stderr)
 
-    if "Test this media" in line:
-        print("Detected boot prompt! Sending keys...", file=sys.stderr)
-        time.sleep(0.1)
-        sock.sendall(b"sendkey up\n\r\n")
-        time.sleep(0.1)
-        sock.sendall(b"sendkey ret\n\r\n")
-        last_line = b''
-    elif "Press [Esc] to abort check." in line:
-        print("Detected media integrity prompt! Sending keys...", file=sys.stderr)
-        time.sleep(0.1)
-        sock.sendall(b"sendkey esc\n\r\n")
-        time.sleep(0.5)
-        sock.sendall(b"sendkey esc\n\r\n")
-        last_line = b''
-    elif "Checking:" in line:
-        print("Somehow it's still going.")
-        proc.kill()
-        sys.exit(1)
+
+        if "Test this media" in line:
+            print("Detected boot prompt! Sending keys...", file=sys.stderr)
+            time.sleep(0.1)
+            sock.sendall(b"sendkey up\n\r\n")
+            time.sleep(0.1)
+            sock.sendall(b"sendkey ret\n\r\n")
+            last_line = b''
+        elif "Press [Esc] to abort check." in line:
+            print("Detected media integrity prompt! Sending keys...", file=sys.stderr)
+            time.sleep(0.1)
+            sock.sendall(b"sendkey esc\n\r\n")
+            time.sleep(0.5)
+            sock.sendall(b"sendkey esc\n\r\n")
+            last_line = b''
+        elif "Checking:" in line:
+            print("Somehow it's still going.")
+            proc.kill()
+            sys.exit(1)
