@@ -30,9 +30,12 @@ export ioFlag
 nCpus=$(nproc 2>/dev/null || echo '3')
 ramMB=8192
 
-#
 if [[ -n "$CI" ]]; then
     guestPort=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+    qemuPort=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+    if [[ "$qemuPort" == "$guestPort" ]]; then
+        exit 1  # unlucky
+    fi
 else
     guestPort=2201
 fi
@@ -45,39 +48,30 @@ fi
 
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
-        -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
-        -smp $nCpus \
-        $qemuAccelFlags \
-        $qemuMachineFlags \
         -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
         -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
-        -drive file=output/xvm.qcow2,format=qcow2 \
-        -device virtio-gpu-pci \
-        -device virtio-net-pci,netdev=user.0 \
-        -device qemu-xhci \
-        -device usb-kbd \
-        -device usb-mouse \
-        -m ${ramMB}M \
-        $ioFlag "
+        -device virtio-gpu-pci"
 elif [[ $vmArch == x86_64 ]]; then
-    qemuSystemCommand="qemu-system-${vmArch} \
-        -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
-        -smp $nCpus \
-        $qemuAccelFlags \
-        $qemuMachineFlags \
-        -device qemu-xhci \
-        -device usb-kbd \
-        -device usb-mouse \
-        -drive file=output/xvm.qcow2,format=qcow2 \
-        -device virtio-net-pci,netdev=user.0 \
-        -m ${ramMB}M \
-        $ioFlag "
+    qemuSystemCommand="qemu-system-${vmArch}"
 else
     echo 'set $vmArch'
     exit 1
 fi
+qemuSystemCommand="$qemuSystemCommand \
+    -name xvm
+    -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
+    -name xvm \
+    -smp $nCpus \
+    $qemuAccelFlags \
+    $qemuMachineFlags \
+    -drive file=output/xvm.qcow2,format=qcow2 \
+    -monitor tcp:127.0.0.1:${qemuPort},server,nowait \
+    -device virtio-net-pci,netdev=user.0 \
+    -device qemu-xhci \
+    -device usb-kbd \
+    -device usb-mouse \
+    -m ${ramMB}M \
+    $ioFlag "
 export qemuSystemCommand
 
 export rockyVersion=${rockyVersion:-9.6}

@@ -23,6 +23,7 @@ else
 fi
 
 echo "Starting VM installation process..."
+export qemuPort
 python ./wrap_qemu_stage1.py $qemuSystemCommand \
     -cdrom output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
     -serial stdio

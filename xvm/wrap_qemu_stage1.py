@@ -2,7 +2,8 @@ import subprocess
 import time
 import sys
 import socket
-
+import os
+qemuPort = int(os.environ.get('qemuPort', 4444))
 print(sys.argv)
 
 proc = subprocess.Popen(
@@ -22,13 +23,13 @@ while True:
     if not line:
         break  # QEMU exited
 
-    sys.stdout.buffer.write(repr(line).encode('utf8'))
+    print(repr(line).encode('utf8'))
     sys.stdout.buffer.flush()
 
     if sock is None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("localhost", 4444))
-        print("Connected to localhost:4444")
+        sock.connect(("localhost", qemuPort))
+        print(f"Connected to localhost:{qemuPort}")
 
     full_line = last_line + line
     if b"Test this media" in full_line:
@@ -38,12 +39,16 @@ while True:
         time.sleep(0.1)
         sock.sendall(b"sendkey ret\n")
         last_line = b''
-    if b"Press [Esc] to abort check." in full_line or b"Checking: " in full_line:
+    elif b"Press [Esc] to abort check." in full_line:
         print("Detected media integrity prompt! Sending keys...", file=sys.stderr)
         time.sleep(0.1)
         sock.sendall(b"sendkey esc\n")
         time.sleep(0.5)
         sock.sendall(b"sendkey esc\n")
         last_line = b''
+    elif b"Checking:" in full_line:
+        print("Somehow it's still going.")
+        proc.kill()
+        sys.exit(1)
     else:
         last_line = line
