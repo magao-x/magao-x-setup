@@ -14,7 +14,7 @@ proc = subprocess.Popen(
 
 sock = None
 last_line = None
-skipped_menu = False
+skipped = False
 
 while True:
     line = proc.stdout.read(128)
@@ -33,12 +33,18 @@ while True:
     if last_line is None:
         last_line = b''
 
-    if b"Test this media" in last_line + line:
-        print("Detected boot prompt! Sending keys...")
-        time.sleep(0.1)
-        sock.sendall(b"sendkey up\n")
-        time.sleep(0.1)
-        sock.sendall(b"sendkey ret\n")
-        skipped_menu = True
-    else:
-        last_line = line
+    if not skipped:
+        if b"Test this media" in last_line + line:
+            print("Detected boot prompt! Sending keys...")
+            time.sleep(0.1)
+            sock.sendall(b"sendkey up\n")
+            time.sleep(0.1)
+            sock.sendall(b"sendkey ret\n")
+            skipped = True
+        if b"Press [Esc] to abort check." in last_line + line:
+            print("Detected media integrity prompt! Sending keys...")
+            time.sleep(0.1)
+            sock.sendall(b"sendkey esc\n")
+            skipped = True
+        else:
+            last_line = line
