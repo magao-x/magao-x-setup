@@ -6,8 +6,14 @@ import os
 qemuPort = int(os.environ.get('qemuPort', 4444))
 print(sys.argv)
 
+# Trick to grab an almost-certainly-unused port number
+temp = socket.socket()
+temp.bind(("", 0))
+qemuPort = temp.getsockname()[1]
+temp.close()
+
 proc = subprocess.Popen(
-    sys.argv[1:] + ["-monitor", "tcp:localhost:4444,server,nowait"],
+    sys.argv[1:] + ["-monitor", f"tcp:localhost:{qemuPort},server,nowait"],
     stdin=subprocess.PIPE,
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,

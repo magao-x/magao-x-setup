@@ -32,10 +32,6 @@ ramMB=8192
 
 if [[ -n "$CI" ]]; then
     guestPort=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
-    qemuPort=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
-    if [[ "$qemuPort" == "$guestPort" ]]; then
-        exit 1  # unlucky
-    fi
 else
     guestPort=2201
 fi
@@ -65,7 +61,6 @@ qemuSystemCommand="$qemuSystemCommand \
     $qemuAccelFlags \
     $qemuMachineFlags \
     -drive file=output/xvm.qcow2,format=qcow2 \
-    -monitor tcp:127.0.0.1:${qemuPort},server,nowait \
     -device virtio-net-pci,netdev=user.0 \
     -device qemu-xhci \
     -device usb-kbd \
