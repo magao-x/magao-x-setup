@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source ./_common.sh
-set -xe
+set -x
 if [[ -e ./output/xvm_stage1.qcow2 ]]; then
     echo "Stage one image populated from cache. Skipping stage one."
     exit 0
