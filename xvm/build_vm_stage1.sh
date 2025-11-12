@@ -34,7 +34,7 @@ echo "Updating guest repo checkout"
 echo "Waiting for VM to become ready..."
 sleep 20
 updateGuestRepoCheckout
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_setup_users_and_groups.sh
+ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_setup_users_and_groups.sh
 # wait for the backgrounded qemu process to exit:
 wait
 mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2

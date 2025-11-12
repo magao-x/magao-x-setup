@@ -14,7 +14,7 @@ echo "Waiting for VM to become ready..."
 sleep 20
 updateGuestRepoCheckout  # since the previous stage VM may be from cache
 echo "Install MagAO-X software"
-ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_install_magao-x_in_vm.sh
+ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_install_magao-x_in_vm.sh
 # wait for the backgrounded qemu process to exit:
 wait
 echo "Finished installing MagAO-X software."

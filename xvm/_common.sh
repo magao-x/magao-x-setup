@@ -30,12 +30,19 @@ export ioFlag
 nCpus=$(nproc 2>/dev/null || echo '3')
 ramMB=8192
 
+#
+if [[ -n "$CI" ]]; then
+    guestPort=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+else
+    guestPort=2201
+fi
+
 qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
 
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp::2201-:22 \
+        -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
@@ -52,12 +59,11 @@ if [[ $vmArch == aarch64 ]]; then
 elif [[ $vmArch == x86_64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp::2201-:22 \
+        -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
         -drive file=output/xvm.qcow2,format=qcow2 \
-        -netdev user,id=net0,hostfwd=tcp::2201-:22 \
         -device virtio-net-pci,netdev=user.0 \
         -m ${ramMB}M \
         $ioFlag "
@@ -76,7 +82,7 @@ function updateGuestRepoCheckout() {
         rsync \
             --progress -a --exclude xvm/output --exclude xvm/input \
             --exclude .git \
-            -e 'ssh -p 2201 -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key' \
+            -e "ssh -p ${guestPort} -o 'UserKnownHostsFile /dev/null' -o 'StrictHostKeyChecking=no' -i ./output/xvm_key" \
             ../ xsup@localhost:magao-x-setup/ \
             && break
         ((count++))
