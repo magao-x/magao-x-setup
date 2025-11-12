@@ -35,7 +35,7 @@ qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
 if [[ $vmArch == aarch64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -netdev user,id=user.0,hostfwd=tcp::2201-:22 \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
@@ -52,12 +52,12 @@ if [[ $vmArch == aarch64 ]]; then
 elif [[ $vmArch == x86_64 ]]; then
     qemuSystemCommand="qemu-system-${vmArch} \
         -name xvm \
-        -netdev user,id=user.0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -netdev user,id=user.0,hostfwd=tcp::2201-:22 \
         -smp $nCpus \
         $qemuAccelFlags \
         $qemuMachineFlags \
         -drive file=output/xvm.qcow2,format=qcow2 \
-        -netdev user,id=net0,hostfwd=tcp:127.0.0.1:2201-:22 \
+        -netdev user,id=net0,hostfwd=tcp::2201-:22 \
         -device e1000,netdev=net0 \
         -m ${ramMB}M \
         $ioFlag "
