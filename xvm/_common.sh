@@ -54,7 +54,6 @@ else
     exit 1
 fi
 qemuSystemCommand="$qemuSystemCommand \
-    -name xvm
     -netdev user,id=user.0,hostfwd=tcp::${guestPort}-:22 \
     -name xvm \
     -smp $nCpus \
@@ -62,9 +61,6 @@ qemuSystemCommand="$qemuSystemCommand \
     $qemuMachineFlags \
     -drive file=output/xvm.qcow2,format=qcow2 \
     -device virtio-net-pci,netdev=user.0 \
-    -device qemu-xhci \
-    -usbdevice mouse \
-    -usbdevice keyboard \
     -m ${ramMB}M \
     $ioFlag "
 export qemuSystemCommand
