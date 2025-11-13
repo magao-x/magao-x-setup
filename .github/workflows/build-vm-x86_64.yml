@@ -230,8 +230,9 @@ jobs:
             sudo apt-get install -y pigz
       - name: Install MagAO-X software
         run: bash build_vm_stage4.sh
-      - name: Upload virtual machine for VirtualBox/VMware
+      - name: Upload virtual machine disk image
         uses: actions/upload-artifact@v4
         with:
-          name: ova_bundle_x86_64
-          path: xvm/output/bundle/MagAO-X_x86_64.ova
+          name: vm_${{ env.vmArch }}
+          path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.gz
+

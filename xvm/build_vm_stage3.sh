@@ -14,10 +14,18 @@ echo "Waiting for VM to become ready..."
 sleep 20
 updateGuestRepoCheckout  # since the previous stage VM may be from cache
 echo "Provisioning up to MagAOX build"
+failure=0
 ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_provision_up_to_build.sh
+if [[ $? != 0 ]]; then
+    failure=1
+fi
+# Regardless of failure, need to shut down the VM for script to exit
+ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_shutdown.sh
 # wait for the backgrounded qemu process to exit:
 wait
-echo "Finished provisioning up to build"
-wait
+if [[ $failure != 0 ]]; then
+    echo "Failed to install first-party dependencies"
+    exit 1
+fi
 mv -v ./output/xvm.qcow2 ./output/xvm_stage3.qcow2
-echo "Finished installing MagAO-X dependencies."
+echo "Finished provisioning up to build"

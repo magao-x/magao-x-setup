@@ -214,11 +214,11 @@ jobs:
       - name: Install pigz for Ubuntu
         run: |
             sudo apt-get update
-            sudo apt-get install -y pigz
+            sudo apt-get install -y xz-utils
       - name: Install MagAO-X software
         run: bash build_vm_stage4.sh
       - name: Upload virtual machine for UTM
         uses: actions/upload-artifact@v4
         with:
-          name: utm_bundle_${{ env.vmArch }}
-          path: xvm/output/bundle/MagAO-X_UTM_${{ env.vmArch }}.tar.gz
+          name: vm_${{ env.vmArch }}
+          path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.xz
