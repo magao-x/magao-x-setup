@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
-set -uo pipefail
+set -xuo pipefail
 
 log_info "Make Extra Packages for Enterprise Linux available in /etc/yum.repos.d/"
 if ! dnf config-manager -h >/dev/null; then
@@ -118,9 +118,10 @@ mkdir -p /etc/profile.d/ || exit 1
 echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /etc/profile.d/99-pkg-config.sh || exit 1
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-if [[ "$VM_KIND" != *container* ]]; then
-    dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo -y || exit 1
-    dnf install tailscale || exit 1
+# For containerized/virtualized environments, use Tailscale set up on the host side
+if [[ "$VM_KIND" == none ]]; then
+    dnf config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
+    dnf install -y tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi
 
