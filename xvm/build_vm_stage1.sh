@@ -23,7 +23,7 @@ else
 fi
 
 echo "Starting VM installation process..."
-python ./wrap_qemu_stage1.py $qemuSystemCommand \
+$qemuSystemCommand \
     -cdrom output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
     -serial stdio || exit 1
 echo "Created VM and installed Rocky Linux"

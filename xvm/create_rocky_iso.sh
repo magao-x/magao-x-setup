@@ -29,21 +29,21 @@ fi
 rebuildDest=./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
+commonArgs="--ks ./input/kickstart/ks.cfg \
+    --cmdline 'inst.cmdline' \
+    --cmdline 'console=ttyS0' \
+    --rm-args rd.live.check"
 if [[ $(uname -o) == Darwin ]]; then
     podman run \
         -v "${DIR}/:/xvm" \
         -it rockylinux:$rockyVersion \
         bash /xvm/mkksisowrap.sh \
-        --ks /xvm/input/kickstart/ks.cfg \
-        --cmdline 'inst.cmdline' \
-        --cmdline 'console=ttyS0' \
+        $commonArgs \
         /xvm/input/iso/${ISO_FILE} \
         /xvm/$rebuildDest
 else
     mkksiso \
-        --ks ./input/kickstart/ks.cfg \
-        --cmdline 'inst.cmdline' \
-        --cmdline 'console=ttyS0' \
+        $commonArgs \
         ./input/iso/${ISO_FILE} \
         $rebuildDest
 fi
