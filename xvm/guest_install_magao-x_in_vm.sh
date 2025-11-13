@@ -1,9 +1,4 @@
 #/usr/bin/env bash
-function shutdownVM() {
-    echo 'Shutting down VM from within guest...'
-    sudo shutdown -P now
-}
-trap shutdownVM EXIT
 set -x
 sudo chmod g+w /opt/MagAOX/source
 sudo chown :magaox-dev /opt/MagAOX/source

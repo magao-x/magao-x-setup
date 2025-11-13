@@ -30,17 +30,21 @@ echo "Created VM and installed Rocky Linux"
 
 echo "Starting up the VM to add users and groups..."
 # start up the VM and put it in the background, or exit on error
+
 $qemuSystemCommand -serial stdio &
-if [[ $? -ne 0 ]]; then
-    echo "Failed to start VM"
-    exit 1
-fi
+qemuPid=$!
 echo "Updating guest repo checkout"
 echo "Waiting for VM to become ready..."
 sleep 20
+if ! kill -0 $qemuPid 2>/dev/null; then
+    echo "Failed - QEMU process exited unexpectedly"
+    exit 1
+fi
 updateGuestRepoCheckout || exit 1
 ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_setup_users_and_groups.sh || exit 1
+# need to shut down the VM for script to exit
+ssh -p $guestPort -o "UserKnownHostsFile /dev/null" -o "StrictHostKeyChecking=no" -i ./output/xvm_key xsup@localhost 'bash -s' < ./guest_shutdown.sh || exit 1
 # wait for the backgrounded qemu process to exit:
-wait
+wait $qemuPid
 mv -v ./output/xvm.qcow2 ./output/xvm_stage1.qcow2 || exit 1
 echo "Finished creating initial Rocky VM"

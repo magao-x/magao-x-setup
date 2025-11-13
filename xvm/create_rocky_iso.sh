@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exuo pipefail
+set -xeo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/_common.sh
 
@@ -29,8 +29,7 @@ fi
 rebuildDest=./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
-commonArgs="--ks ./input/kickstart/ks.cfg \
-    --cmdline 'inst.cmdline' \
+commonArgs="--cmdline 'inst.cmdline' \
     --cmdline 'console=ttyS0' \
     --rm-args rd.live.check"
 if [[ $(uname -o) == Darwin ]]; then
@@ -39,11 +38,13 @@ if [[ $(uname -o) == Darwin ]]; then
         -it rockylinux:$rockyVersion \
         bash /xvm/mkksisowrap.sh \
         $commonArgs \
+        --ks /xvm/input/kickstart/ks.cfg \
         /xvm/input/iso/${ISO_FILE} \
         /xvm/$rebuildDest
 else
     mkksiso \
         $commonArgs \
+        --ks ./input/kickstart/ks.cfg \
         ./input/iso/${ISO_FILE} \
         $rebuildDest
 fi

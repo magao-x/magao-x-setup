@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source ./_common.sh
-set -xe
+set -x
 if [[ -e ./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso &&
       -e ./output/firmware_vars.fd &&
       -e ./output/firmware_code.fd &&

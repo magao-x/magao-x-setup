@@ -6,7 +6,9 @@ cd ./input/firmware
 indexPage=https://dl.rockylinux.org/pub/rocky/9/AppStream/${vmArch}/os/Packages/e/
 
 rpmName=$(curl -q $indexPage | grep edk2 | sed -n 's/.*href="\(edk2-[^"]*\)".*/\1/p')
-curl -OL ${indexPage}/${rpmName} || exit 1
+if [[ ! -e $rpmName ]]; then
+    curl -OL ${indexPage}/${rpmName} || exit 1
+fi
 if [[ $(uname -o) == Darwin ]]; then
     tar xf $rpmName || exit 1
 else
