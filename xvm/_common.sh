@@ -4,15 +4,15 @@ if [[ -z $vmArch ]]; then
     exit 1
 fi
 if [[ $vmArch == "aarch64" && $(uname -m) == "arm" && -z $CI ]]; then
-    qemuMachineFlags="-machine type=virt,highmem=on -cpu host"
+    qemuMachineFlags="-machine type=virt -cpu host"
 elif [[ $vmArch == "aarch64" ]]; then
-    qemuMachineFlags="-machine type=virt,usb=on -cpu max"
+    qemuMachineFlags="-machine type=virt -cpu max"
 elif [[ $vmArch == "x86_64" && $(uname -m) == "x86_64" && -z $CI ]]; then
-    qemuMachineFlags="-machine q35,usb=on -cpu host"
+    qemuMachineFlags="-machine q35 -cpu host"
 elif [[ $vmArch == "x86_64" ]]; then
-    qemuMachineFlags="-machine q35,usb=on -cpu max"
+    qemuMachineFlags="-machine q35 -cpu max"
 else
-    qemuMachineFlags="-machine type=virt,usb=on -cpu max"
+    qemuMachineFlags="-machine type=virt -cpu max"
 fi
 export qemuMachineFlags
 
@@ -62,6 +62,7 @@ qemuSystemCommand="$qemuSystemCommand \
     $qemuMachineFlags \
     -drive file=output/xvm.qcow2,format=qcow2 \
     -device virtio-net-pci,netdev=user.0 \
+    -device qemu-xhci \
     -usbdevice mouse \
     -usbdevice keyboard \
     -m ${ramMB}M \
