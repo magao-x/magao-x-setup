@@ -122,7 +122,7 @@ jobs:
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-x8
+          sudo apt-get install -y qemu-system-x86
       - name: Download initial Rocky VM
         if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
