@@ -31,6 +31,11 @@ if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGA
     milkCmakeArgs="-DUSE_CUDA=ON ${milkCmakeArgs}"
 fi
 
+# Workaround for strictness change in GCC >= 15
+export CFLAGS="-std=gnu17 $CFLAGS"
+# (set once here, but cached for future builds
+# until build dir is recreated and cmake rerun)
+
 cmake .. $milkCmakeArgs || exit 1
 numCpus=$(nproc)
 make -j $((numCpus / 2)) || exit 1
