@@ -62,9 +62,8 @@ qemuSystemCommand="$qemuSystemCommand \
     $qemuMachineFlags \
     -drive file=output/xvm.qcow2,format=qcow2 \
     -device virtio-net-pci,netdev=user.0 \
-    -device qemu-xhci \
-    -device usb-kbd \
-    -device usb-mouse \
+    -usbdevice mouse \
+    -usbdevice keyboard \
     -m ${ramMB}M \
     $ioFlag "
 export qemuSystemCommand
