@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
-set -uo pipefail
+set -o pipefail
 
 COMMIT_ISH=magaox
 orgname=xwcl
