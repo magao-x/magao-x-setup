@@ -15,7 +15,7 @@ elif [[ ! -e ./output/xvm.qcow2 ]]; then
     echo "No existing xvm.qcow2 found to use in stage 2"
     exit 1
 fi
-$qemuSystemCommand || exit 1 &
+$qemuSystemCommand &
 qemuPid=$?
 echo "Updating guest repo checkout"
 echo "Waiting for VM to become ready..."
