@@ -42,8 +42,8 @@ rockyContainer=rockylinux:9
 $dockerCmd pull $rockyContainer
 $dockerCmd run \
     -v "${DIR}/:/xvm" \
-    -t $rockyContainer \
     --rm \
+    -t $rockyContainer \
     bash /xvm/mkksisowrap.sh \
     --cmdline 'inst.cmdline' \
     --cmdline 'console=ttyS0' \
