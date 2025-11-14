@@ -51,13 +51,12 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:gui
           labels: ${{ steps.meta.outputs.labels }}
       - name: Clean up old packages
-        uses: smartsquaregmbh/delete-old-packages@v0.8.1
+        uses: actions/delete-package-versions@v5
         with:
-          organization: magao-x
-          type: container
-          keep: 5
-          names: |
-            magao-x-setup
+          package-name: magao-x-setup
+          package-type: container
+          min-versions-to-keep: 5
+          delete-only-untagged-versions: 'true'
   # build-and-push-arm:
   #   runs-on: ubuntu-latest
   #   permissions:
