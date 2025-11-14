@@ -30,6 +30,17 @@ elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
         xorg-x11-xauth \
         xterm \
     || exit 1
+elif [[ $ID == fedora ]]; then
+    sudo dnf install -y \
+        qt6-qt5compat-devel \
+        qwt-qt5-devel \
+        qwt-qt6-devel \
+        wmctrl \
+        xorg-x11-xauth \
+        xterm \
+    || exit 1
+else
+    exit_with_error "Don't know what to do for GUIs on $ID $VERSION_ID"
 fi
 
 # For some reason, Qt won't hear any keyboard events unless this is set.

@@ -55,6 +55,7 @@ dnf install -y \
     screen \
     which \
     sudo \
+    strace \
     sysstat \
     fuse \
     psmisc \

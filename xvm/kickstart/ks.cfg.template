@@ -140,6 +140,7 @@ ntfs-3g
 screen
 which
 sudo
+strace
 sysstat
 fuse
 psmisc
