@@ -11,48 +11,12 @@ defaults:
   run:
     working-directory: xvm/
 jobs:
-  build-vm-stage0:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    container: rockylinux:9
-    env:
-      vmArch: x86_64
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Cache Rocky ISO
-        uses: actions/cache@v4
-        id: cache-vm-stage0
-        with:
-          path: xvm/stage0_outputs.tar
-          key: rocky-iso-${{ env.vmArch }}-${{ hashFiles('xvm/_common.sh','xvm/create_rocky_iso.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template') }}-v1
-      - name: Install ISO tools
-        if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
-        run: dnf update -y && dnf install -y lorax openssh gettext curl-minimal tar python
-      - name: Make install ISO and keys
-        if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
-        run: bash build_vm_stage0.sh
-      - name: Bundle outputs as tar file
-        if: steps.cache-vm-stage0.outputs.cache-hit != 'true'
-        run: |
-            tar -cvf stage0_outputs.tar ./output/
-            rm ./output/*
-      - name: Upload stage 0 outputs
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 1
-          name: stage0_vm
-          path: xvm/stage0_outputs.tar
   build-vm-stage1:
     # TODO: Re-enable this condition when using workflow_run trigger
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
       vmArch: x86_64
-    needs: build-vm-stage0
     permissions:
       contents: read
       packages: write
@@ -64,7 +28,7 @@ jobs:
         id: cache-vm-stage1
         with:
           path: xvm/stage1_outputs.tar
-          key: xvm-stage1-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
+          key: xvm-stage1-x86_64-${{ hashFiles('xvm/_common.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template','xvm/create_rocky_iso.sh','xvm/build_vm_stage1.sh','xvm/download_firmware.sh','xvm/guest_setup_users_and_groups.sh','xvm/guest_shutdown.sh','setup_users_and_groups.sh','_common.sh') }}-v1
       - name: Install QEMU and ISO tools for Ubuntu
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -76,20 +40,11 @@ jobs:
           qemu-system-x86_64 --version
           echo "Available accelerators:"
           qemu-system-x86_64 -accel help 2>&1 || true
-      - name: Download Rocky install ISO and SSH keypair
-        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v4
-        with:
-            name: stage0_vm
-            path: xvm/
-      - name: Extract previous job outputs
-        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-            tar -xvf stage0_outputs.tar
-            rm stage0_outputs.tar
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: bash -x build_vm_stage1.sh
+        run: |
+          bash -x build_vm_stage0.sh
+          bash -x build_vm_stage1.sh
       - name: Bundle outputs as tar file
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -113,35 +68,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Cache second stage VM
-        uses: actions/cache@v4
-        id: cache-vm-stage2
-        with:
-          path: xvm/stage2_outputs.tar
-          key: xvm-stage2-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
       - name: Install QEMU
-        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-x86
       - name: Download initial Rocky VM
-        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v4
         with:
             name: stage1_vm_x86_64
             path: xvm/
       - name: Extract previous job outputs
-        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
             tar -xvf stage1_outputs.tar
             rm stage1_outputs.tar
             mv -v output/xvm_stage1.qcow2 output/xvm.qcow2
       - name: Install MagAO-X dependencies
-        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
             bash build_vm_stage2.sh
       - name: Bundle outputs as tar file
-        if: steps.cache-vm-stage2.outputs.cache-hit != 'true'
         run: |
             tar -cvf stage2_outputs.tar ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
       - name: Upload stage 2 outputs
@@ -160,37 +104,26 @@ jobs:
       steps:
         - name: Checkout repository
           uses: actions/checkout@v4
-        - name: Cache third stage VM
-          uses: actions/cache@v4
-          id: cache-vm-stage3
-          with:
-            path: xvm/stage3_outputs.tar
-            key: xvm-stage3-x86_64-${{ hashFiles('**','!.github/**','!xvm/input/**','!xvm/output/**') }}-v2
         - name: Install QEMU
-          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           run: |
             sudo apt-get update
             sudo apt-get install -y qemu-system-x86 rpm2cpio expect
         - name: Download stage 2 VM
-          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           uses: actions/download-artifact@v4
           with:
               name: stage2_vm_x86_64
               path: xvm/
         - name: Extract previous job outputs
-          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           run: |
               cd $GITHUB_WORKSPACE/xvm/
               tar -xvf stage2_outputs.tar
               rm stage2_outputs.tar
               mv -v output/xvm_stage2.qcow2 output/xvm.qcow2
         - name: Provision up to MagAO-X build
-          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           run: |
               cd $GITHUB_WORKSPACE/xvm/
               bash build_vm_stage3.sh
         - name: Bundle outputs as tar file
-          if: steps.cache-vm-stage3.outputs.cache-hit != 'true'
           run: |
               cd $GITHUB_WORKSPACE/xvm/
               tar -cvf stage3_outputs.tar ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub

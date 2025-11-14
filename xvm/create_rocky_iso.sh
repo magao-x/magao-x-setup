@@ -29,23 +29,25 @@ fi
 rebuildDest=./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
-commonArgs="--cmdline 'inst.cmdline' \
-    --cmdline 'console=ttyS0' \
-    --rm-args rd.live.check"
-if [[ $(uname -o) == Darwin ]]; then
-    podman run \
-        -v "${DIR}/:/xvm" \
-        -it rockylinux:$rockyVersion \
-        bash /xvm/mkksisowrap.sh \
-        $commonArgs \
-        --ks /xvm/input/kickstart/ks.cfg \
-        /xvm/input/iso/${ISO_FILE} \
-        /xvm/$rebuildDest
+
+if command -v docker 2>&1 > /dev/null; then
+    dockerCmd=docker
+elif command -v podman 2>&1 > /dev/null; then
+    dockerCmd=podman
 else
-    mkksiso \
-        $commonArgs \
-        --ks ./input/kickstart/ks.cfg \
-        ./input/iso/${ISO_FILE} \
-        $rebuildDest
+    echo "Neither docker nor podman present, aborting"
+    exit 1
 fi
+
+$dockerCmd run \
+    -v "${DIR}/:/xvm" \
+    -it rockylinux:$rockyVersion \
+    bash /xvm/mkksisowrap.sh \
+    --cmdline 'inst.cmdline' \
+    --cmdline 'console=ttyS0' \
+    --rm-args rd.live.check \
+    --ks /xvm/input/kickstart/ks.cfg \
+    /xvm/input/iso/${ISO_FILE} \
+    /xvm/$rebuildDest \
+|| exit 1
 du -h $rebuildDest
