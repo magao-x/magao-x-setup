@@ -58,7 +58,7 @@ yum install -y \
     util-linux-user \
     passwd \
     openssh \
-    cmake3 \
+    cmake \
     vim \
     nano \
     wget \

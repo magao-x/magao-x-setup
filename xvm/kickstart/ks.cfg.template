@@ -99,7 +99,7 @@ spice-vdagent
 mlocate
 age
 gcc-gfortran
-cmake3
+cmake
 vim
 nano
 wget
@@ -112,6 +112,35 @@ readline-devel
 pkgconfig
 bison
 flex
+dialog
+autossh
+check-devel
+subunit-devel
+tmux
+boost-devel
+gsl
+gsl-devel
+bc
+chrony
+gdb
+yum-utils
+strace
+sysstat
+fuse
+psmisc
+podman
+nethogs
+nfs-utils
+rsync
+lapack-devel
+python
+fftw
+fftw-devel
+fftw-libs
+fftw-libs-double
+fftw-libs-single
+fftw-libs-long
+fftw-static
 %end
 
 # Do not start the Inital Setup app
