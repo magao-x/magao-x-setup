@@ -53,7 +53,7 @@ jobs:
       - name: Clean up old packages
         uses: smartsquaregmbh/delete-old-packages@v0.8.1
         with:
-          organization: 
+          organization: magao-x
           type: container
           keep: 5
           names: |
