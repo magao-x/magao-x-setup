@@ -50,7 +50,14 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:gui
           labels: ${{ steps.meta.outputs.labels }}
-
+      - name: Clean up old packages
+        uses: smartsquaregmbh/delete-old-packages@v0.8.1
+        with:
+          organization: 
+          type: container
+          keep: 5
+          names: |
+            magao-x-setup
   # build-and-push-arm:
   #   runs-on: ubuntu-latest
   #   permissions:
