@@ -77,10 +77,10 @@ dnf install -y \
     age \
 || exit 1
 
-if [[ $(uname -p) == "x86_64" ]]; then
+if [[ $(uname -m) == "x86_64" ]]; then
     yum install -y fftw-libs-quad || exit 1
 else
-    log_info "libfftw3-quad not available on $(uname -p) host"
+    log_info "libfftw3-quad not available on $(uname -m) host"
 fi
 
 
@@ -91,7 +91,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
-    dnf install tailscale || exit 1
+    dnf install -y tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi
 

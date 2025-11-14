@@ -106,10 +106,10 @@ yum install -y \
     fftw-static \
 || exit 1
 
-if [[ $(uname -p) == "x86_64" ]]; then
+if [[ $(uname -m) == "x86_64" ]]; then
     yum install -y fftw-libs-quad || exit 1
 else
-    log_info "libfftw3-quad not available on $(uname -p) host"
+    log_info "libfftw3-quad not available on $(uname -m) host"
 fi
 
 

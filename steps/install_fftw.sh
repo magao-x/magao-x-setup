@@ -31,7 +31,7 @@ if [ ! -e /usr/local/lib/libfftw3l.a ]; then
     make || exit 1
     make install || exit 1
 fi
-if [[ $(uname -p) == "x86_64" ]]; then
+if [[ $(uname -m) == "x86_64" ]]; then
     # libquadmath is part of gcc and not available on ARM
     if [ ! -e /usr/local/lib/libfftw3q.a ]; then
         ./configure --enable-quad-precision --with-combined-threads --enable-threads --enable-shared || exit 1

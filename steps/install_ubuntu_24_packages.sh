@@ -60,8 +60,8 @@ apt-get install -y \
     libfftw3-double3 \
 || exit 1
 
-if [[ $(uname -p) == "x86_64" ]]; then
+if [[ $(uname -m) == "x86_64" ]]; then
     apt-get install -y libfftw3-quad3 || exit 1
 else
-    log_info "libfftw3-quad not available on $(uname -p) host"
+    log_info "libfftw3-quad not available on $(uname -m) host"
 fi
