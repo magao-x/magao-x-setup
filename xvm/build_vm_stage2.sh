@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 echo "Starting up the VM for MagAO-X dependencies installation..."
 source ./_common.sh
+if [[ -e ./output/xvm_stage2.qcow2 ]]; then
+    echo "Stage 2 image populated from cache. Skipping stage 2."
+    exit 0
+fi
 if [[ -e ./output/xvm_stage1.qcow2 ]]; then
-    cp ./output/xvm_stage1.qcow2 ./output/xvm.qcow2
+    if [[ -z $CI ]]; then
+        cp ./output/xvm_stage1.qcow2 ./output/xvm.qcow2
+    else
+        mv ./output/xvm_stage1.qcow2 ./output/xvm.qcow2
+    fi
 elif [[ ! -e ./output/xvm.qcow2 ]]; then
     echo "No existing xvm.qcow2 found to use in stage 2"
     exit 1
