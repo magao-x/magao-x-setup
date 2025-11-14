@@ -7,6 +7,28 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 jobs:
+  build-x86:
+    runs-on: ubuntu-latest
+    container: fedora:43
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build in Docker image without GUIs
+        id: build-cli
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: Dockerfile
+          target: cli
+          push: false
+      - name: Build and push Docker image with GUIs
+        id: build-gui
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: Dockerfile
+          target: gui
+          push: false
   build-and-push-x86:
     runs-on: ubuntu-latest
     permissions:

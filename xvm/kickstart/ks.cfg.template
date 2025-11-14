@@ -157,7 +157,6 @@ fftw-libs-double
 fftw-libs-single
 fftw-libs-long
 fftw-static
-gcc-toolset-14
 %end
 
 # Do not start the Inital Setup app

@@ -80,9 +80,9 @@ fi
 
 # Apply configuration tweaks
 log_info "Applying configuration tweaks for OS and services"
-
+log_info "Restoring original (trusting) behavior for git's safe.directory option"
+git config --global --replace-all safe.directory '*'
 if [[ $VM_KIND != "none" ]]; then
-    git config --global --replace-all safe.directory '*'
     sudo -H git config --global --replace-all safe.directory '*'
 fi
 if [[ $USER != ubuntu ]]; then
