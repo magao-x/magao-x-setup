@@ -38,10 +38,11 @@ else
     echo "Neither docker nor podman present, aborting"
     exit 1
 fi
-
+rockyContainer=rockylinux:$rockyVersion
+$dockerCmd pull $rockyContainer
 $dockerCmd run \
     -v "${DIR}/:/xvm" \
-    -t rockylinux:$rockyVersion \
+    -t $rockyContainer \
     --rm \
     bash /xvm/mkksisowrap.sh \
     --cmdline 'inst.cmdline' \
