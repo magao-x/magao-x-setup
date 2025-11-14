@@ -30,11 +30,12 @@ jobs:
       - name: Install QEMU for Ubuntu
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: sudo apt-get update -y && sudo apt-get install -y qemu-system-arm
+      - name: Generate VM SSH key and unattended install disk
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: bash build_vm_stage0.sh
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-          bash build_vm_stage0.sh
-          bash build_vm_stage1.sh
+        run: bash build_vm_stage1.sh
       - name: Bundle outputs as tar file
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
