@@ -38,7 +38,7 @@ else
     echo "Neither docker nor podman present, aborting"
     exit 1
 fi
-rockyContainer=rockylinux:$rockyVersion
+rockyContainer=rockylinux:9
 $dockerCmd pull $rockyContainer
 $dockerCmd run \
     -v "${DIR}/:/xvm" \
