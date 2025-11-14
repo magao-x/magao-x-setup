@@ -13,10 +13,10 @@ fi
 mkdir -p output input
 
 echo "create SSH key and kickstart file"
-bash create_kickstart.sh
+bash create_kickstart.sh || exit 1
 
 echo "download ISO and insert kickstart file"
-bash create_rocky_iso.sh
+bash create_rocky_iso.sh || exit 1
 
 du -hs ./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
     ./output/xvm_key \

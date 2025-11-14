@@ -41,7 +41,8 @@ fi
 
 $dockerCmd run \
     -v "${DIR}/:/xvm" \
-    -it rockylinux:$rockyVersion \
+    -t rockylinux:$rockyVersion \
+    --rm \
     bash /xvm/mkksisowrap.sh \
     --cmdline 'inst.cmdline' \
     --cmdline 'console=ttyS0' \
@@ -50,4 +51,3 @@ $dockerCmd run \
     /xvm/input/iso/${ISO_FILE} \
     /xvm/$rebuildDest \
 || exit 1
-du -h $rebuildDest
