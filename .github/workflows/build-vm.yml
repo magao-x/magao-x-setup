@@ -25,9 +25,9 @@ jobs:
         uses: actions/cache@v4
         id: cache-vm-stage1
         with:
-          path: xvm/stage1_outputs.tar
+          path: xvm/stage1_outputs.tar.zst
           key: xvm-stage1-${{ env.vmArch }}-${{ hashFiles('xvm/_common.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template','xvm/create_rocky_iso.sh','xvm/build_vm_stage1.sh','xvm/download_firmware.sh','xvm/guest_setup_users_and_groups.sh','xvm/guest_shutdown.sh','setup_users_and_groups.sh','_common.sh') }}-v1
-      - name: Install VM build dependencies for Ubuntu
+      - name: Install VM build dependencies
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: sudo apt-get update -y && sudo apt-get install -y qemu-system-arm zstd
       - name: Generate VM SSH key and unattended install disk
@@ -47,7 +47,7 @@ jobs:
         with:
           retention-days: 1
           name: stage1_vm
-          path: xvm/stage1_outputs.tar
+          path: xvm/stage1_outputs.tar.zst
   build-vm-stage2:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04-arm
@@ -60,7 +60,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install QEMU for Ubuntu
+      - name: Install VM build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-arm zstd
@@ -95,10 +95,8 @@ jobs:
       steps:
         - name: Checkout repository
           uses: actions/checkout@v4
-        - name: Install QEMU for Ubuntu
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y qemu-system-arm zstd
+        - name: Install VM build dependencies
+          run: sudo apt-get update && sudo apt-get install -y qemu-system-arm zstd
         - name: Download initial Rocky VM
           uses: actions/download-artifact@v4
           with:
@@ -130,11 +128,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install QEMU for Ubuntu
+      - name: Install VM build dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-system-arm zstd
+          sudo apt-get install -y qemu-system-arm zstd xz-utils
       - name: Download Rocky VM with dependencies
         uses: actions/download-artifact@v4
         with:
@@ -145,10 +143,6 @@ jobs:
             tar -xvf stage3_outputs.tar.zst
             rm stage3_outputs.tar.zst
             mv -v output/xvm_stage3.qcow2 output/xvm.qcow2
-      - name: Install pigz for Ubuntu
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y xz-utils
       - name: Install MagAO-X software
         run: bash build_vm_stage4.sh
       - name: Upload virtual machine for UTM

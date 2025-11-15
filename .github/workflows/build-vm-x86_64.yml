@@ -27,19 +27,12 @@ jobs:
         uses: actions/cache@v4
         id: cache-vm-stage1
         with:
-          path: xvm/stage1_outputs.tar
+          path: xvm/stage1_outputs.tar.zst
           key: xvm-stage1-x86_64-${{ hashFiles('xvm/_common.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template','xvm/create_rocky_iso.sh','xvm/build_vm_stage1.sh','xvm/download_firmware.sh','xvm/guest_setup_users_and_groups.sh','xvm/guest_shutdown.sh','setup_users_and_groups.sh','_common.sh') }}-v1
-      - name: Install QEMU and ISO tools for Ubuntu
+      - name: Install VM build dependencies for Ubuntu
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86
-      - name: Show QEMU version and capabilities
-        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: |
-          qemu-system-x86_64 --version
-          echo "Available accelerators:"
-          qemu-system-x86_64 -accel help 2>&1 || true
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86 zstd
+
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -49,14 +42,14 @@ jobs:
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
             rm ./output/*.iso
-            tar -cvf stage1_outputs.tar ./output/
+            tar -I 'zstd -19 -T0' -cvf stage1_outputs.tar.zst ./output/
             rm ./output/*
       - name: Upload stage 1 outputs
         uses: actions/upload-artifact@v4
         with:
           retention-days: 1
           name: stage1_vm_x86_64
-          path: xvm/stage1_outputs.tar
+          path: xvm/stage1_outputs.tar.zst
   build-vm-stage2:
     runs-on: ubuntu-latest
     env:
@@ -68,10 +61,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86
+      - name: Install VM build dependencies for Ubuntu
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86 zstd
       - name: Download initial Rocky VM
         uses: actions/download-artifact@v4
         with:
@@ -79,20 +70,18 @@ jobs:
             path: xvm/
       - name: Extract previous job outputs
         run: |
-            tar -xvf stage1_outputs.tar
-            rm stage1_outputs.tar
+            tar -xvf stage1_outputs.tar.zst
+            rm stage1_outputs.tar.zst
             mv -v output/xvm_stage1.qcow2 output/xvm.qcow2
       - name: Install MagAO-X dependencies
-        run: |
-            bash build_vm_stage2.sh
+        run: bash build_vm_stage2.sh
       - name: Bundle outputs as tar file
-        run: |
-            tar -cvf stage2_outputs.tar ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
+        run: tar -I 'zstd -19 -T0' -cvf stage2_outputs.tar.zst ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
       - name: Upload stage 2 outputs
         uses: actions/upload-artifact@v4
         with:
           name: stage2_vm_x86_64
-          path: xvm/stage2_outputs.tar
+          path: xvm/stage2_outputs.tar.zst
   build-vm-stage3:
       runs-on: ubuntu-latest
       env:
@@ -104,10 +93,8 @@ jobs:
       steps:
         - name: Checkout repository
           uses: actions/checkout@v4
-        - name: Install QEMU
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y qemu-system-x86 rpm2cpio expect
+        - name: Install VM build dependencies
+          run: sudo apt-get update && sudo apt-get install -y qemu-system-x86 zstd
         - name: Download stage 2 VM
           uses: actions/download-artifact@v4
           with:
@@ -115,23 +102,19 @@ jobs:
               path: xvm/
         - name: Extract previous job outputs
           run: |
-              cd $GITHUB_WORKSPACE/xvm/
-              tar -xvf stage2_outputs.tar
-              rm stage2_outputs.tar
+              tar -xvf stage2_outputs.tar.zst
+              rm stage2_outputs.tar.zst
               mv -v output/xvm_stage2.qcow2 output/xvm.qcow2
         - name: Provision up to MagAO-X build
           run: |
-              cd $GITHUB_WORKSPACE/xvm/
               bash build_vm_stage3.sh
         - name: Bundle outputs as tar file
-          run: |
-              cd $GITHUB_WORKSPACE/xvm/
-              tar -cvf stage3_outputs.tar ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub
+          run: tar -I 'zstd -19 -T0' -cvf stage3_outputs.tar.zst ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub
         - name: Upload stage 3 outputs
           uses: actions/upload-artifact@v4
           with:
             name: stage3_vm_x86_64
-            path: xvm/stage3_outputs.tar
+            path: xvm/stage3_outputs.tar.zst
   build-vm-stage4:
     runs-on: ubuntu-latest
     env:
@@ -144,9 +127,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86 rpm2cpio
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86 zstd xz-utils
       - name: Download stage 3 VM
         uses: actions/download-artifact@v4
         with:
@@ -154,18 +135,14 @@ jobs:
             path: xvm/
       - name: Extract previous job outputs
         run: |
-            tar -xvf stage3_outputs.tar
-            rm stage3_outputs.tar
+            tar -xvf stage3_outputs.tar.zst
+            rm stage3_outputs.tar.zst
             mv -v output/xvm_stage3.qcow2 output/xvm.qcow2
-      - name: Install pigz
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y pigz
       - name: Install MagAO-X software
         run: bash build_vm_stage4.sh
       - name: Upload virtual machine disk image
         uses: actions/upload-artifact@v4
         with:
           name: vm_${{ env.vmArch }}
-          path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.gz
+          path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.xz
 
