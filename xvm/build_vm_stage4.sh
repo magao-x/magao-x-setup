@@ -13,7 +13,7 @@ elif [[ ! -e ./output/xvm.qcow2 ]]; then
 fi
 
 $qemuSystemCommand &
-qemuPid=$?
+qemuPid=$!
 echo "Updating guest repo checkout"
 echo "Waiting for VM to become ready..."
 sleep 20
