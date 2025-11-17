@@ -34,6 +34,5 @@ if [[ $VM_KIND != "none" ]]; then
 else
     extraCmakeArgs='-DMXLIB_CXXFLAGS="-march=native" -DMXLIB_CFLAGS="-march=native"'
 fi
-extraCmakeArgs="-DMXLIB_USE_CUDA=OFF -DMXLIB_USE_ISIO=OFF $extraCmakeArgs"
 cmake $extraCmakeArgs .. || exit 1
 sudo make install || exit 1
