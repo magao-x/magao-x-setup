@@ -27,12 +27,12 @@ cd _build || exit 1
 if [[ $VM_KIND != "none" ]]; then
     arch=$(uname -a)
     if [[ $arch == aarch64 ]]; then
-        extraCmakeArgs='-DMXLIB_CXXFLAGS="-march=armv8.2-a+crypto+crc -mtune=generic" -DMXLIB_CFLAGS="-march=armv8.2-a+crypto+crc -mtune=generic"'
+        MXLIB_FLAGS="-march=armv8.2-a+crypto+crc -mtune=generic"
     else
-        extraCmakeArgs='-DMXLIB_CXXFLAGS="-march=x86-64-v2 -mtune=generic" -DMXLIB_CFLAGS="-march=x86-64-v2 -mtune=generic"'
+        MXLIB_FLAGS="-march=x86-64-v2 -mtune=generic"
     fi
 else
-    extraCmakeArgs='-DMXLIB_CXXFLAGS="-march=native" -DMXLIB_CFLAGS="-march=native"'
+    MXLIB_FLAGS="-march=native"
 fi
-cmake $extraCmakeArgs .. || exit 1
+cmake -DMXLIB_CXXFLAGS="$MXLIB_FLAGS" -DMXLIB_CFLAGS="$MXLIB_FLAGS" .. || exit 1
 sudo make install || exit 1
