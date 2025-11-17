@@ -34,14 +34,13 @@ ldconfig -v || exit 1
 
 # Install build tools and utilities
 
-if [[ "$VM_KIND" != *container* ]]; then
+if [[ "$VM_KIND" != none ]]; then
     log_info "Installing packages not needed in containers"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets
     yum install -y \
         kernel-devel \
         kernel-modules-extra \
-        mlocate \
         pciutils \
         lm_sensors \
         hddtemp \
@@ -51,10 +50,15 @@ if [[ "$VM_KIND" != *container* ]]; then
         age \
     || exit 1
 fi
+if [[ "$VM_KIND" != *container* ]]; then
+    log_info "Installing packages not needed in containers"
+    yum install -y \
+        mlocate \
+    || exit 1
+fi
 # For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
 yum install -y \
     gcc-gfortran \
-    which \
     util-linux-user \
     passwd \
     openssh \

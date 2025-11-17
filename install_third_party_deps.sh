@@ -27,7 +27,7 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ci || $MAGAO
 fi
 
 # Install Linux kernel headers
-if [[ $MAGAOX_ROLE == ci || $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC ]]; then
+if [[ $MAGAOX_ROLE == ci || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || ($MAGAOX_ROLE == workstation && "$VM_KIND" != none) ]]; then
     if [[ $ID == ubuntu ]]; then
         sudo -i apt install -y linux-headers-generic
     elif [[ $ID == rocky ]]; then
@@ -60,7 +60,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == ci ]]; then
 fi
 
 # SuSE packages need either Python 3.6 or 3.10, but Rocky 9.2 has Python 3.9 as /bin/python, so we build our own RPM:
-if [[ $ID == rocky && "$VM_KIND" != *container* ]]; then
+if [[ $ID == rocky && "$VM_KIND" != none ]]; then
   sudo -H bash -l "$DIR/steps/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
 fi
 

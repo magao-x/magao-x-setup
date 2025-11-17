@@ -25,7 +25,7 @@ rm -rf _build
 mkdir -p _build || exit 1
 cd _build || exit 1
 if [[ $VM_KIND != "none" ]]; then
-    arch=$(uname -a)
+    arch=$(uname -p)
     if [[ $arch == aarch64 ]]; then
         MXLIB_FLAGS="-march=armv8.2-a+crypto+crc -mtune=generic"
     else
