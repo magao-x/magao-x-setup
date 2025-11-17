@@ -4,7 +4,7 @@ source $DIR/../_common.sh
 set -uo pipefail
 cd /opt/MagAOX/vendor || exit 1
 log_info "Install OpenBLAS from source"
-VERSION=0.3.24
+VERSION=0.3.30
 DOWNLOAD_FILE=OpenBLAS-${VERSION}.tar.gz
 DOWNLOAD_URL=https://github.com/xianyi/OpenBLAS/releases/download/v${VERSION}/${DOWNLOAD_FILE}
 if [[ ! -e $DOWNLOAD_FILE ]]; then
