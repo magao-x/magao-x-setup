@@ -12,4 +12,4 @@ fi
 
 echo "Generate kickstart (./input/kickstart/ks.cfg) from template"
 export sshPublicKey=$(cat ./output/xvm_key.pub)
-cat ./kickstart/ks.cfg.template | envsubst '$vmArch $rockyVersion $sshPublicKey' > ./input/kickstart/ks.cfg
+cat ./kickstart/ks.cfg.template | envsubst '$sshPublicKey' > ./input/kickstart/ks.cfg
