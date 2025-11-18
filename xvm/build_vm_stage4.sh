@@ -41,4 +41,5 @@ if [[ $vmArch == aarch64 ]]; then
 else
     bash -x bundle_qcow2.sh || exit 1
 fi
-ls -la ./output/bundle/
+realpath ./output/bundle/
+ls -lah ./output/bundle/

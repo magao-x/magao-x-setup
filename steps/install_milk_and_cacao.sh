@@ -63,7 +63,7 @@ echo "export MILK_INSTALLDIR=/usr/local/milk" | sudo tee -a /etc/profile.d/milk.
 sudo mkdir -p /milk/shm || exit 1
 if [[ "$MAGAOX_ROLE" != ci && "$VM_KIND" != *container* ]]; then
   if ! grep -q "/milk/shm" /etc/fstab; then
-    echo "tmpfs /milk/shm tmpfs rw,nosuid,nodev,uid=$(get_instrument_uid),gid=$(get_instrument_gid),mode=3775" | sudo tee -a /etc/fstab || exit 1
+    echo "tmpfs /milk/shm tmpfs rw,nosuid,nodev,uid=$instrument_user,gid=$instrument_group,mode=3775" | sudo tee -a /etc/fstab || exit 1
     log_success "Created /milk/shm tmpfs mountpoint"
     sudo mount /milk/shm || exit 1
     log_success "Mounted /milk/shm"

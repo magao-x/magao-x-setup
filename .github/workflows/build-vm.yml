@@ -147,4 +147,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: vm_${{ env.vmArch }}
-          path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.xz
+          path: xvm/output/bundle/
+          if-no-files-found: error
+          compression-level: 9
