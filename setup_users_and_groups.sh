@@ -10,11 +10,16 @@ source $DIR/_common.sh
 
 # Note that these GIDs are set on purpose to match
 # the LDAP server at accounts.xwcl.science
-createLocalFallbackGroup $instrument_group 2000 || exit_with_error "Couldn't create local fallback for group $instrument_group"
-createLocalFallbackGroup $instrument_dev_group 2001 || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
+createLocalFallbackGroup $instrument_group $instrument_group_gid || exit_with_error "Couldn't create local fallback for group $instrument_group"
+createLocalFallbackGroup $instrument_dev_group $instrument_dev_group_gid || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
-createuser xsup
+# Not an error if they already exist:
+createuser $instrument_user
 createuser xdev
+# Set their *primary* group
+usermod -g $instrument_group $instrument_user
+usermod -g $instrument_dev_group xdev
+
 # Defines $ID and $VERSION_ID so we can detect which distribution we're on
 source /etc/os-release
 
@@ -38,25 +43,16 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
   $SUDO gpasswd -d guestobs magaox || true  # prevent access for shenanigans
   $SUDO gpasswd -a guestobs guestobs || true
   $SUDO mkdir -p /data/obs
-  $SUDO chown xsup:guestobs /data/obs
+  $SUDO chown ${instrument_user}:guestobs /data/obs
   $SUDO chmod u=rwX,g=rX,o=rX /data/obs/*
   link_if_necessary /data/obs /home/guestobs/obs
   if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
-    $SUDO gpasswd -a xsup guestobs
-    log_success "Added xsup to group guestobs"
+    $SUDO gpasswd -a $instrument_user guestobs
+    log_success "Added $instrument_user to group guestobs"
   fi
 fi
-if $SUDO test ! -e /home/xsup/.ssh/id_ed25519; then
-  $REAL_SUDO -u xsup ssh-keygen -t ed25519 -N "" -f /home/xsup/.ssh/id_ed25519 -q
-fi
-if ! grep -q $instrument_dev_group /etc/pam.d/su; then
-  cat <<'HERE' | $SUDO sed -i '/pam_rootok.so$/r /dev/stdin' /etc/pam.d/su
-auth            [success=ignore default=1] pam_succeed_if.so user = xsup
-auth            sufficient      pam_succeed_if.so use_uid user ingroup magaox-dev
-HERE
-  log_info "Modified /etc/pam.d/su"
-else
-  log_info "/etc/pam.d/su already includes reference to magaox-dev, not modifying"
+if $SUDO test ! -e /home/${instrument_user}/.ssh/id_ed25519; then
+  $REAL_SUDO -u $instrument_user ssh-keygen -t ed25519 -N "" -f /home/${instrument_user}/.ssh/id_ed25519 -q
 fi
 
 if [[ -n "$1" ]] && getent passwd "$1" > /dev/null 2>&1; then

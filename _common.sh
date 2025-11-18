@@ -10,6 +10,10 @@ fi
 instrument_user=xsup
 instrument_group=magaox
 instrument_dev_group=magaox-dev
+# These ID numbers are used by the directory service and
+# cannot be changed here:
+instrument_group_gid=2000
+instrument_dev_group_gid=2001
 if [[ $MAGAOX_ROLE == ci ]]; then
   instrument_user=root
   instrument_group=root
