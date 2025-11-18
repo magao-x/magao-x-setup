@@ -15,7 +15,7 @@ if [[ ! -d ./OpenBLAS-${VERSION} ]]; then
 fi
 cd ./OpenBLAS-${VERSION} || exit 1
 openblasFlags="USE_OPENMP=1"
-if [[ -n $CI ]]; then
+if [[ $VM_KIND != "none" ]]; then
     openblasFlags="DYNAMIC_ARCH=1 $openblasFlags"
 fi
 make $openblasFlags || exit 1
