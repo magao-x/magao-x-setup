@@ -10,11 +10,17 @@ firewall --enabled --service=ssh
 
 # Enable all the repositories we'll need
 repo --name="minimal" --baseurl=file:///run/install/sources/mount-0000-cdrom/minimal
-repo --name="base" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=rocky-BaseOS-${rockyVersion}&arch=${vmArch}
-repo --name="appstream" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=rocky-AppStream-${rockyVersion}&arch=${vmArch}
-repo --name="crb" --mirrorlist=https://mirrors.rockylinux.org/mirrorlist?repo=rocky-CRB-${rockyVersion}&arch=${vmArch}
-repo --name="epel" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=${vmArch}
-repo --name="epel-cisco-openh264" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-cisco-openh264-9&arch=${vmArch}
+
+# Official Rocky Linux repositories (direct baseurls)
+repo --name="base" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/
+repo --name="appstream" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/
+repo --name="crb" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/
+repo --name="extras" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/
+repo --name="updates" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/updates/$basearch/os/
+
+# Optional: EPEL and Cisco OpenH264 repos for RHEL-compatible extras
+repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
+repo --name="epel-cisco-openh264" --baseurl=https://www.cisco.com/c/dam/en/us/td/docs/voice_ip_comm/expressway/openh264/rhel/$releasever/$basearch/
 
 # System language, keyboard and timezone
 lang en_US.UTF-8
@@ -82,9 +88,6 @@ restorecon -R /home/xsup/.ssh/
 
 # Disable KDE connect because it's not useful and pops up errors on boot
 dnf -y remove kde-connect kde-connectd kde-connect-libs kde-connect-nautilus --noautoremove
-
-# enable CodeReady Builder (CRB) repository
-dnf config-manager --set-enabled crb
 %end
 
 %packages
