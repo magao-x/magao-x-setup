@@ -16,7 +16,7 @@ fi
 cd ./OpenBLAS-${VERSION} || exit 1
 openblasFlags="USE_OPENMP=1"
 if [[ $VM_KIND != "none" ]]; then
-    openblasFlags="DYNAMIC_ARCH=1 $openblasFlags"
+    openblasFlags="TARGET=generic $openblasFlags"
 fi
 make $openblasFlags || exit 1
 sudo make install PREFIX=/usr/local || exit 1
