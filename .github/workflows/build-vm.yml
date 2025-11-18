@@ -1,11 +1,9 @@
 name: Build virtual machine (ARM)
 on:
-  push:
+  workflow_run:
+    workflows: ["Container build"]
+    types: [completed]
     branches: [main]
-  # workflow_run:
-  #   workflows: ["Container build"]
-  #   types: [completed]
-  #   branches: [main]
 defaults:
   run:
     working-directory: xvm/
