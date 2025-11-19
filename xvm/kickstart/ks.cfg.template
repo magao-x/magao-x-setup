@@ -16,11 +16,10 @@ repo --name="base" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/Bas
 repo --name="appstream" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/
 repo --name="crb" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/CRB/$basearch/os/
 repo --name="extras" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/extras/$basearch/os/
-repo --name="updates" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/updates/$basearch/os/
 
-# Optional: EPEL and Cisco OpenH264 repos for RHEL-compatible extras
-repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
-repo --name="epel-cisco-openh264" --baseurl=https://www.cisco.com/c/dam/en/us/td/docs/voice_ip_comm/expressway/openh264/rhel/$releasever/$basearch/
+# EPEL and Cisco OpenH264 repos for RHEL-compatible extras
+repo --name="epel" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=$basearch
+repo --name="epel-cisco-openh264" --metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-cisco-openh264-9&arch=$basearch
 
 # System language, keyboard and timezone
 lang en_US.UTF-8
