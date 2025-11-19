@@ -37,8 +37,7 @@ export CFLAGS="-std=gnu17 $CFLAGS"
 # until build dir is recreated and cmake rerun)
 
 cmake .. $milkCmakeArgs || exit 1
-numCpus=$(nproc)
-make -j $((numCpus / 2)) || exit 1
+make -j$(nproc) || exit 1
 sudo make install || exit 1
 
 sudo -H $pythonExe -m pip install ../src/ImageStreamIO/ || exit 1

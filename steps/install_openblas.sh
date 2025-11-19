@@ -16,8 +16,15 @@ fi
 cd ./OpenBLAS-${VERSION} || exit 1
 openblasFlags="USE_OPENMP=1"
 if [[ $VM_KIND != "none" ]]; then
-    openblasFlags="TARGET=generic $openblasFlags"
+    if [[ $(uname -m) == "x86_64" ]]; then
+        openblasFlags="TARGET=ZEN $openblasFlags"
+        openblasDynamicList="SANDYBRIDGE HASWELL SKYLAKEX"
+    elif [[ $(uname -m) == "aarch64" ]]; then
+        openblasDynamicList="ARMV8 CORTEXA72 CORTEXA76"
+    else
+        exit_with_error "Unknown platform $(uname -p)"
+    fi
 fi
-make $openblasFlags || exit 1
+make -j$(nproc) DYNAMIC_ARCH=1 DYNAMIC_LIST="$openblasDynamicList" $openblasFlags || exit 1
 sudo make install PREFIX=/usr/local || exit 1
 log_info "Finished OpenBLAS source install"

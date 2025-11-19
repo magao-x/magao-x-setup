@@ -35,4 +35,4 @@ else
     MXLIB_FLAGS="-march=native"
 fi
 cmake -DMXLIB_CXXFLAGS="$MXLIB_FLAGS" -DMXLIB_CFLAGS="$MXLIB_FLAGS" .. || exit 1
-sudo make install || exit 1
+sudo make -j$(nproc) install || exit 1

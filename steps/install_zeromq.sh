@@ -20,5 +20,5 @@ if [[ ! -d $ZEROMQ_DIR ]]; then
 fi
 cd $ZEROMQ_DIR || exit 1
 ./configure --enable-drafts || exit 1
-make || exit 1
+make -j$(nproc) || exit 1
 sudo make install || exit 1

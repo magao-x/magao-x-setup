@@ -12,5 +12,5 @@ if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
 fi
 clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 git checkout $RTIMV_COMMIT_ISH || exit 1
-make || exit 1
+make -j$(nproc) || exit 1
 sudo make install || exit 1
