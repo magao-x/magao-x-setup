@@ -14,6 +14,6 @@ fi
 cd cfitsio-$CFITSIO_VERSION || exit 1
 if [[ ! (( -e /usr/local/lib/libcfitsio.a ) && ( -e /usr/local/lib/libcfitsio.so )) ]]; then
     ./configure --prefix=/usr/local || exit 1
-    make || exit 1
+    make -j$(nproc) || exit 1
     make install || exit 1
 fi
