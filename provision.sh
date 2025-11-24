@@ -35,6 +35,10 @@ sudo -K
 if [[ "$(sudo -H -n true 2>&1)" ]]; then
     $_REAL_SUDO -v
     refresh_sudo_timer &
+    SUDO_REFRESH_PID=$!
+
+    # Kill the background process when the script exits (normal or error)
+    trap 'kill "$SUDO_REFRESH_PID" 2>/dev/null' EXIT INT TERM
 fi
 
 # Defines $ID and $VERSION_ID so we can detect which distribution we're on
