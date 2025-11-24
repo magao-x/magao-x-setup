@@ -23,5 +23,6 @@ if [[ $VM_KIND != none || $MAGAOX_ROLE == TOC ]]; then
     fi
 fi
 
+make libs_all || exit 1
 make -j$(nproc) all || exit 1
 make install || exit 1
