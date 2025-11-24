@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
-sed -i "s/^#*listen_addresses.*/listen_addresses = '*'/" /var/lib/pgsql/data/postgresql.conf
+sudo sed -i "s/^#*listen_addresses.*/listen_addresses = '*'/" /var/lib/pgsql/data/postgresql.conf
 log_info "Bound to all listen addresses in /var/lib/pgsql/data/postgresql.conf"
 
 if [[ ! -e /var/lib/pgsql/data/pg_hba.conf.dist ]]; then
@@ -25,7 +25,6 @@ host    all             all             ::1/128                 scram-sha-256
 host    all             all             127.0.0.1/32            scram-sha-256
 EOF
 fi
-sed -i "s/^#*listen_addresses.*/listen_addresses = '*'/" /var/lib/pgsql/data/postgresql.conf
 
 sudo systemctl enable postgresql.service || exit_with_error "Could not create enable postgresql service"
 sudo systemctl restart postgresql.service || exit_with_error "Could not start postgresql service"
