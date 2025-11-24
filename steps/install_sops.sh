@@ -10,4 +10,6 @@ downloadFile=sops-${release}.rpm
 if [[ ! -e $downloadFile ]]; then
     _cached_fetch https://github.com/getsops/sops/releases/download/v${release}/sops-${release}-1.$(uname -m).rpm $downloadFile || exit 1
 fi
-sudo rpm -i $downloadFile || exit 1
+if ! rpm -q $downloadFile; then
+    sudo rpm -i $downloadFile || exit 1
+fi
