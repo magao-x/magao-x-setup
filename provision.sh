@@ -265,3 +265,12 @@ else
     log_info "    source /etc/profile.d/*.sh"
     log_info "to get all the new environment variables set."
 fi
+
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == COC || $MAGAOX_ROLE == ROC ]]; then
+    log_warn "NOTE: MagAO-X computers require secrets, and getting secrets requires manual intervention."
+    log_info "See https://github.com/xwcl/hush-hush for documentation."
+    log_info "Public key (/etc/ssh/ssh_host_ed25519_key.pub):"
+    echo
+    log_info "$(cat /etc/ssh/ssh_host_ed25519_key.pub)"
+    echo
+fi
