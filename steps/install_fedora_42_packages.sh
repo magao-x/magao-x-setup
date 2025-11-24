@@ -100,7 +100,7 @@ fi
 # set up the postgresql server
 if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql ]]; then
     # install postgresql
-    dnf install postgresql-server postgresql-contrib || exit 1
+    dnf install -y postgresql-server postgresql-contrib || exit 1
     systemctl enable --now postgresql || exit 1
     postgresql-setup --initdb --unit postgresql  || exit 1
 fi
