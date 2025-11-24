@@ -82,12 +82,6 @@ if [[ ! $_skip3rdPartyDeps ]]; then
     sudo -H bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
 fi
 
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    log_info "Setting up secrets..."
-    bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
-    bash -l "$DIR/steps/obtain_secrets.sh" $currentHostname || exit_with_error "Failed to obtain secrets from xwcl/hush-hush"
-fi
-
 # Apply configuration tweaks
 log_info "Applying configuration tweaks for OS and services"
 log_info "Restoring original (trusting) behavior for git's safe.directory option"

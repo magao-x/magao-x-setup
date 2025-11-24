@@ -66,3 +66,5 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC ||  $MAGAOX_ROLE == workstation
     # regular old ds9 image viewer
     sudo -H bash -l "$DIR/steps/install_ds9.sh"
 fi
+
+bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
