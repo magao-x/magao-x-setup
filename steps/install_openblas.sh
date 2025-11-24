@@ -21,21 +21,19 @@ if [[ $VM_KIND != "none" ]]; then
     # but also cut down the number of architectures it specializes
     # for so builds don't time out.
     if [[ $(uname -m) == "x86_64" ]]; then
-        openblasFlags="TARGET=ZEN $openblasFlags"
-        openblasDynamicList="SANDYBRIDGE HASWELL SKYLAKEX"
+        openblasArch="HASWELL"
     elif [[ $(uname -m) == "aarch64" ]]; then
-        openblasDynamicList="ARMV8 CORTEXA72 CORTEXA76"
+        openblasArch="ARMV8"
     else
-        exit_with_error "Unknown platform $(uname -p)"
+        exit_with_error "Unknown platform $(uname -m)"
     fi
-    make -j$(nproc) DYNAMIC_ARCH=1 DYNAMIC_LIST="$openblasDynamicList" $openblasFlags || exit 1
+    make -j$(nproc) TARGET="$openblasArch" $openblasFlags || exit 1
     # ensure same flags get to make install
-    sudo make install PREFIX=/usr/local DYNAMIC_ARCH=1 DYNAMIC_LIST="$openblasDynamicList" $openblasFlags || exit 1
+    sudo make install PREFIX=/usr/local TARGET="$openblasArch" $openblasFlags || exit 1
 else
     make -j$(nproc) $openblasFlags || exit 1
     # ensure same flags get to make install
     sudo make install PREFIX=/usr/local $openblasFlags || exit 1
 fi
-
 
 log_info "Finished OpenBLAS source install"
