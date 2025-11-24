@@ -29,9 +29,13 @@ if [[ $VM_KIND != "none" ]]; then
         exit_with_error "Unknown platform $(uname -p)"
     fi
     make -j$(nproc) DYNAMIC_ARCH=1 DYNAMIC_LIST="$openblasDynamicList" $openblasFlags || exit 1
+    # ensure same flags get to make install
+    sudo make install PREFIX=/usr/local DYNAMIC_ARCH=1 DYNAMIC_LIST="$openblasDynamicList" $openblasFlags || exit 1
 else
     make -j$(nproc) $openblasFlags || exit 1
+    # ensure same flags get to make install
+    sudo make install PREFIX=/usr/local $openblasFlags || exit 1
 fi
 
-sudo make install PREFIX=/usr/local || exit 1
+
 log_info "Finished OpenBLAS source install"
