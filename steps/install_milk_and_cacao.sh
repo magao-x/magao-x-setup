@@ -10,6 +10,7 @@ parentdir=/opt/MagAOX/source
 noUpdatesThanks=$parentdir/$reponame/NO_UPDATES_THANKS
 
 export CACAO_REPOSITORY='https://github.com/jaredmales/cacao.git'
+export CACAO_BRANCH='magaox'
 
 if [[ -e $noUpdatesThanks ]]; then
   log_info "Lock file at $noUpdatesThanks indicates it's all good, no updates thanks"
