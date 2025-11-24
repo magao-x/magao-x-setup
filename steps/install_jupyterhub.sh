@@ -9,7 +9,7 @@ JUPYTERHUB_ENV_NAME=jupyterhub
 if [[ ! -d /opt/conda/envs/${JUPYTERHUB_ENV_NAME} ]]; then
     sudo -H /opt/conda/bin/mamba create -y -p /opt/conda/envs/$JUPYTERHUB_ENV_NAME python jupyterhub
 fi
-sudo -H mamba env update -p /opt/conda/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
+sudo -H /opt/conda/bin/mamba env update -p /opt/conda/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
 
 # lock = disable annoying popup about jupyter news
 sudo -H /opt/conda/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
