@@ -90,9 +90,11 @@ echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /e
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
-    dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
-    dnf install -y tailscale || exit 1
-    systemctl enable --now tailscaled || exit 1
+    if ! command -v tailscale; then
+        dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
+        dnf install -y tailscale || exit 1
+        systemctl enable --now tailscaled || exit 1
+    fi
 fi
 
 # set up the postgresql server
