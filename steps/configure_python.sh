@@ -12,7 +12,7 @@ set -x
 #
 # Install the standard MagAOX user python environment
 #
-mamba env update -f $DIR/../conda_env_base.yml || exit_with_error "Failed to install or update packages"
+mamba env update --yes -f $DIR/../conda_env_base.yml || exit_with_error "Failed to install or update packages"
 mamba env export
 
 # Install the kernel for JupyterHub use
