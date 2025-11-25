@@ -42,7 +42,7 @@ jobs:
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
             rm ./output/*.iso
-            tar -I 'zstd -19 -T0' -cvf stage1_outputs.tar.zst ./output/
+            tar -I 'zstd -9 -T0' -cvf stage1_outputs.tar.zst ./output/
             rm ./output/*
       - name: Upload stage 1 outputs
         uses: actions/upload-artifact@v4
@@ -76,7 +76,7 @@ jobs:
       - name: Install MagAO-X dependencies
         run: bash build_vm_stage2.sh
       - name: Bundle outputs as tar file
-        run: tar -I 'zstd -19 -T0' -cvf stage2_outputs.tar.zst ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
+        run: tar -I 'zstd -9 -T0' -cvf stage2_outputs.tar.zst ./output/xvm_stage2.qcow2 ./output/xvm_key ./output/xvm_key.pub
       - name: Upload stage 2 outputs
         uses: actions/upload-artifact@v4
         with:
@@ -109,7 +109,7 @@ jobs:
           run: |
               bash build_vm_stage3.sh
         - name: Bundle outputs as tar file
-          run: tar -I 'zstd -19 -T0' -cvf stage3_outputs.tar.zst ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub
+          run: tar -I 'zstd -9 -T0' -cvf stage3_outputs.tar.zst ./output/xvm_stage3.qcow2 ./output/xvm_key ./output/xvm_key.pub
         - name: Upload stage 3 outputs
           uses: actions/upload-artifact@v4
           with:
