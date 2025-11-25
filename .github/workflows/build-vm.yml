@@ -1,14 +1,18 @@
 name: Build virtual machine (ARM)
 on:
-  workflow_run:
-    workflows: ["Container build"]
-    types: [completed]
+  # TODO: Re-enable workflow_run trigger after container build is working
+  # workflow_run:
+  #   workflows: ["Container build"]
+  #   types: [completed]
+  #   branches: [main]
+  push:
     branches: [main]
 defaults:
   run:
     working-directory: xvm/
 jobs:
   build-vm-stage1:
+    # TODO: Re-enable this condition when using workflow_run trigger
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04-arm
     env:
