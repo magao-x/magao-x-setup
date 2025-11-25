@@ -3,7 +3,7 @@ if [[ -z $vmArch ]]; then
     echo "Set vmArch environment variable to aarch64 or x86_64"
     exit 1
 fi
-if [[ $vmArch == "aarch64" && $(uname -m) == "arm" && -z $CI ]]; then
+if [[ $vmArch == "aarch64" && ($(uname -m) == "arm64" || $(uname -m) == "aarch64") && -z $CI ]]; then
     # ARM on ARM -besides- CI: virtualizable
     qemuMachineFlags="-machine type=virt -cpu host"
     qemuAccelFlags="-accel kvm -accel hvf -accel tcg,thread=multi"
