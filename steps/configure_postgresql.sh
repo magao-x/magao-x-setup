@@ -70,3 +70,4 @@ sudo restorecon -R ${bindMountPath} || exit_with_error "Could not restorecon the
 sudo -u postgres psql < $DIR/../sql/setup_users.sql || exit_with_error "Could not create database users"
 sudo -u postgres psql -c "CREATE TABLESPACE data_array LOCATION '$bindMountPath'" || true
 sudo -u postgres psql -c "CREATE DATABASE xtelem WITH OWNER = xtelem TABLESPACE = data_array" || true
+sudo -u postgres psql < $DIR/../sql/setup_permissions.sql || exit_with_error "Could not grant database permissions"
