@@ -75,6 +75,7 @@ dnf install -y \
     fftw-static \
     flexiblas-openblas-serial \
     age \
+    nmtui \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
@@ -95,19 +96,4 @@ if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGA
         dnf install -y tailscale || exit 1
         systemctl enable --now tailscaled || exit 1
     fi
-fi
-
-# set up the postgresql server
-if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql/data ]]; then
-    # install postgresql
-    dnf install -y postgresql-server postgresql-contrib || exit 1
-    # fix permissions and SELinux context
-    mkdir -p /var/lib/pgsql
-    /sbin/restorecon -Rv /var/lib/pgsql
-    chown postgres:postgres /var/lib/pgsql
-    chmod u=rwx,g=,o= /var/lib/pgsql
-    # initialize db
-    postgresql-setup --initdb || exit 1
-    # start postgresql server
-    systemctl enable --now postgresql || exit 1
 fi

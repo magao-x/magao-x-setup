@@ -108,6 +108,7 @@ yum install -y \
     fftw-libs-single \
     fftw-libs-long \
     fftw-static \
+    nmtui \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
@@ -131,9 +132,3 @@ fi
 
 # install postgresql 15 client for RHEL 9
 dnf module install -y postgresql:15/client || exit 1
-
-# set up the postgresql server
-if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql ]]; then
-    dnf module install -y postgresql:15/server || exit 1
-    postgresql-setup --initdb || exit 1
-fi

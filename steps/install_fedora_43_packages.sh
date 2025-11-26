@@ -75,6 +75,7 @@ dnf install -y \
     fftw-static \
     flexiblas-openblas-serial \
     age \
+    nmtui \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
