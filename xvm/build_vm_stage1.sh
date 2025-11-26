@@ -28,9 +28,13 @@ $qemuSystemCommand \
     -serial stdio || exit 1
 echo "Created VM and installed Rocky Linux"
 
+if [[ -z $CI ]]; then
+    cp ./output/xvm.qcow2 ./output/xvm_stage0.qcow2
+    echo "Saving the post-Rocky-install (pre users/groups) VM to ./output/xvm_stage0.qcow2 for debugging"
+fi
+
 echo "Starting up the VM to add users and groups..."
 # start up the VM and put it in the background, or exit on error
-
 $qemuSystemCommand -serial stdio &
 qemuPid=$!
 echo "Updating guest repo checkout"

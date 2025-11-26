@@ -17,12 +17,6 @@ make install || exit 1
 log_info "Building MagAOX"
 cd ../.. || exit 1
 make setup || exit 1
-if [[ $VM_KIND != none || $MAGAOX_ROLE == TOC ]]; then
-    if ! grep 'NEED_CUDA = no' local/common.mk; then
-        echo 'NEED_CUDA = no' >> local/common.mk || exit 1
-    fi
-fi
-
 make libs_all || exit 1
 make -j$(nproc) all || exit 1
 make install || exit 1
