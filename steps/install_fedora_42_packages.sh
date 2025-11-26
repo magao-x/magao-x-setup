@@ -99,9 +99,15 @@ fi
 
 # set up the postgresql server
 if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql/data ]]; then
-    /sbin/restorecon -Rv /var/lib/pgsql
     # install postgresql
     dnf install -y postgresql-server postgresql-contrib || exit 1
+    # fix permissions and SELinux context
+    mkdir -p /var/lib/pgsql
+    /sbin/restorecon -Rv /var/lib/pgsql
+    chown postgres:postgres /var/lib/pgsql
+    chmod u=rwx,g=,o= /var/lib/pgsql
+    # initialize db
     postgresql-setup --initdb || exit 1
+    # start postgresql server
     systemctl enable --now postgresql || exit 1
 fi
