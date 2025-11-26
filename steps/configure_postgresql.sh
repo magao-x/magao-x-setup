@@ -26,7 +26,7 @@ host    all             all             127.0.0.1/32            scram-sha-256
 EOF
 fi
 
-sudo systemctl enable postgresql.service || exit_with_error "Could not create enable postgresql service"
+sudo systemctl enable --now postgresql.service || exit_with_error "Could not create/enable postgresql service"
 sudo systemctl restart postgresql.service || exit_with_error "Could not start postgresql service"
 
 if [[ $MAGAOX_ROLE == AOC ]]; then
