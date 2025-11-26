@@ -98,7 +98,8 @@ if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGA
 fi
 
 # set up the postgresql server
-if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql ]]; then
+if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql/data ]]; then
+    /sbin/restorecon -Rv /var/lib/pgsql
     # install postgresql
     dnf install -y postgresql-server postgresql-contrib || exit 1
     postgresql-setup --initdb || exit 1
