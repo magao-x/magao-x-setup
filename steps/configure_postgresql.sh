@@ -31,9 +31,9 @@ sudo systemctl restart postgresql.service || exit_with_error "Could not start po
 
 dataArrayPath=/home/data/postgres
 bindMountPath=/var/lib/pgsql/extdata
-sudo mkdir -p $dataArrayPath || exit_with_error "Could not make $dataArrayPath"
-sudo chown -R postgres:postgres $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
-sudo chmod u=rwx,g=,o= $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
+sudo mkdir -p $dataArrayPath $bindMountPath || exit_with_error "Could not make $dataArrayPath"
+sudo chown -R postgres:postgres $dataArrayPath $bindMountPath || exit_with_error "Could not set ownership of $dataArrayPath"
+sudo chmod u=rwx,g=,o= $dataArrayPath $bindMountPath || exit_with_error "Could not set ownership of $dataArrayPath"
 
 sudo tee /etc/systemd/system/var-lib-pgsql-extdata.mount <<EOF
 [Unit]
