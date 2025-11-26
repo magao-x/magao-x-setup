@@ -93,7 +93,7 @@ function make_on_data_array() {
     REAL_DIR=/data/$TARGET_NAME
     $SUDO mkdir -pv $REAL_DIR || return 1
     link_if_necessary $REAL_DIR $PARENT_DIR/$TARGET_NAME || return 1
-  else if [[ $MAGAOX_ROLE == AOC ]]; then
+  elif [[ $MAGAOX_ROLE == AOC ]]; then
     $SUDO mkdir -p /home/data
     $SUDO chown root:root /home/data
     $SUDO chmod u=rwx,g=rwx,o=rx /home/data
