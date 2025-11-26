@@ -30,7 +30,7 @@ sudo systemctl enable postgresql.service || exit_with_error "Could not create en
 sudo systemctl restart postgresql.service || exit_with_error "Could not start postgresql service"
 
 if [[ $MAGAOX_ROLE == AOC ]]; then
-    dataArrayPath=/data/postgres
+    dataArrayPath=/home/data/postgres
     sudo mkdir -p $dataArrayPath || exit_with_error "Could not make $dataArrayPath"
     sudo chown -R postgres:postgres $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
 
