@@ -29,18 +29,18 @@ fi
 sudo systemctl enable --now postgresql.service || exit_with_error "Could not create/enable postgresql service"
 sudo systemctl restart postgresql.service || exit_with_error "Could not start postgresql service"
 
-if [[ $MAGAOX_ROLE == AOC ]]; then
-    dataArrayPath=/home/data/postgres
-    sudo mkdir -p $dataArrayPath || exit_with_error "Could not make $dataArrayPath"
-    sudo chown -R postgres:postgres $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
+dataArrayPath=/home/data/postgres
+sudo mkdir -p $dataArrayPath || exit_with_error "Could not make $dataArrayPath"
+sudo chown -R postgres:postgres $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
+sudo chmod u=rwx,g=,o= $dataArrayPath || exit_with_error "Could not set ownership of $dataArrayPath"
 
-    sudo tee /etc/systemd/system/var-lib-pgsql-extdata.mount <<EOF
+sudo tee /etc/systemd/system/var-lib-pgsql-extdata.mount <<EOF
 [Unit]
 Description=Bind Mount for /var/lib/pgsql/extdata
 Before=postgresql.service
 
 [Mount]
-What=/data/postgres/tablespace
+What=/home/data/postgres/tablespace
 Where=/var/lib/pgsql/extdata
 Type=none
 Options=bind
@@ -52,7 +52,7 @@ WantedBy=multi-user.target
 ExecStart=/sbin/restorecon -Rv /var/lib/pgsql/extdata
 EOF
 
-    sudo tee /etc/systemd/system/var-lib-pgsql-extdata.automount <<EOF
+sudo tee /etc/systemd/system/var-lib-pgsql-extdata.automount <<EOF
 [Unit]
 Description=Automount for /var/lib/pgsql/extdata
 
@@ -64,12 +64,8 @@ TimeoutIdleSec=10
 WantedBy=multi-user.target
 EOF
 
-    sudo semanage fcontext -a -t postgresql_db_t "${dataArrayPath}(/.*)?" || exit_with_error "Could not adjust SELinux context for ${dataArrayPath}"
-    sudo restorecon -R ${dataArrayPath} || exit_with_error "Could not restorecon the SELinux context on ${dataArrayPath}"
-
-    sudo -u postgres psql -c "CREATE TABLESPACE data_array LOCATION '$dataArrayPath'" || true
-    sudo -u postgres psql -c "CREATE DATABASE xtelem WITH OWNER = xtelem TABLESPACE = data_array" || true
-else
-    sudo -u postgres psql -c "CREATE DATABASE xtelem" || true
-fi
+sudo semanage fcontext -a -t postgresql_db_t "${dataArrayPath}(/.*)?" || exit_with_error "Could not adjust SELinux context for ${dataArrayPath}"
+sudo restorecon -R ${dataArrayPath} || exit_with_error "Could not restorecon the SELinux context on ${dataArrayPath}"
 sudo -u postgres psql < $DIR/../sql/setup_users.sql || exit_with_error "Could not create database users"
+sudo -u postgres psql -c "CREATE TABLESPACE data_array LOCATION '$dataArrayPath'" || true
+sudo -u postgres psql -c "CREATE DATABASE xtelem WITH OWNER = xtelem TABLESPACE = data_array" || true
