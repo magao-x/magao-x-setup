@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=xsup
 WorkingDirectory=/home/xsup
-ExecStart/opt/conda/envs/sup/bin/sup
+ExecStart=/opt/conda/envs/sup/bin/sup
 
 [Install]
 WantedBy=default.target
