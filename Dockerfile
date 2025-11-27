@@ -1,5 +1,5 @@
 # Staged build: dependencies and CLI tools first
-FROM rockylinux/rockylinux:9-ubi-init AS base
+FROM rockylinux/rockylinux:9-ubi-init AS cli
 ENV MAGAOX_ROLE=container
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
@@ -24,12 +24,7 @@ WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN dnf clean all && dnf makecache && bash -lx provision.sh
 USER xsup
 
-# Discard layers and combine
-FROM scratch as cli
-COPY --from=base / /
-
-# Now use squashed cli layer image to build all the GUIs
-FROM cli AS gui
+FROM cli as gui
 USER root
 ENV MAGAOX_ROLE=workstation
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
