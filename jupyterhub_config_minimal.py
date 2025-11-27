@@ -20,4 +20,4 @@ c.PAMAuthenticator.allowed_groups = {'jupyterhub', 'xwcl-admin'}
 # Which groups should get admin access
 c.PAMAuthenticator.admin_groups = {'wheel', 'xwcl-admin'}
 ## Path to the notebook directory for the single-user server.
-c.Spawner.notebook_dir = '/data/users/{username}'
+c.Spawner.notebook_dir = '/srv/aoc/home/{username}'
