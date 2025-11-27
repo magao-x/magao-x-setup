@@ -4,10 +4,12 @@ source $DIR/../_common.sh
 set -uo pipefail
 source /etc/os-release
 
-if [[ $ID == rocky ]]; then
+if [[ $ID == rocky || $ID == fedora ]]; then
     nfsServiceUnit=nfs-server.service
-else
+elif [[ $ID == ubuntu ]]; then
     nfsServiceUnit=nfs-kernel-server.service
+else
+    exit_with_error "Amend the NFS config script to include the nfsServiceUnit value for $ID"
 fi
 
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
