@@ -9,10 +9,10 @@ sudo mkdir -p /var/lib/pgsql
 sudo /sbin/restorecon -Rv /var/lib/pgsql
 sudo chown postgres:postgres /var/lib/pgsql
 sudo chmod u=rwx,g=,o= /var/lib/pgsql
-if [[ ! -e /var/lib/pgsql/data ]]; then
-    # initialize db
-    sudo postgresql-setup --initdb || exit 1
-fi
+
+# initialize db, but it's not an error (and we can't detect) if the folder exists
+sudo postgresql-setup --initdb || log_info "it's not an error, we just can't detect if the folder already exists"
+
 # start postgresql server
 sudo systemctl enable --now postgresql || exit 1
 
