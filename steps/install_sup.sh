@@ -11,11 +11,11 @@ clone_or_update_and_cd $orgname $reponame $parentdir
 git checkout $SUP_COMMIT_ISH
 
 if [[ ! -d /opt/conda/envs/sup ]]; then
-    sudo -H /opt/conda/bin/mamba create -yn sup python pip numpy
+    sudo -H /opt/conda/bin/conda create -yn sup python pip numpy
 fi
 source /opt/conda/bin/activate
 conda activate sup
-sudo -H /opt/conda/bin/mamba env update --yes -qf $DIR/../conda_env_sup.yml
+sudo -H /opt/conda/bin/conda env update --yes -qf $DIR/../conda_env_sup.yml
 sudo -H /opt/conda/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
 sudo -H /opt/conda/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
 sudo -H /opt/conda/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO
