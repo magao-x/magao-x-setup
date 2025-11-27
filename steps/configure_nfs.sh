@@ -29,15 +29,15 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         fi
     done
     exportDataLine="/data      $exportHosts"
-    if ! grep -q $exportDataLine /etc/exports; then
-        echo $exportDataLine | sudo tee -a /etc/exports || exit 1
+    if ! grep -q "$exportDataLine" /etc/exports; then
+        echo "$exportDataLine" | sudo tee -a /etc/exports || exit 1
         sudo exportfs -a || exit 1
         sudo systemctl reload $nfsServiceUnit || exit 1
     fi
     if [[ $MAGAOX_ROLE == AOC ]]; then
         exportBackupsLine="/mnt/backup      $exportHosts"
-        if ! grep -q $exportBackupsLine /etc/exports; then
-            echo $exportBackupsLine | sudo tee -a /etc/exports || exit 1
+        if ! grep -q "$exportBackupsLine" /etc/exports; then
+            echo "$exportBackupsLine" | sudo tee -a /etc/exports || exit 1
             sudo exportfs -a || exit 1
             sudo systemctl reload $nfsServiceUnit || exit 1
         fi
@@ -48,7 +48,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
             mountPath=/srv/$host/data
             sudo mkdir -p $mountPath || exit 1
-            if ! grep -q $mountPath /etc/fstab; then
+            if ! grep -q "$mountPath" /etc/fstab; then
                 echo "$host:/data $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
             fi
         fi
@@ -56,7 +56,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
     if [[ $MAGAOX_ROLE != AOC ]]; then
         mountPath=/data/users
         sudo mkdir -p $mountPath || exit 1
-        if ! grep -q $mountPath /etc/fstab; then
+        if ! grep -q "$mountPath" /etc/fstab; then
             echo "aoc:/data/users $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
         fi
     fi
@@ -68,3 +68,4 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         fi
     fi
 fi
+sudo systemctl daemon-reload || exit_with_error "SystemD couldn't reload"

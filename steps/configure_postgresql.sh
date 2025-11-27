@@ -3,18 +3,18 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 
 # install postgresql
-dnf install -y postgresql-server postgresql-contrib || exit 1
+sudo dnf install -y postgresql-server postgresql-contrib || exit 1
 # make sure permissions and SELinux context are correct
-mkdir -p /var/lib/pgsql
-/sbin/restorecon -Rv /var/lib/pgsql
-chown postgres:postgres /var/lib/pgsql
-chmod u=rwx,g=,o= /var/lib/pgsql
+sudo mkdir -p /var/lib/pgsql
+sudo /sbin/restorecon -Rv /var/lib/pgsql
+sudo chown postgres:postgres /var/lib/pgsql
+sudo chmod u=rwx,g=,o= /var/lib/pgsql
 if [[ ! -e /var/lib/pgsql/data ]]; then
     # initialize db
-    postgresql-setup --initdb || exit 1
+    sudo postgresql-setup --initdb || exit 1
 fi
 # start postgresql server
-systemctl enable --now postgresql || exit 1
+sudo systemctl enable --now postgresql || exit 1
 
 sudo sed -i "s/^#*listen_addresses.*/listen_addresses = '*'/" /var/lib/pgsql/data/postgresql.conf
 log_info "Bound to all listen addresses in /var/lib/pgsql/data/postgresql.conf"
