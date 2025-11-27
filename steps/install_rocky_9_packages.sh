@@ -108,7 +108,6 @@ yum install -y \
     fftw-libs-single \
     fftw-libs-long \
     fftw-static \
-    nmtui \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
