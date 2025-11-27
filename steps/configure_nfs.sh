@@ -11,7 +11,7 @@ else
 fi
 
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
-    sudo systemctl enable $nfsServiceUnit || exit 1
+    sudo systemctl enable --now $nfsServiceUnit || exit 1
     sudo systemctl start $nfsServiceUnit || exit 1
     if command -v ufw; then
         sudo ufw allow from 192.168.0.0/24 to any port nfs || exit 1

@@ -6,9 +6,9 @@ sudo tee /etc/hosts <<'HERE'
 # Instrument LAN
 # note: 192.168.0.240--192.168.0.254 reserved for DHCP
 192.168.0.10   exao1 aoc
-192.168.0.12   exao2 rtc
+192.168.0.11   exao2 rtc
 192.168.0.22   kvmrtc
-192.168.0.13   exao3 icc
+192.168.0.12   exao3 icc
 192.168.0.23   kvmicc
 192.168.0.14   exao4 coc
 192.168.0.140  pdu0
