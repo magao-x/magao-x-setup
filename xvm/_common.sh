@@ -30,7 +30,7 @@ export qemuMachineFlags
 
 qemuDisplay=${qemuDisplay:-}
 if [[ ! -z $qemuDisplay ]]; then
-    ioFlag="-display $qemuDisplay -serial vc"
+    ioFlag="-display $qemuDisplay"
 else
     ioFlag='-display none'
 fi

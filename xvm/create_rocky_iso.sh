@@ -6,9 +6,14 @@ source $DIR/_common.sh
 mkdir -p ./input/iso ./input/kickstart
 ISO_FILE=Rocky-9-latest-${vmArch}-minimal.iso
 if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
-    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} > ./input/iso/${ISO_FILE}.part || exit 1
-    mv ./input/iso/${ISO_FILE}.part ./input/iso/${ISO_FILE}
-    du -h ./input/iso/${ISO_FILE}
+    curl --no-progress-meter \
+        --retry 20 \
+        -f \
+        -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} \
+        --output ./input/iso/${ISO_FILE}.part \
+    || exit 1
+    mv ./input/iso/${ISO_FILE}.part ./input/iso/${ISO_FILE} || exit 1
+    du -h ./input/iso/${ISO_FILE} || true
 else
     echo "Rocky Linux ${vmArch} minimal ISO already downloaded."
 fi
