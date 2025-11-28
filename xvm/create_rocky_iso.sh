@@ -6,28 +6,34 @@ source $DIR/_common.sh
 mkdir -p ./input/iso ./input/kickstart
 ISO_FILE=Rocky-9-latest-${vmArch}-minimal.iso
 if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
-    curl --no-progress-meter \
-        --retry 20 \
-        --retry-delay 10 \
-        --http1.1 \
-        -f \
-        -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} \
-        --output ./input/iso/${ISO_FILE}.part \
-    || exit 1
-    mv ./input/iso/${ISO_FILE}.part ./input/iso/${ISO_FILE} || exit 1
-    du -h ./input/iso/${ISO_FILE} || true
+    while [ $attempt -le $max_attempts ]; do
+        curl --no-progress-meter --http1.1 -f -L \
+        --continue-at - \
+        "https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}" -o "./input/iso/${ISO_FILE}.part" && break
+        echo "Download attempt $attempt failed. Retrying in 10 seconds..."
+        sleep 10
+        attempt=$((attempt+1))
+    done
+
+    if [ -f "$ISO_TMP" ]; then
+        mv "$ISO_TMP" "$ISO_FINAL"
+    else
+        echo "Download failed after $max_attempts attempts."
+        exit 1
+    fi
 else
     echo "Rocky Linux ${vmArch} minimal ISO already downloaded."
 fi
 
 if [[ ! -e ./input/iso/${ISO_FILE}.CHECKSUM ]]; then
-    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}.CHECKSUM > ./input/iso/${ISO_FILE}.CHECKSUM || exit 1
+    curl --no-progress-meter -f -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}.CHECKSUM > ./input/iso/${ISO_FILE}.CHECKSUM || true
     cat ./input/iso/${ISO_FILE}.CHECKSUM
     if [[ $(uname -o) == Darwin ]]; then
         shasum -a 256 ./input/iso/${ISO_FILE}
     else
         sha256sum ./input/iso/${ISO_FILE}
     fi
+    # NOTE: not verifying the checksum (yet), just printing it into the log for diagnostic use
 else
     echo "Rocky Linux ${vmArch} minimal ISO checksum already downloaded."
 fi
