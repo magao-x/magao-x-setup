@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 
 # install postgresql
-sudo dnf install -y postgresql-server postgresql-contrib || exit 1
+sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install postgresql-server postgresql-contrib || exit 1
 # make sure permissions and SELinux context are correct
 sudo mkdir -p /var/lib/pgsql
 sudo /sbin/restorecon -Rv /var/lib/pgsql

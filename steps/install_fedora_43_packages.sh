@@ -11,7 +11,7 @@ echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
 ldconfig -v || exit 1
 
 # Install build tools and utilities
-dnf install -y \
+dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     util-linux-user \
     kernel-devel \
     kernel-modules-extra \
@@ -92,7 +92,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
-    dnf install -y tailscale || exit 1
+    dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi
 

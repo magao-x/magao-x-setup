@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 
 log_info "Installing SSSD for authentication with remote LDAP server..."
-dnf install -y sssd oddjob-mkhomedir sssd-tools || exit_with_error "Failed to install distro packages for SSSD or mkhomedir"
+dnf --setopt=timeout=300 --setopt=retries=10 -y install sssd oddjob-mkhomedir sssd-tools || exit_with_error "Failed to install distro packages for SSSD or mkhomedir"
 log_info "Selecting SSSD as the auth backend"
 authselect select sssd --force with-mkhomedir || exit_with_error "Failed to select SSSD with authselect"
 log_success "SSSD selected!"

@@ -7,4 +7,4 @@ bash -lx ~/magao-x-setup/setup_users_and_groups.sh || (echo 'Failed to create us
 echo 'Created users and groups'
 
 echo 'Installing cloud-init for compatibility with Multipass and others'
-sudo dnf install -y cloud-init || exit 1
+sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install cloud-init || exit 1

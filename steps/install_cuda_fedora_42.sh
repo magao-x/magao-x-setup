@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -exuo pipefail
 sudo dnf clean all
-sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm || exit 1
 
 latestKernel=$(dnf repoquery --latest-limit=1 --qf '%{VERSION}-%{RELEASE}.%{ARCH}' kernel)
@@ -11,7 +11,7 @@ currentKernel=$(uname -r)
 if [[ "$currentKernel" != "$latestKernel" ]]; then
     exit_with_error "Upgrade kernel $currentKernel -> $latestKernel (latest) before installing NVIDIA drivers"
 fi
-sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda || exit 1
+sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda || exit 1
 log_success "Finished installing repackaged NVIDIA driver from RPMFusion"
 log_info "Getting the CUDA libraries from NVIDIA's own packages..."
 sudo mkdir -p /opt/MagAOX/vendor/cuda_rpm

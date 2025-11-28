@@ -20,7 +20,7 @@ sslverify=1
 sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 EOF
     # Install Grafana
-    sudo dnf install -y grafana || exit 1
+    sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install grafana || exit 1
     sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist || exit 1
 fi
 

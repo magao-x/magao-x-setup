@@ -23,7 +23,7 @@ if [[ $ID == ubuntu ]]; then
         sudo -i apt install -y libqwt-qt5-dev/jammy || exit 1
     fi
 elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
-    sudo dnf install -y \
+    sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install \
         qt5-devel \
         qwt-qt5-devel \
         wmctrl \
@@ -31,13 +31,16 @@ elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
         xterm \
     || exit 1
 elif [[ $ID == fedora ]]; then
-    sudo dnf install -y \
+    sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install \
         qt6-qt5compat-devel \
         qwt-qt5-devel \
         qwt-qt6-devel \
         wmctrl \
         xorg-x11-xauth \
         xterm \
+        pipewire-utils \
+        pulseaudio-utils \
+        ffmpeg \
     || exit 1
 else
     exit_with_error "Don't know what to do for GUIs on $ID $VERSION_ID"

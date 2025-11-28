@@ -5,12 +5,12 @@ set -xuo pipefail
 
 log_info "Make Extra Packages for Enterprise Linux available in /etc/yum.repos.d/"
 if ! dnf config-manager -h >/dev/null; then
-    dnf install -y 'dnf-command(config-manager)' || exit 1
+    dnf --setopt=timeout=300 --setopt=retries=10 -y install 'dnf-command(config-manager)' || exit 1
 fi
 log_info "Enabling CRB"
 dnf config-manager --set-enabled crb || exit 1
 log_info "Enabling EPEL repository"
-dnf install -y epel-release || exit 1
+dnf --setopt=timeout=300 --setopt=retries=10 -y install epel-release || exit 1
 log_info "Clearing dnf cache"
 dnf clean all || exit 1
 log_info "Checking dnf for errors"
@@ -26,7 +26,7 @@ log_info "Installing Development Tools group"
 dnf groupinstall -y 'Development Tools' || exit 1
 
 # needed for MagAO-X
-dnf install -y gcc-toolset-14 || exit 1
+dnf --setopt=timeout=300 --setopt=retries=10 -y install gcc-toolset-14 || exit 1
 
 # Search /usr/local/lib by default for dynamic library loading
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
@@ -125,7 +125,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 # For containerized/virtualized environments, use Tailscale set up on the host side
 if [[ "$VM_KIND" == none ]]; then
     dnf config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
-    dnf install -y tailscale || exit 1
+    dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi
 

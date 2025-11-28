@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
 
-sudo dnf install -y sssd sssd-tools oddjob-mkhomedir || exit_with_error "Unable to install OS packages for LDAP authentication"
+sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install sssd sssd-tools oddjob-mkhomedir || exit_with_error "Unable to install OS packages for LDAP authentication"
 sudo systemctl enable --now oddjobd || true
 sudo authselect select sssd --force with-mkhomedir || exit_with_error "Unable to select SSSD for auth"
 sudo sssctl config-check || exit_with_error "Config check failed for SSSD"
