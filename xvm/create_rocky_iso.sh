@@ -8,6 +8,8 @@ ISO_FILE=Rocky-9-latest-${vmArch}-minimal.iso
 if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
     curl --no-progress-meter \
         --retry 20 \
+        --retry-delay 10 \
+        --http1.1 \
         -f \
         -L https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE} \
         --output ./input/iso/${ISO_FILE}.part \
