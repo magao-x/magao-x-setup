@@ -60,6 +60,7 @@ $dockerCmd run \
     --rm \
     -t $rockyContainer \
     bash /xvm/mkksisowrap.sh \
+    --security-opt label=disable \
     --cmdline 'inst.cmdline' \
     --cmdline 'console=ttyS0' \
     --rm-args rd.live.check \
