@@ -7,6 +7,10 @@ else
     VM_KIND=$(systemd-detect-virt)
 fi
 
+CONDA_BASE=/opt/conda
+MAMBA=/opt/conda/bin/mamba
+CONDA=/opt/conda/bin/conda
+
 instrument_user=xsup
 instrument_group=magaox
 instrument_dev_group=magaox-dev

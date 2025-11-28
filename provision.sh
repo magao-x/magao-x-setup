@@ -204,13 +204,13 @@ fi
 # env activates by default.
 sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
 sudo -H bash -l "$DIR/steps/configure_python.sh" || exit_with_error "Couldn't configure Python environments"
-source /opt/conda/bin/activate
+source $CONDA_BASE/bin/activate
 if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != workstation ]]; then
     sudo -H bash -l "$DIR/steps/install_jupyterhub.sh" || exit_with_error "Couldn't set up JupyterHub service"
 fi
 
 # Install first-party deps
-bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on /opt/conda/bin/python existing for plugin build
+bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on $CONDA_BASE/bin/python existing for plugin build
 bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
 bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
 bash -l "$DIR/steps/install_purepyindi.sh" || exit_with_error "purepyindi install failed"

@@ -6,13 +6,13 @@ set -o pipefail
 JUPYTERHUB_GROUP=jupyterhub
 JUPYTERHUB_ENV_NAME=jupyterhub
 
-if [[ ! -d /opt/conda/envs/${JUPYTERHUB_ENV_NAME} ]]; then
-    sudo -H /opt/conda/bin/conda create -y -p /opt/conda/envs/$JUPYTERHUB_ENV_NAME python jupyterhub
+if [[ ! -d $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME} ]]; then
+    sudo -H $CONDA_BASE/bin/conda create -y -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME python jupyterhub
 fi
-sudo -H /opt/conda/bin/mamba env update -p /opt/conda/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
+sudo -H $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
 
 # lock = disable annoying popup about jupyter news
-sudo -H /opt/conda/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
+sudo -H $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
 
 # Note that this GID is set on purpose to match
 # the LDAP server at accounts.xwcl.science

@@ -10,22 +10,22 @@ parentdir=/opt/MagAOX/source
 clone_or_update_and_cd $orgname $reponame $parentdir
 git checkout $SUP_COMMIT_ISH
 
-if [[ ! -d /opt/conda/envs/sup ]]; then
-    sudo -H /opt/conda/bin/conda create -yn sup python pip numpy
+if [[ ! -d $CONDA_BASE/envs/sup ]]; then
+    sudo -H $CONDA_BASE/bin/conda create -yn sup python pip numpy
 fi
-source /opt/conda/bin/activate
+source $CONDA_BASE/bin/activate
 conda activate sup
-sudo -H /opt/conda/bin/mamba env update -qf $DIR/../conda_env_sup.yml
-sudo -H /opt/conda/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
-sudo -H /opt/conda/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
-sudo -H /opt/conda/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO
+sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_env_sup.yml
+sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
+sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
+sudo -H $CONDA_BASE/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO
 
-/opt/conda/envs/sup/bin/python -c 'import ImageStreamIOWrap' || exit 1
+$CONDA_BASE/envs/sup/bin/python -c 'import ImageStreamIOWrap' || exit 1
 
 make  # installs Python module in editable mode, builds all js (needs node/yarn)
-sudo -H /opt/conda/envs/sup/bin/pip install -e /opt/MagAOX/source/sup   # because only root can write to site-packages
+sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/sup   # because only root can write to site-packages
 cd
-/opt/conda/envs/sup/bin/python -c 'import sup' || exit 1  # verify sup is on PYTHONPATH
+$CONDA_BASE/envs/sup/bin/python -c 'import sup' || exit 1  # verify sup is on PYTHONPATH
 
 # Install service units
 UNIT_PATH=/etc/systemd/system/
