@@ -1,3 +1,4 @@
+import subprocess, os
 # Configuration file for jupyterhub.
 
 c = get_config()  #noqa
@@ -24,3 +25,14 @@ c.PAMAuthenticator.allowed_groups = {'jupyterhub', 'xwcl-admin'}
 c.PAMAuthenticator.admin_groups = {'wheel', 'xwcl-admin'}
 ## Path to the notebook directory for the single-user server.
 c.Spawner.notebook_dir = '/home/{username}'
+
+if os.environ.get('MAGAOX_ROLE') in ('RTC', 'ICC'):
+    def user_setup(spawner):
+        username = spawner.user.name
+        script = "/etc/profile.d/make_aoc_home_symlink.sh"
+
+        # Requires sudo rule like: jupyterhub ALL=(%users) NOPASSWD: /etc/profile.d/make_aoc_home_symlink.sh
+        cmd = ["sudo", "-u", username, script]
+        subprocess.check_call(cmd)
+
+    c.Spawner.pre_spawn_hook = user_setup

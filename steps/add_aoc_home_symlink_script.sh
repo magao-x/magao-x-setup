@@ -9,10 +9,12 @@ fi
 
 if [[ $MAGAOX_ROLE != AOC ]]; then
     sudo tee /etc/profile.d/make_aoc_home_symlink.sh <<'HERE'
+#!/usr/bin/env bash
 if [[ $USER != xsup && $USER != xdev && ! -e /home/$USER/aoc ]]; then
     echo 'Making AOC home directory accessible over the network at ~/aoc/...'
-    ln -sv /home/$USER/aoc /srv/aoc/home/$USER/ || echo "Couldn't make symlink at /home/$USER/aoc"
+    ln -sv /srv/aoc/home/$USER/ /home/$USER/aoc || echo "Couldn't make symlink at /home/$USER/aoc"
 fi
 HERE
+    sudo chmod +x /etc/profile.d/make_aoc_home_symlink.sh
     log_info 'Added shell profile snippet to symlink ~/aoc to /srv/aoc/home/$USER'
 fi
