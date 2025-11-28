@@ -60,7 +60,6 @@ $dockerCmd run \
     --security-opt label=disable \
     --rm \
     -t $rockyContainer \
-    -- \
     bash /xvm/mkksisowrap.sh \
     --cmdline 'inst.cmdline' \
     --cmdline 'console=ttyS0' \
