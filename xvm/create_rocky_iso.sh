@@ -5,8 +5,10 @@ source $DIR/_common.sh
 
 mkdir -p ./input/iso ./input/kickstart
 ISO_FILE=Rocky-9-latest-${vmArch}-minimal.iso
+maxAttempts=10
+attempt=1
 if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
-    while [ $attempt -le $max_attempts ]; do
+    while [[ $attempt -le $maxAttempts ]]; do
         curl --no-progress-meter --http1.1 -f -L \
         --continue-at - \
         "https://download.rockylinux.org/pub/rocky/9/isos/${vmArch}/${ISO_FILE}" -o "./input/iso/${ISO_FILE}.part" && break
@@ -15,10 +17,10 @@ if [[ ! -e ./input/iso/${ISO_FILE} ]]; then
         attempt=$((attempt+1))
     done
 
-    if [ -f "$ISO_TMP" ]; then
-        mv "$ISO_TMP" "$ISO_FINAL"
+    if [[ -f "./input/iso/${ISO_FILE}.part" ]]; then
+        mv "./input/iso/${ISO_FILE}.part" "./input/iso/${ISO_FILE}"
     else
-        echo "Download failed after $max_attempts attempts."
+        echo "Download failed after $maxAttempts attempts."
         exit 1
     fi
 else
