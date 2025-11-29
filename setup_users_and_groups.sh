@@ -42,10 +42,9 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
   $SUDO groupadd -f guestobs || exit_with_error "Couldn't add guestobs group"
   $SUDO gpasswd -d guestobs magaox || true  # prevent access for shenanigans
   $SUDO gpasswd -a guestobs guestobs || true
-  $SUDO mkdir -p /data/obs
-  $SUDO chown ${instrument_user}:guestobs /data/obs
-  $SUDO chmod u=rwX,g=rX,o=rX /data/obs/*
-  link_if_necessary /data/obs /home/guestobs/obs
+  $SUDO mkdir -p /home/guestobs/obs
+  $SUDO chown ${instrument_user}:guestobs /home/guestobs/obs
+  $SUDO chmod u=rwX,g=rX,o=rX /home/guestobs
   if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
     $SUDO gpasswd -a $instrument_user guestobs
     log_success "Added $instrument_user to group guestobs"
