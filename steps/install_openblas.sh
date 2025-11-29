@@ -17,19 +17,11 @@ cd ./OpenBLAS-${VERSION} || exit 1
 openblasFlags="USE_OPENMP=1"
 
 if [[ $VM_KIND != "none" ]]; then
-    # If we're in a VM context, we try to build generic images
-    # but also cut down the number of architectures it specializes
-    # for so builds don't time out.
-    if [[ $(uname -m) == "x86_64" ]]; then
-        openblasArch="HASWELL"
-    elif [[ $(uname -m) == "aarch64" ]]; then
-        openblasArch="ARMV8"
+    if [[ $ID == rocky ]]; then
+        dnf install -y openblas-devel || exit 1
     else
-        exit_with_error "Unknown platform $(uname -m)"
+        exit_with_error "No idea how to handle VM kind $VM_KIND and distro $ID"
     fi
-    make -j$(nproc) TARGET="$openblasArch" $openblasFlags || exit 1
-    # ensure same flags get to make install
-    sudo make install PREFIX=/usr/local TARGET="$openblasArch" $openblasFlags || exit 1
 else
     make -j$(nproc) $openblasFlags || exit 1
     # ensure same flags get to make install
