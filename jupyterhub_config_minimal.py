@@ -29,9 +29,9 @@ c.Spawner.notebook_dir = '/home/{username}'
 if os.environ.get('MAGAOX_ROLE') in ('RTC', 'ICC'):
     def user_setup(spawner):
         username = spawner.user.name
-        script = "/etc/profile.d/make_aoc_home_symlink.sh"
+        script = "/etc/profile.d/init_users_data_dir.sh"
 
-        # Requires sudo rule like: jupyterhub ALL=(%users) NOPASSWD: /etc/profile.d/make_aoc_home_symlink.sh
+        # Requires sudo rule like: jupyterhub ALL=(%users) NOPASSWD: /etc/profile.d/init_users_data_dir.sh
         cmd = ["sudo", "-u", username, script]
         subprocess.check_call(cmd)
 
