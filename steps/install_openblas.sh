@@ -19,7 +19,7 @@ openblasFlags="USE_OPENMP=1"
 
 if [[ $VM_KIND != "none" ]]; then
     if [[ $ID == rocky ]]; then
-        dnf install -y openblas-devel || exit 1
+        dnf install --setopt=timeout=300 --setopt=retries=10 -y openblas-devel || exit 1
     else
         exit_with_error "No idea how to handle VM kind $VM_KIND and distro $ID"
     fi

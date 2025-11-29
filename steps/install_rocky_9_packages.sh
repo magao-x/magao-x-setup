@@ -23,7 +23,7 @@ log_info "Done updating dnf packages"
 
 # needed for (at least) git:
 log_info "Installing Development Tools group"
-dnf groupinstall -y 'Development Tools' || exit 1
+dnf --setopt=timeout=300 --setopt=retries=10 groupinstall -y 'Development Tools' || exit 1
 
 # needed for MagAO-X
 dnf --setopt=timeout=300 --setopt=retries=10 -y install gcc-toolset-14 || exit 1
@@ -38,7 +38,7 @@ if [[ "$VM_KIND" != none ]]; then
     log_info "Installing packages not needed in containers"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets
-    yum install -y \
+    yum --setopt=timeout=300 --setopt=retries=10 install -y \
         kernel-devel \
         kernel-modules-extra \
         pciutils \
@@ -52,12 +52,12 @@ if [[ "$VM_KIND" != none ]]; then
 fi
 if [[ "$VM_KIND" != *container* ]]; then
     log_info "Installing packages not needed in containers"
-    yum install -y \
+    yum --setopt=timeout=300 --setopt=retries=10 install -y \
         mlocate \
     || exit 1
 fi
 # For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
-yum install -y \
+yum --setopt=timeout=300 --setopt=retries=10 install -y \
     gcc-gfortran \
     util-linux-user \
     passwd \
@@ -111,7 +111,7 @@ yum install -y \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
-    yum install -y fftw-libs-quad || exit 1
+    yum install --setopt=timeout=300 --setopt=retries=10 -y fftw-libs-quad || exit 1
 else
     log_info "libfftw3-quad not available on $(uname -m) host"
 fi
@@ -130,4 +130,4 @@ if [[ "$VM_KIND" == none ]]; then
 fi
 
 # install postgresql 15 client for RHEL 9
-dnf module install -y postgresql:15/client || exit 1
+dnf module install --setopt=timeout=300 --setopt=retries=10 -y postgresql:15/client || exit 1
