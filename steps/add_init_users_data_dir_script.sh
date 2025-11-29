@@ -10,7 +10,7 @@ fi
 if [[ $MAGAOX_ROLE != AOC ]]; then
     sudo tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
 #!/usr/bin/env bash
-if [[ ! -e /home/$USER/data ]]; then
+if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     echo 'Making AOC home directory accessible over the network at ~/data/...'
     ln -sv /srv/aoc/home/$USER/data/ /home/$USER/data || echo "Couldn't make symlink at /home/$USER/data"
 fi
@@ -20,7 +20,7 @@ HERE
 else
         sudo tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
 #!/usr/bin/env bash
-if [[ ! -e /home/$USER/data ]]; then
+if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     echo 'Making ~/data/ dir for sharing between instruments...'
     mkdir -p /home/$USER/data || echo "Couldn't make a data dir in home"
 fi
