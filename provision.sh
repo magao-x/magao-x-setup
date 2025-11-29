@@ -199,8 +199,8 @@ if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     echo "export CGROUPS1_CPUSET_MOUNTPOINT=/opt/MagAOX/cpuset" | sudo tee /etc/profile.d/cgroups1_cpuset_mountpoint.sh
 fi
 
-if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
-    sudo -H bash -l "$DIR/steps/add_aoc_home_symlink_script.sh" || exit_with_error "Couldn't add /etc/profile.d/make_aoc_home_symlink.sh"
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
+    sudo -H bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
 fi
 
 # Create Python env and install Python libs that need special treatment

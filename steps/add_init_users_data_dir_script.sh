@@ -3,8 +3,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -o pipefail
 
-if [[ $MAGAOX_ROLE != RTC && $MAGAOX_ROLE != ICC ]]; then
-    exit_with_error "Ensure this role $MAGAOX_ROLE has a route to AOC over the private LAN before enabling"
+if [[ $MAGAOX_ROLE != RTC && $MAGAOX_ROLE != ICC && $MAGAOX_ROLE != AOC ]]; then
+    exit_with_error "Ensure this role $MAGAOX_ROLE has a route to AOC over the private LAN / is allowed to NFS mount before enabling"
 fi
 
 if [[ $MAGAOX_ROLE != AOC ]]; then
