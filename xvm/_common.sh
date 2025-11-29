@@ -56,7 +56,7 @@ if [[ $vmArch == aarch64 ]]; then
         -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
         -device virtio-gpu-pci"
 elif [[ $vmArch == x86_64 ]]; then
-    if [[ -e /usr/libexec/qemu-kvm && -z CI ]]; then
+    if [[ -e /usr/libexec/qemu-kvm && -z $CI ]]; then
         qemuSystemCommand="/usr/libexec/qemu-kvm"
     else
         qemuSystemCommand="qemu-system-${vmArch}"
