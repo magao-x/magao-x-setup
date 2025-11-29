@@ -2,7 +2,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
-
+# Make sure we get all the new pkg-config files
+export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH}"
 # Uses Software Collections package for GCC 14
 if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
     source /opt/rh/gcc-toolset-14/enable
