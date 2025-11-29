@@ -50,13 +50,17 @@ else
 fi
 
 if [[ $vmArch == aarch64 ]]; then
-    # ARM gets UEFI
+    # ARM gets UEFI (no qemu-kvm here yet)
     qemuSystemCommand="qemu-system-${vmArch} \
         -drive if=pflash,format=raw,id=ovmf_code,readonly=on,file=./output/firmware_code.fd \
         -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
         -device virtio-gpu-pci"
 elif [[ $vmArch == x86_64 ]]; then
-    qemuSystemCommand="qemu-system-${vmArch}"
+    if [[ -e /usr/libexec/qemu-kvm && -z CI ]]; then
+        qemuSystemCommand="/usr/libexec/qemu-kvm"
+    else
+        qemuSystemCommand="qemu-system-${vmArch}"
+    fi
 else
     echo 'set $vmArch'
     exit 1
