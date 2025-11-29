@@ -29,9 +29,8 @@ c.Spawner.notebook_dir = '/home/{username}'
 def user_setup(spawner):
     username = spawner.user.name
     script = "/etc/profile.d/init_users_data_dir.sh"
-
-    # Requires sudo rule like: jupyterhub ALL=(%users) NOPASSWD: /etc/profile.d/init_users_data_dir.sh
     cmd = ["sudo", "-u", username, script]
+    print('Running', ' '.join(cmd))
     subprocess.check_call(cmd)
 
 c.Spawner.pre_spawn_hook = user_setup
