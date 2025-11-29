@@ -6,7 +6,7 @@ if [[ "$EUID" != 0 ]]; then
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
-set -xuo pipefail
+set -xu
 
 MINIFORGE3_VERSION="25.9.1-0"
 MINIFORGE3_INSTALLER="Miniforge3-$MINIFORGE3_VERSION-Linux-$(uname -m).sh"
