@@ -32,5 +32,5 @@ sudo visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $
 
 sudo install -o root -g root $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
 sudo systemctl daemon-reload || exit_with_error "SystemD reload failed"
-sudo systemctl restart --now /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't enable SystemD unit for JupyterHub"
+sudo systemctl restart jupyterhub.service || exit_with_error "Couldn't enable SystemD unit for JupyterHub"
 log_success "JupyterHub configured!"
