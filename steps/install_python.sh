@@ -14,6 +14,7 @@ MINIFORGE3_URL="https://github.com/conda-forge/miniforge/releases/download/$MINI
 #
 # conda
 #
+# n.b. CONDA_BASE is defined in _common.sh
 cd /opt/MagAOX/vendor || exit 1
 if [[ ! -d $CONDA_BASE ]]; then
     _cached_fetch "$MINIFORGE3_URL" $MINIFORGE3_INSTALLER || exit 1
@@ -24,7 +25,7 @@ if [[ ! -d $CONDA_BASE ]]; then
     chmod -R g=rwX $CONDA_BASE || exit 1
     find $CONDA_BASE -type d -exec sudo chmod g+rwxs {} \; || exit 1
     # Set environment variables for conda
-    cat << 'EOF' | tee /etc/profile.d/conda.sh || exit 1
+    cat <<EOF | tee /etc/profile.d/conda.sh || exit 1
 if [ -f "$CONDA_BASE/etc/profile.d/conda.sh" ]; then
     . "$CONDA_BASE/etc/profile.d/conda.sh"
     CONDA_CHANGEPS1=false conda activate base
