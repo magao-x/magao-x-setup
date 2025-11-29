@@ -3,6 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
 cd /opt/MagAOX/vendor || exit 1
+source /etc/os-release
 log_info "Install OpenBLAS from source"
 VERSION=0.3.30
 DOWNLOAD_FILE=OpenBLAS-${VERSION}.tar.gz
