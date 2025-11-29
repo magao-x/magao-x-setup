@@ -12,6 +12,7 @@ set -x
 #
 # Install the standard MagAOX user python environment
 #
+$MAMBA update -y mamba || exit_with_error "Mamba self update failed"
 $MAMBA env update -f $DIR/../conda_env_base.yml || exit_with_error "Failed to install or update packages"
 $MAMBA env export
 
