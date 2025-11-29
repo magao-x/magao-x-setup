@@ -12,6 +12,7 @@ fi
 sudo -H $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
 
 # lock = disable annoying popup about jupyter news
+sudo -H $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 sudo -H $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
 
 # Note that this GID is set on purpose to match
