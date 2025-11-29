@@ -20,6 +20,8 @@ ADD ./setup_users_and_groups.sh /setup/
 RUN bash /setup/setup_users_and_groups.sh
 ADD ./steps/configure_rocky_9.sh /setup/steps/
 RUN bash /setup/steps/configure_rocky_9.sh
+ADD ./steps/ensure_dirs_and_perms.sh /setup/steps/
+RUN bash /setup/steps/ensure_dirs_and_perms.sh
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN bash /setup/steps/install_python.sh
