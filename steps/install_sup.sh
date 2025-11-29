@@ -15,7 +15,7 @@ if [[ ! -d $CONDA_BASE/envs/sup ]]; then
 fi
 source $CONDA_BASE/bin/activate
 conda activate sup
-sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_env_sup.yml
+yes | sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_env_sup.yml
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
 sudo -H $CONDA_BASE/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO
