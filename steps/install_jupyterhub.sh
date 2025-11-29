@@ -30,6 +30,14 @@ jupyterhub ALL=(%jupyterhub) NOPASSWD: /etc/profile.d/init_users_data_dir.sh
 HERE
 sudo visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
 
+sudo install \
+    --owner=root \
+    --group=root \
+    --mode=440 \
+    $scratchFile \
+    $targetFile \
+|| exit_with_error "Could not install drop-in file to $targetFile"
+
 sudo install -o root -g root $DIR/../systemd_units/jupyterhub.service /etc/systemd/system/jupyterhub.service || exit_with_error "Couldn't install SystemD unit for JupyterHub"
 sudo systemctl daemon-reload || exit_with_error "SystemD reload failed"
 sudo systemctl restart jupyterhub.service || exit_with_error "Couldn't enable SystemD unit for JupyterHub"
