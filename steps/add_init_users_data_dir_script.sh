@@ -12,6 +12,10 @@ if [[ $MAGAOX_ROLE != AOC ]]; then
 #!/usr/bin/env bash
 if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     echo 'Making AOC home directory accessible over the network at ~/data/...'
+    if [[ ! -e /srv/aoc/home/$USER/data ]]; then
+        mkdir -p /srv/aoc/home/$USER/data
+        echo "Made /srv/aoc/home/$USER/data"
+    fi
     ln -sv /srv/aoc/home/$USER/data/ /home/$USER/data || echo "Couldn't make symlink at /home/$USER/data"
 fi
 HERE
