@@ -15,12 +15,14 @@ RUN sed -i \
 RUN dnf clean all && \
     dnf --refresh makecache && \
     bash /setup/steps/install_rocky_9_packages.sh
+ADD ./steps/install_python.sh /setup/steps/
 ADD ./setup_users_and_groups.sh /setup/
 RUN bash /setup/setup_users_and_groups.sh
 ADD ./steps/configure_rocky_9.sh /setup/steps/
 RUN bash /setup/steps/configure_rocky_9.sh
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
+RUN bash /setup/steps/install_python.sh
 RUN dnf clean all && dnf makecache && bash -lx provision.sh
 USER xsup
 
