@@ -127,8 +127,6 @@ if [[ ! -e $VENDOR_SOFTWARE_BUNDLE ]]; then
     fi
 fi
 
-
-
 if [[ $MAGAOX_ROLE == AOC ]]; then
     # Configure a tablespace to store postgres data on the /data array
     # and user accounts for the system to use

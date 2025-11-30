@@ -44,7 +44,7 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
   $SUDO gpasswd -a guestobs guestobs || true
   $SUDO mkdir -p /home/guestobs/obs
   $SUDO chown ${instrument_user}:guestobs /home/guestobs/obs
-  $SUDO chmod u=rwX,g=rX,o=rX /home/guestobs
+  $SUDO chmod u=rwX,g=rXs,o=rX /home/guestobs/obs
   if [[ -z $(groups | tr ' ' '\n' | grep 'guestobs$') ]]; then
     $SUDO gpasswd -a $instrument_user guestobs
     log_success "Added $instrument_user to group guestobs"
