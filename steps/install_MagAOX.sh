@@ -19,5 +19,5 @@ log_info "Building MagAOX"
 cd ../.. || exit 1
 make setup || exit 1
 make libs_all || exit 1
-make -j$(nproc) all || exit 1
+make all || exit 1
 make install || exit 1
