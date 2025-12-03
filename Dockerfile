@@ -1,5 +1,5 @@
 # Staged build: dependencies and CLI tools first
-FROM rockylinux/rockylinux:9-ubi-init AS cli
+FROM rockylinux/rockylinux:9-ubi-init AS build
 ENV MAGAOX_ROLE=container
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 ADD ./_common.sh /setup/
@@ -26,6 +26,10 @@ ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN bash /setup/steps/install_python.sh
 RUN dnf clean all && dnf makecache && bash -lx provision.sh
+
+FROM scratch as cli
+COPY --from=build / /
+ENV MAGAOX_ROLE=container
 USER xsup
 
 FROM cli as gui
