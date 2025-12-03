@@ -28,7 +28,11 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
             exportHosts="$host(rw,sync) $exportHosts"
         fi
     done
-    exportDataLine="/data      $exportHosts"
+    if [[ $MAGAOX_ROLE == AOC ]]; then
+        exportDataLine="/home      $exportHosts"
+    else
+        exportDataLine="/data      $exportHosts"
+    fi
     if ! grep -q "$exportDataLine" /etc/exports; then
         echo "$exportDataLine" | sudo tee -a /etc/exports || exit 1
         sudo exportfs -a || exit 1
@@ -43,28 +47,36 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         fi
     fi
 
-    # every host mounts the other two hosts' /data arrays
+    # every host mounts the other two hosts' MagAO-X data folders
     for host in aoc rtc icc; do
-        if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
-            mountPath=/srv/$host/data
-            sudo mkdir -p $mountPath || exit 1
-            if ! grep -q "$mountPath" /etc/fstab; then
-                echo "$host:/data $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+        for magaoxSubfolder in cacao logs rawimages telem; do
+            if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
+
+                if [[ $host == aoc ]]; then
+                    hostPath=/home/data/$magaoxSubfolder
+                else
+                    hostPath=/data/$magaoxSubfolder
+                fi
+                mountPath=/srv/$host/opt/MagAOX/$magaoxSubfolder
+                sudo mkdir -vp $mountPath || exit 1
+                if ! grep -q "$mountPath" /etc/fstab; then
+                    echo "$host:$hostPath $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+                fi
             fi
-        fi
+        done
     done
     if [[ $MAGAOX_ROLE != AOC ]]; then
-        mountPath=/data/users
-        sudo mkdir -p $mountPath || exit 1
-        if ! grep -q "$mountPath" /etc/fstab; then
-            echo "aoc:/data/users $mountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+        aocHomeMountPath=/home
+        sudo mkdir -p /srv/aoc/home || exit 1
+        if ! grep -q /srv/aoc/home /etc/fstab; then
+            echo "aoc:/home $aocHomeMountPath	nfs	rw,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
         fi
     fi
     if [[ $MAGAOX_ROLE != AOC ]]; then
-        mountPath=/srv/$host/backups
-        sudo mkdir -p $mountPath || exit 1
-        if ! grep -q $mountPath /etc/fstab; then
-            echo "$host:/mnt/backups $mountPath	nfs	ro,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
+        backupsMountPath=/srv/aoc/mnt/backups
+        sudo mkdir -p $backupsMountPath || exit 1
+        if ! grep -q $backupsMountPath /etc/fstab; then
+            echo "aoc:/mnt/backups $backupsMountPath	nfs	ro,noauto,x-systemd.automount,nofail,x-systemd.device-timeout=10s,soft,timeo=30	0 0" | sudo tee -a /etc/fstab || exit 1
         fi
     fi
 fi
