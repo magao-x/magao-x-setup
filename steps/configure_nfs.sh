@@ -49,7 +49,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
 
     # every host mounts the other two hosts' MagAO-X data folders
     for host in aoc rtc icc; do
-        for magaoxSubfolder in cacao logs rawimages telem; do
+        for magaoxSubfolder in cacao logs rawimages telem calib; do
             if [[ ${host,,} != ${MAGAOX_ROLE,,} ]]; then
 
                 if [[ $host == aoc ]]; then
