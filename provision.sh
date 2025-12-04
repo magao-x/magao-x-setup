@@ -9,7 +9,7 @@ set -x
 if [[ $VM_KIND == "container" ]]; then
     # minimal container is extremely minimal, so we need to do this before anything else
     osPackagesScript="$DIR/steps/install_${ID}_${MAJOR_VERSION}_packages.sh"
-    sudo -H bash -l $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
+    bash -x $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
 fi
 # CentOS + devtoolset-7 aliases sudo, but breaks command line arguments for it,
 # so if we need those, we must use $_REAL_SUDO.
