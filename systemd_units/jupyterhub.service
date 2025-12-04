@@ -7,6 +7,7 @@ User=root
 Group=root
 WorkingDirectory=/etc/jupyterhub
 Environment="PATH=/opt/conda/envs/jupyterhub/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="OPENBLAS_NUM_THREADS=1"
 ExecStart=/opt/conda/envs/jupyterhub/bin/jupyterhub -f jupyterhub_config.py
 
 # keep sensible hardening that doesn't break Node/V8
