@@ -7,11 +7,6 @@ source $DIR/_common.sh
 # (but not Python environments, proprietary vendor SDKs, or first-party
 # dependencies)
 
-# Defines $ID and $VERSION_ID so we can detect which distribution we're on
-source /etc/os-release
-# Get just the XX beginning of a XX.YY version string
-MAJOR_VERSION=${VERSION_ID%.*}
-
 # Install third-party dependencies (including OS-packaged ones) except for vendor SDKs
 
 # Install OS packages first

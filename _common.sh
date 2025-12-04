@@ -7,6 +7,11 @@ else
     VM_KIND=$(systemd-detect-virt)
 fi
 
+# Defines $ID and $VERSION_ID so we can detect which distribution we're on
+source /etc/os-release
+# Get just the XX beginning of a XX.YY version string
+MAJOR_VERSION=${VERSION_ID%.*}
+
 CONDA_BASE=/opt/conda
 MAMBA=/opt/conda/bin/mamba
 CONDA=/opt/conda/bin/conda

@@ -6,6 +6,11 @@ if [[ $VM_KIND != "none" ]]; then
     echo "Detected virtualization: $VM_KIND"
 fi
 set -x
+if [[ $VM_KIND == "container" ]]; then
+    # minimal container is extremely minimal, so we need to do this before anything else
+    osPackagesScript="$DIR/steps/install_${ID}_${MAJOR_VERSION}_packages.sh"
+    sudo -H bash -l $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
+fi
 # CentOS + devtoolset-7 aliases sudo, but breaks command line arguments for it,
 # so if we need those, we must use $_REAL_SUDO.
 if [[ -e /usr/bin/sudo ]]; then
@@ -19,6 +24,8 @@ else
     _REAL_SUDO=$(which sudo)
   fi
 fi
+
+
 
 # Function to refresh sudo timer
 refresh_sudo_timer() {
