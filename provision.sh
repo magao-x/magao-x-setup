@@ -68,7 +68,7 @@ if [[ $VM_KIND != "container" ]]; then
 fi
 # The VM and CI provisioning doesn't run setup_users_and_groups.sh
 # separately as in the instrument instructions; we have to run it
-if [[ $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci ]]; then
+if [[ $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci || $MAGAOX_ROLE == container ]]; then
     bash -l "$DIR/setup_users_and_groups.sh"
 fi
 ## Set up file structure and permissions
