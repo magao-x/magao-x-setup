@@ -209,30 +209,16 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
 fi
 
 # Create Python env and install Python libs that need special treatment
-# Note that subsequent steps will use libs from conda since the base
-# env activates by default.
+# Note that subsequent steps can see libs from conda during build
 sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
-sudo -H bash -l "$DIR/steps/configure_python.sh" || exit_with_error "Couldn't configure Python environments"
 source $CONDA_BASE/bin/activate
-if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != workstation ]]; then
-    sudo -H bash -l "$DIR/steps/install_jupyterhub.sh" || exit_with_error "Couldn't set up JupyterHub service"
-fi
+conda activate $INSTRUMENT_CONDA_ENV
 
 # Install first-party deps
-bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on $CONDA_BASE/bin/python existing for plugin build
+bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on $CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin/python existing for plugin build
 bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
 bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
-bash -l "$DIR/steps/install_purepyindi.sh" || exit_with_error "purepyindi install failed"
-bash -l "$DIR/steps/install_purepyindi2.sh" || exit_with_error "purepyindi2 install failed"
-bash -l "$DIR/steps/install_xconf.sh" || exit_with_error "xconf install failed"
-bash -l "$DIR/steps/install_lookyloo.sh" || exit_with_error "lookyloo install failed"
-bash -l "$DIR/steps/install_magpyx.sh" || exit_with_error "magpyx install failed"
 bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
-
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == workstation ]]; then
-    # sup web interface
-    bash -l "$DIR/steps/install_sup.sh"
-fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci ]]; then
     # realtime image viewer
@@ -251,7 +237,6 @@ if [[ -z $CI && "$VM_KIND" != *container* ]]; then
     cd /opt/MagAOX/source/MagAOX
     bash -l "$DIR/steps/install_MagAOX.sh" || exit 1
 fi
-
 
 if [[ $MAGAOX_ROLE != ci && "$VM_KIND" == "none" ]]; then
     sudo -H bash -l "$DIR/steps/configure_startup_services.sh"

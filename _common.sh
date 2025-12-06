@@ -15,6 +15,7 @@ MAJOR_VERSION=${VERSION_ID%.*}
 CONDA_BASE=/opt/conda
 MAMBA=/opt/conda/bin/mamba
 CONDA=/opt/conda/bin/conda
+INSTRUMENT_CONDA_ENV=xpy3_13
 
 instrument_user=xsup
 instrument_group=magaox

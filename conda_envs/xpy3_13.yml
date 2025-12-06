@@ -1,6 +1,7 @@
 channels:
   - conda-forge
 dependencies:
+  - python=3.13
   - astropy
   # Note: omission of jupyter and use of matplotlib-base prevents dependency on qt
   - jupyterlab

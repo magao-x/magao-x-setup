@@ -9,7 +9,9 @@ sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install https://mirrors.rpm
 latestKernel=$(dnf repoquery --latest-limit=1 --qf '%{VERSION}-%{RELEASE}.%{ARCH}' kernel)
 currentKernel=$(uname -r)
 if [[ "$currentKernel" != "$latestKernel" ]]; then
-    exit_with_error "Upgrade kernel $currentKernel -> $latestKernel (latest) before installing NVIDIA drivers"
+    # exit_with_error "Upgrade kernel $currentKernel -> $latestKernel (latest) before installing NVIDIA drivers"
+    log_error "Upgrade kernel $currentKernel -> $latestKernel (latest) before installing NVIDIA drivers"
+    exit 0
 fi
 sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda || exit 1
 log_success "Finished installing repackaged NVIDIA driver from RPMFusion"

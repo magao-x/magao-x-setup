@@ -11,7 +11,7 @@ if [[ ! -d $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME} ]]; then
 fi
 
 set +o pipefail
-yes | sudo -H $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_env_jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
+yes | sudo -H $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_envs/jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
 set -o pipefail
 
 # lock = disable annoying popup about jupyter news

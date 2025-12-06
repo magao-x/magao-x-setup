@@ -24,7 +24,7 @@ sudo -H rm -rf _build src/config.h src/milk_config.h || exit 1
 mkdir -p _build || exit 1
 cd _build || exit 1
 
-pythonExe=$CONDA_BASE/bin/python
+pythonExe="$CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin/python"
 
 milkCmakeArgs="-DCMAKE_INSTALL_PREFIX=/usr/local -Dbuild_python_module=ON -DPYTHON_EXECUTABLE=${pythonExe}"
 

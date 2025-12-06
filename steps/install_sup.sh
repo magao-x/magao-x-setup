@@ -11,12 +11,12 @@ clone_or_update_and_cd $orgname $reponame $parentdir
 git checkout $SUP_COMMIT_ISH
 
 if [[ ! -d $CONDA_BASE/envs/sup ]]; then
-    sudo -H $CONDA_BASE/bin/conda create -yn sup python pip numpy
+    sudo -H $CONDA_BASE/bin/conda create -yn sup python=3.13 pip numpy
 fi
 source $CONDA_BASE/bin/activate
 conda activate sup
 set +o pipefail
-yes | sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_env_sup.yml
+yes | sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_envs/sup.yml
 set -o pipefail
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
