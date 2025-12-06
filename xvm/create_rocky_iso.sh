@@ -45,26 +45,39 @@ rebuildDest=./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
 
-if command -v docker 2>&1 > /dev/null; then
-    dockerCmd=docker
-elif command -v podman 2>&1 > /dev/null; then
-    dockerCmd=podman
+source /etc/os-release
+
+if [[ $ID == rocky ]]; then
+    if command -v docker 2>&1 > /dev/null; then
+        dockerCmd=docker
+    elif command -v podman 2>&1 > /dev/null; then
+        dockerCmd=podman
+    else
+        echo "Neither docker nor podman present, aborting"
+        exit 1
+    fi
+    rockyContainer=rockylinux:9
+    $dockerCmd pull $rockyContainer
+    $dockerCmd run \
+        -v "${DIR}/:/xvm" \
+        --security-opt label=disable \
+        --rm \
+        -t $rockyContainer \
+        bash /xvm/mkksisowrap.sh \
+        --cmdline 'inst.cmdline' \
+        --cmdline 'console=ttyS0' \
+        --rm-args rd.live.check \
+        --ks /xvm/input/kickstart/ks.cfg \
+        /xvm/input/iso/${ISO_FILE} \
+        /xvm/$rebuildDest \
+    || exit 1
 else
-    echo "Neither docker nor podman present, aborting"
-    exit 1
+    dnf --setopt=timeout=300 --setopt=retries=10 -y install lorax
+    mkksiso --cmdline 'inst.cmdline' \
+        --cmdline 'console=ttyS0' \
+        --rm-args rd.live.check \
+        --ks /xvm/input/kickstart/ks.cfg \
+        /xvm/input/iso/${ISO_FILE} \
+        /xvm/$rebuildDest \
+    || exit 1
 fi
-rockyContainer=rockylinux:9
-$dockerCmd pull $rockyContainer
-$dockerCmd run \
-    -v "${DIR}/:/xvm" \
-    --security-opt label=disable \
-    --rm \
-    -t $rockyContainer \
-    bash /xvm/mkksisowrap.sh \
-    --cmdline 'inst.cmdline' \
-    --cmdline 'console=ttyS0' \
-    --rm-args rd.live.check \
-    --ks /xvm/input/kickstart/ks.cfg \
-    /xvm/input/iso/${ISO_FILE} \
-    /xvm/$rebuildDest \
-|| exit 1

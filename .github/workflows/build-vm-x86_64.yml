@@ -1,5 +1,6 @@
 name: Build virtual machine (x86_64)
 on:
+  workflow_dispatch: # Manual trigger only
   push:
     branches: [main]
   # TODO: Re-enable workflow_run trigger after container build is working
@@ -15,6 +16,9 @@ jobs:
     # TODO: Re-enable this condition when using workflow_run trigger
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    container:
+        image: rockylinux:9
+        options: --privileged
     env:
       vmArch: x86_64
     permissions:
@@ -32,7 +36,6 @@ jobs:
       - name: Install VM build dependencies for Ubuntu
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: sudo apt-get update && sudo apt-get install -y qemu-system-x86 zstd
-
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
@@ -145,4 +148,3 @@ jobs:
         with:
           name: vm_${{ env.vmArch }}
           path: xvm/output/bundle/MagAO-X_VM_${{ env.vmArch }}.tar.xz
-

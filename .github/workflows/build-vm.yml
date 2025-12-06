@@ -1,12 +1,13 @@
 name: Build virtual machine (ARM)
 on:
+  workflow_dispatch: # Manual trigger only
   # TODO: Re-enable workflow_run trigger after container build is working
   # workflow_run:
   #   workflows: ["Container build"]
   #   types: [completed]
   #   branches: [main]
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
 defaults:
   run:
     working-directory: xvm/
@@ -35,6 +36,12 @@ jobs:
       - name: Generate VM SSH key and unattended install disk
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: bash build_vm_stage0.sh
+
+      - name: Generate VM SSH key and unattended install disk
+        if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
+        run: bash build_vm_stage0.sh
+
+
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: bash build_vm_stage1.sh

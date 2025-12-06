@@ -1,6 +1,7 @@
 name: Container build
 on:
-  push:
+  workflow_dispatch: # Manual trigger only
+  # push:
   schedule:
     - cron: '24 2 */7 * *'
 env:
