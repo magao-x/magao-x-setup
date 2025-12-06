@@ -76,6 +76,8 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     flexiblas-openblas-serial \
     age \
     nmtui \
+    sl \
+    cloc \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
