@@ -35,7 +35,7 @@ jobs:
           key: xvm-stage1-x86_64-${{ hashFiles('xvm/_common.sh','xvm/build_vm_stage0.sh','xvm/create_kickstart.sh','xvm/kickstart/ks.cfg.template','xvm/create_rocky_iso.sh','xvm/build_vm_stage1.sh','xvm/download_firmware.sh','xvm/guest_setup_users_and_groups.sh','xvm/guest_shutdown.sh','setup_users_and_groups.sh','_common.sh') }}-v1
       - name: Install VM build dependencies for Rocky
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
-        run: dnf install --setopt=timeout=300 --setopt=retries=10 -y qemu-kvm qemu-img zstd lorax python openssh
+        run: dnf install --setopt=timeout=300 --setopt=retries=10 -y qemu-kvm qemu-img zstd lorax python openssh gettext
       - name: Create VM and install Rocky 9
         if: steps.cache-vm-stage1.outputs.cache-hit != 'true'
         run: |
