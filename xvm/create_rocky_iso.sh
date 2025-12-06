@@ -47,7 +47,7 @@ echo "Rebuild the ISO so that it includes the kickstart file"
 
 source /etc/os-release
 
-if [[ $ID == rocky ]]; then
+if [[ $ID != rocky ]]; then
     if command -v docker 2>&1 > /dev/null; then
         dockerCmd=docker
     elif command -v podman 2>&1 > /dev/null; then
@@ -72,6 +72,7 @@ if [[ $ID == rocky ]]; then
         /xvm/$rebuildDest \
     || exit 1
 else
+    dnf --setopt=timeout=300 --setopt=retries=10 -y install lorax
     mkksiso --cmdline 'inst.cmdline' \
         --cmdline 'console=ttyS0' \
         --rm-args rd.live.check \
