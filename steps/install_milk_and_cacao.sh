@@ -80,3 +80,7 @@ else
 fi
 log_info "Making /opt/MagAOX/cacao/ owned by $instrument_user:$instrument_group"
 sudo chown -R $instrument_user:$instrument_group /opt/MagAOX/cacao/ || exit 1
+if [[ $MAGAOX_ROLE == container ]]; then
+    log_info "Try to get some space back..."
+    sudo -H rm -rf _build || exit 1
+fi

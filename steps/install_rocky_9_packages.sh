@@ -34,7 +34,7 @@ ldconfig -v || exit 1
 
 # Install build tools and utilities
 
-if [[ "$VM_KIND" != none ]]; then
+if [[ "$VM_KIND" == none ]]; then
     log_info "Installing packages not needed in containers"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets

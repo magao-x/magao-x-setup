@@ -33,7 +33,11 @@ fi
 ## Build third-party dependencies under /opt/MagAOX/vendor
 cd /opt/MagAOX/vendor
 sudo -H bash -l "$DIR/steps/install_rclone.sh" || exit 1
-bash -l "$DIR/steps/install_openblas.sh" || exit 1
+if [[ $VM_KIND != "none" && $ID == rocky ]]; then
+    dnf install --setopt=timeout=300 --setopt=retries=10 -y openblas-devel || exit 1
+else
+    bash -l "$DIR/steps/install_openblas.sh" || exit 1
+fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TIC ]]; then
     bash -l "$DIR/steps/install_cuda_${ID}_${MAJOR_VERSION}.sh" || exit_with_error "CUDA install failed"
 fi
@@ -53,7 +57,7 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == ci ]]; then
 fi
 
 # SuSE packages need either Python 3.6 or 3.10, but Rocky 9.2 has Python 3.9 as /bin/python, so we build our own RPM:
-if [[ $ID == rocky && "$VM_KIND" != none ]]; then
+if [[ $ID == rocky && "$VM_KIND" == none ]]; then
   sudo -H bash -l "$DIR/steps/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
 fi
 
@@ -62,4 +66,6 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC ||  $MAGAOX_ROLE == workstation
     sudo -H bash -l "$DIR/steps/install_ds9.sh"
 fi
 
-bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
+if [[ "$VM_KIND" == none ]]; then
+    bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
+fi
