@@ -33,9 +33,8 @@ echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
 ldconfig -v || exit 1
 
 # Install build tools and utilities
-
 if [[ "$VM_KIND" == none ]]; then
-    log_info "Installing packages not needed in containers"
+    log_info "Installing packages not needed in virtualized environments"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets
     yum --setopt=timeout=300 --setopt=retries=10 install -y \
@@ -54,6 +53,15 @@ if [[ "$VM_KIND" != *container* ]]; then
     log_info "Installing packages not needed in containers"
     yum --setopt=timeout=300 --setopt=retries=10 install -y \
         mlocate \
+        screen \
+        nmap-ncat \
+        openssh \
+        chrony \
+        ntfs-3g \
+        podman \
+        sl \
+        cloc \
+        nfs-utils \
     || exit 1
 fi
 # For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
@@ -61,7 +69,6 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     gcc-gfortran \
     util-linux-user \
     passwd \
-    openssh \
     cmake \
     vim \
     nano \
@@ -70,7 +77,6 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     zlib-devel \
     libudev-devel \
     ncurses-devel \
-    nmap-ncat \
     readline-devel \
     pkgconfig \
     bison \
@@ -84,20 +90,15 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     gsl \
     gsl-devel \
     bc \
-    chrony \
     gdb \
     yum-utils \
-    ntfs-3g \
-    screen \
     which \
     sudo \
     sysstat \
     fuse \
     psmisc \
-    podman \
     nethogs \
     shadow-utils \
-    nfs-utils \
     rsync \
     lapack-devel \
     python \
@@ -108,8 +109,6 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     fftw-libs-single \
     fftw-libs-long \
     fftw-static \
-    sl \
-    cloc \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
@@ -124,11 +123,12 @@ mkdir -p /etc/profile.d/ || exit 1
 echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /etc/profile.d/99-pkg-config.sh || exit 1
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-# For containerized/virtualized environments, use Tailscale set up on the host side
 if [[ "$VM_KIND" == none ]]; then
     dnf config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
     dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
+else
+    log_info "For containerized/virtualized environments, use Tailscale set up on the host side"
 fi
 
 # install postgresql 15 client for RHEL 9
