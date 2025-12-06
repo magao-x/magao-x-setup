@@ -32,8 +32,11 @@ dependencies:
   # for xtelemdb
   - psycopg
   - python-duckdb
+  - universal_pathlib
+  - zarr
 
   - pip:
       - hcipy
       - poppy
       - fixr>=0.2.1
+      - zarrs
