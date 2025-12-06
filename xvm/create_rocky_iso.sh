@@ -72,7 +72,6 @@ if [[ $ID == rocky ]]; then
         /xvm/$rebuildDest \
     || exit 1
 else
-    dnf --setopt=timeout=300 --setopt=retries=10 -y install lorax
     mkksiso --cmdline 'inst.cmdline' \
         --cmdline 'console=ttyS0' \
         --rm-args rd.live.check \
