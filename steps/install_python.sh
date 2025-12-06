@@ -45,7 +45,7 @@ source $CONDA_BASE/bin/activate
 if [[ -d /opt/conda/envs/${INSTRUMENT_CONDA_ENV} ]]; then
     conda activate ${INSTRUMENT_CONDA_ENV}
 else
-    conda create -p $CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV -f $DIR/../conda_envs/${INSTRUMENT_CONDA_ENV}.yml
+    mamba create -p $CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV -f $DIR/../conda_envs/${INSTRUMENT_CONDA_ENV}.yml
 fi
 set +o pipefail
 yes | $MAMBA env update -f $DIR/../conda_envs/${INSTRUMENT_CONDA_ENV}.yml || exit_with_error "Failed to install or update packages"
