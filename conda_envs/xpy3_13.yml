@@ -37,6 +37,8 @@ dependencies:
   - python-duckdb
   - universal_pathlib
   - zarr
+  # to control thread explosions
+  - numthreads
 
   - pip:
       - hcipy
