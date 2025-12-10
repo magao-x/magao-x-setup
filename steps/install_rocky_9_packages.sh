@@ -109,6 +109,9 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     fftw-libs-single \
     fftw-libs-long \
     fftw-static \
+    libubsan \
+    libtsan \
+    libasan \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then

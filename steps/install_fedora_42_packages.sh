@@ -76,6 +76,9 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     flexiblas-openblas-serial \
     age \
     nmtui \
+    libubsan \
+    libtsan \
+    libasan \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
