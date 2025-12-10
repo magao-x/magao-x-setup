@@ -10,7 +10,8 @@ if [[ ! -e ./irodsfs ]]; then
     _cached_fetch https://github.com/cyverse/irodsfs/releases/download/$IRODSFS_VERSION/irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz
     tar xzf irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz || exit 1
 fi
-sudo umount /srv/cyverse
+sudo mkdir -p /srv/cyverse || exit_with_error "Unable to create irodsfs mount point at /srv/cyverse"
+sudo umount /srv/cyverse || true
 sudo mkdir -p $PREFIX/bin $PREFIX/etc || exit 1
 sudo install ./irodsfs $PREFIX/bin/irodsfs || exit 1
 sudo install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/system/mount_irodsfs.service || exit 1
