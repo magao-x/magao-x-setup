@@ -5,6 +5,7 @@ dependencies:
   - numpy
   - matplotlib
   - astropy
+  - astroplan
   - pip
   # web ui
   - nodejs

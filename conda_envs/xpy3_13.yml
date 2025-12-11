@@ -7,6 +7,7 @@ dependencies:
   # so we have to follow them or get weird surprises when the codegen version
   # and the header versions don't match
   - grpc-cpp<1.49.0
+  - astroplan
   # Note: omission of jupyter and use of matplotlib-base prevents dependency on qt
   - jupyterlab
   - notebook
