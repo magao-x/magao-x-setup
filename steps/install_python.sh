@@ -30,6 +30,10 @@ channels:
   - conda-forge
 changeps1: false
 disallowed_packages: [ qt ]
+envs_dirs:
+  - ~/data/conda/envs/
+pkgs_dirs:
+  - ~/data/conda/pkgs/
 EOF
 fi
 
