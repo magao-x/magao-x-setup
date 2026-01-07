@@ -20,9 +20,9 @@ yes | sudo -H $CONDA_BASE/bin/mamba env update -qf $DIR/../conda_envs/sup.yml
 set -o pipefail
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/purepyindi2[all]
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
-sudo -H $CONDA_BASE/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO
+# sudo -H $CONDA_BASE/envs/sup/bin/pip install /opt/MagAOX/source/milk/src/ImageStreamIO # milk not cloned yet, in install_milk_and_cacao.sh instead
 
-$CONDA_BASE/envs/sup/bin/python -c 'import ImageStreamIOWrap' || exit 1
+# $CONDA_BASE/envs/sup/bin/python -c 'import ImageStreamIOWrap' || exit 1 # milk not cloned yet, in install_milk_and_cacao.sh instead
 
 make  # installs Python module in editable mode, builds all js (needs node/yarn)
 sudo -H $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/sup   # because only root can write to site-packages

@@ -75,7 +75,12 @@ fi
 
 if ! sudo grep -r "$DESIRED_CMDLINE" /boot/loader/entries; then
     sudo cp /etc/default/grub /etc/default/grub.bak || exit 1
-    sudo grubby --update-kernel=ALL --args="$DESIRED_CMDLINE" || exit 1
+
+    if [[ "$ID" == "ubuntu" || "$ID" == "debian" ]]; then
+        sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 $DESIRED_CMDLINE\"|g" /etc/default/grub || exit 1
+    else
+        sudo grubby --update-kernel=ALL --args="$DESIRED_CMDLINE" || exit 1
+    fi
 
     if [[ -d /boot/grub2 ]]; then
         sudo grub2-mkconfig -o /boot/grub2/grub.cfg || exit 1
