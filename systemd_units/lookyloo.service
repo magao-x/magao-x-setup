@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=xsup
 WorkingDirectory=/home/xsup
-ExecStart=/opt/conda/bin/lookyloo_watch
+ExecStart=/opt/conda/envs/xpy3_13/bin/lookyloo_watch
 
 [Install]
 WantedBy=default.target

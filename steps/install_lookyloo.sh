@@ -12,7 +12,7 @@ git checkout $commit_ish || exit 1
 
 cd $parentdir/$reponame || exit 1
 sudo -H "$CONDA_BASE/envs/${INSTRUMENT_CONDA_ENV}/bin/pip" install -e . || exit_with_error "Could not pip install $reponame"
-lookyloo -h 2>&1 > /dev/null || exit_with_error "'lookyloo -h' command exited with an error, or was not found"
+"$CONDA_BASE/envs/${INSTRUMENT_CONDA_ENV}/bin/lookyloo" -h 2>&1 > /dev/null || exit_with_error "'lookyloo -h' command exited with an error, or was not found"
 UNIT_PATH=/etc/systemd/system/
 if [[ $MAGAOX_ROLE == AOC ]]; then
     sudo cp $DIR/../systemd_units/lookyloo.service $UNIT_PATH/lookyloo.service || exit 1
