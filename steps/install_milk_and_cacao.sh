@@ -24,9 +24,7 @@ sudo -H rm -rf _build src/config.h src/milk_config.h || exit 1
 mkdir -p _build || exit 1
 cd _build || exit 1
 
-pythonExe="$CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin/python"
-
-milkCmakeArgs="-DCMAKE_INSTALL_PREFIX=/usr/local -Dbuild_python_module=ON -DPYTHON_EXECUTABLE=${pythonExe}"
+milkCmakeArgs="-DCMAKE_INSTALL_PREFIX=/usr/local -Dbuild_python_module=OFF"
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     milkCmakeArgs="-DUSE_CUDA=ON ${milkCmakeArgs}"
@@ -40,9 +38,6 @@ export CFLAGS="-std=gnu17 $CFLAGS"
 cmake .. $milkCmakeArgs || exit 1
 make -j$(nproc) || exit 1
 sudo make install || exit 1
-
-sudo -H $pythonExe -m pip install ../src/ImageStreamIO/ || exit 1
-$pythonExe -c 'import ImageStreamIOWrap' || exit 1
 
 milkSuffix=bin/milk
 milkBinary=$(grep -e "${milkSuffix}$" ./install_manifest.txt)

@@ -208,14 +208,8 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
     sudo -H bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
 fi
 
-# Create Python env and install Python libs that need special treatment
-# Note that subsequent steps can see libs from conda during build
-sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
-source $CONDA_BASE/bin/activate
-conda activate $INSTRUMENT_CONDA_ENV
-
 # Install first-party deps
-bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed" # depends on $CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin/python existing for plugin build
+bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed"
 bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
 bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
 bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
@@ -225,6 +219,12 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation 
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
     echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | sudo -H tee /etc/profile.d/rtimv_config_path.sh
 fi
+
+# Create Python env
+sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
+
+# install Python libs that need special treatment (ordered after MILK so ImageStreamIO can be built)
+sudo -H bash -l "$DIR/steps/install_python_libs.sh" || exit_with_error "Couldn't install libraries in Python env"
 
 ## Clone sources to /opt/MagAOX/source/MagAOX unless building in CI or building the container
 if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then
