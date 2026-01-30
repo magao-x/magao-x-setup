@@ -36,7 +36,7 @@ envs_dirs:
 pkgs_dirs:
   - ~/data/conda/pkgs/
 EOF
-fi
+
     # surprise, need to override it back for root
     cat << 'EOF' | tee /root/.condarc || exit 1
 channels:
