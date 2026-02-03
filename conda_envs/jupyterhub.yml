@@ -7,3 +7,6 @@ dependencies:
   # if declaring pip dependencies, you also need to install
   # pip itself:
   - pip
+  - pip:
+    - jupyterlab-unfold
+    - jupyterlab-fitsview
