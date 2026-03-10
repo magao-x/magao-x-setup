@@ -24,7 +24,7 @@ createLocalFallbackGroup $JUPYTERHUB_GROUP 2003 $instrument_user || exit_with_er
 
 # Set up service config dir
 sudo mkdir -p /etc/jupyterhub || exit_with_error "Couldn't make /etc/jupyterhub"
-sudo cp -v $DIR/../jupyterhub_config_minimal.py /etc/jupyterhub/jupyterhub_config.py || exit_with_error "Couldn't copy JupyterHub config"
+sudo cp -v $DIR/../jupyterhub/jupyterhub_config_minimal.py /etc/jupyterhub/jupyterhub_config.py || exit_with_error "Couldn't copy JupyterHub config"
 sudo chown -R root:root /etc/jupyterhub || exit_with_error "Couldn't normalize ownership of JupyterHub files"
 
 sudo install -o root -g root $DIR/../jupyterhub/jupyterhub_pam /etc/pam.d/jupyterhub || exit_with_error "Couldn't install PAM config for JupyterHub"
