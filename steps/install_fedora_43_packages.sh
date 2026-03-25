@@ -93,15 +93,11 @@ echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /e
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
+    dnf install -y ipmitool
+fi
+
+if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
     dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
-fi
-
-# set up the postgresql server
-if [[ $MAGAOX_ROLE == AOC && ! -e /var/lib/pgsql ]]; then
-    # install postgresql
-    dnf install --setopt=timeout=300 --setopt=retries=10 postgresql-server postgresql-contrib || exit 1
-    systemctl enable --now postgresql || exit 1
-    postgresql-setup --initdb --unit postgresql  || exit 1
 fi
