@@ -40,3 +40,6 @@ dependencies:
       - poppy
       - fixr>=0.2.1
       - zarrs
+      - jupyterlab-speedy-unfold
+      - fitsview
+      - pyviewarr

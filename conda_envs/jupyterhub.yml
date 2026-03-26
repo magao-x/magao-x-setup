@@ -8,5 +8,5 @@ dependencies:
   # pip itself:
   - pip
   - pip:
-    - jupyterlab-unfold
+    - jupyterlab-speedy-unfold
     - fitsview
