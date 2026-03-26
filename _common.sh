@@ -16,6 +16,7 @@ CONDA_BASE=/opt/conda
 MAMBA=/opt/conda/bin/mamba
 CONDA=/opt/conda/bin/conda
 INSTRUMENT_CONDA_ENV=xpy3_13
+JUPYTERHUB_ENV_NAME=jupyterhub
 
 instrument_user=xsup
 instrument_group=magaox

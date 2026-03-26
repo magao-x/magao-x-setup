@@ -1,0 +1,15 @@
+{
+ "argv": [
+  "/opt/conda/envs/${INSTRUMENT_CONDA_ENV}/bin/python",
+  "-Xfrozen_modules=off",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Instrument Python",
+ "language": "python",
+ "metadata": {
+  "debugger": true
+ }
+}

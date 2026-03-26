@@ -19,8 +19,8 @@ cd /opt/MagAOX/vendor || exit 1
 if [[ ! -d $CONDA_BASE ]]; then
     _cached_fetch "$MINIFORGE3_URL" $MINIFORGE3_INSTALLER || exit 1
     bash $MINIFORGE3_INSTALLER -b -p $CONDA_BASE || exit 1
-	# Ensure magaox-dev can write to $CONDA_BASE or env creation will fail
-	chown -R :$instrument_dev_group $CONDA_BASE || exit 1
+	  # Ensure magaox-dev can write to $CONDA_BASE or env creation will fail
+	  chown -R :$instrument_dev_group $CONDA_BASE || exit 1
     # set group and permissions such that only magaox-dev has write access
     chmod -R g=rwX $CONDA_BASE || exit 1
     find $CONDA_BASE -type d -exec sudo chmod g+rwxs {} \; || exit 1
