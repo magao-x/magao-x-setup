@@ -1,0 +1,27 @@
+[[servers]]
+host = "accounts.xwcl.science"
+port = 636
+use_ssl = true
+search_filter = "(uid=%s)"
+bind_dn = "uid=srv_grafana,ou=people,dc=xwcl,dc=science"
+# The secrets/common/grafana.env file in xwcl/hush-hush
+# provides the environment variables
+bind_password = "${LDAP_BIND_PASSWORD}"
+search_base_dns = ["dc=xwcl,dc=science"]
+root_ca_cert = "/etc/pki/ca-trust/source/anchors/ldap_cert.pem"
+[[servers.group_mappings]]
+group_dn = "cn=xwcl-admin,ou=groups,dc=xwcl,dc=science"
+org_role = "Admin"
+grafana_admin = true
+[[servers.group_mappings]]
+group_dn = "cn=magaox-dev,ou=groups,dc=xwcl,dc=science"
+org_role = "Admin"
+[[servers.group_mappings]]
+group_dn = "*"
+org_role = "Viewer"
+[servers.attributes]
+member_of = "memberOf"
+email = "mail"
+name = "displayName"
+surname = "sn"
+username = "uid"

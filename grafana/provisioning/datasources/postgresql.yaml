@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  - name: Postgres
+  - name: xtelemdb
     type: postgres
     url: localhost:5432
     user: xsup

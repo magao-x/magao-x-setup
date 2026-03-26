@@ -1,4 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $DIR/../_common.sh
+set -xuo pipefail
 
 # Install Grafana
 # Check if Grafana is already installed
@@ -24,22 +27,21 @@ EOF
     sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist || exit 1
 fi
 
-sudo tee /etc/grafana/grafana.ini <<EOF || exit 1
-[paths]
-provisioning = /opt/MagAOX/source/MagAOX/setup/grafana
-[security]
-admin_user = vizzy
-admin_password = extremeAO!
-[users]
-allow_sign_up = false
-[auth.anonymous]
-enabled = true
-[date_formats]
-default_timezone = UTC
-EOF
+sudo mkdir -p /etc/grafana || exit 1
+# If it's running, it will get mad when the permissions change
+sudo systemctl stop grafana-server || true  # but if it's not installed yet, no problem
+
+sudo rsync -rtv $DIR/../grafana/ /etc/grafana/
+sudo chown -Rv root:grafana /etc/grafana || exit 1
+sudo chmod -Rv u=rwX,g=rwX,o= /etc/grafana || exit 1
+
+orgname=magao-x
+reponame=dashboards
+parentdir=/opt/MagAOX/source/
+clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 
 # Enable Grafana service to start on boot
 sudo systemctl enable grafana-server || exit 1
 
 # Start Grafana service
-sudo systemctl restart grafana-server || exit 1
+sudo systemctl start grafana-server || exit 1
