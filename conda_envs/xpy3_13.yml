@@ -22,6 +22,8 @@ dependencies:
   - cupy
   - line_profiler
   - pyserial
+  # for xconf
+  - toml
   # hcipy deps available in conda
   - asdf
   - pyyaml
