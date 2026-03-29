@@ -56,7 +56,7 @@ echo "export MILK_ROOT=/opt/MagAOX/source/milk" | sudo tee -a /etc/profile.d/mil
 echo "export MILK_INSTALLDIR=/usr/local/milk" | sudo tee -a /etc/profile.d/milk.sh || exit 1
 
 sudo mkdir -p /milk/shm || exit 1
-if [[ "$MAGAOX_ROLE" != ci && "$MAGAOX_ROLE" != container && "$VM_KIND" != *container* ]]; then
+if [[ "$MAGAOX_ROLE" != ci && "$MAGAOX_ROLE" != container ]]; then
   if ! grep -q "/milk/shm" /etc/fstab; then
     echo "tmpfs /milk/shm tmpfs rw,nosuid,nodev,uid=$instrument_user,gid=$instrument_group,mode=3775 0 0" | sudo tee -a /etc/fstab || exit 1
     log_success "Created /milk/shm tmpfs mountpoint"
