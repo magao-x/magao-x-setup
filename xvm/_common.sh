@@ -56,10 +56,13 @@ if [[ $vmArch == aarch64 ]]; then
         -drive if=pflash,format=raw,id=ovmf_vars,file=./output/firmware_vars.fd \
         -device virtio-gpu-pci"
 elif [[ $vmArch == x86_64 ]]; then
-    if [[ -e /usr/libexec/qemu-kvm && -z $CI ]]; then
+    if command -v qemu-system-${vmArch} >/dev/null 2>&1; then
+        qemuSystemCommand="qemu-system-${vmArch}"
+    elif [[ -x /usr/libexec/qemu-kvm ]]; then
         qemuSystemCommand="/usr/libexec/qemu-kvm"
     else
-        qemuSystemCommand="qemu-system-${vmArch}"
+        echo "Could not find qemu executable for ${vmArch}"
+        exit 1
     fi
 else
     echo 'set $vmArch'
