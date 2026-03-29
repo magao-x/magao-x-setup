@@ -20,6 +20,7 @@ elif [[ -e /bin/sudo ]]; then
 else
   if [[ -z $(command -v sudo) ]]; then
     echo "Install sudo before provisioning"
+    exit 1
   else
     _REAL_SUDO=$(which sudo)
   fi
