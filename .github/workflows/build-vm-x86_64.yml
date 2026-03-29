@@ -2,7 +2,7 @@ name: Build virtual machine (x86_64)
 on:
   workflow_dispatch: # Manual trigger only
   push:
-    branches: [main]
+    branches: [main, codex/fix-xvm-gha-stage1-mkksiso]
   # TODO: Re-enable workflow_run trigger after container build is working
   # workflow_run:
   #   workflows: ["Container build"]
