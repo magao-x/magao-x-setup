@@ -44,6 +44,9 @@ fi
 rebuildDest=./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso
 rm -f $rebuildDest
 echo "Rebuild the ISO so that it includes the kickstart file"
+kickstartPath=./input/kickstart/ks.cfg
+sourceIsoPath=./input/iso/${ISO_FILE}
+destIsoPath=${rebuildDest}
 
 source /etc/os-release
 
@@ -76,8 +79,8 @@ else
     mkksiso --cmdline 'inst.cmdline' \
         --cmdline 'console=ttyS0' \
         --rm-args rd.live.check \
-        --ks /xvm/input/kickstart/ks.cfg \
-        /xvm/input/iso/${ISO_FILE} \
-        /xvm/$rebuildDest \
+        --ks "${kickstartPath}" \
+        "${sourceIsoPath}" \
+        "${destIsoPath}" \
     || exit 1
 fi
