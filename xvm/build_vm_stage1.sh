@@ -6,6 +6,15 @@ if [[ -e ./output/xvm_stage1.qcow2 ]]; then
     exit 0
 fi
 
+if [[ ! -z $useOemDrv ]]; then
+    bash -x create_oemdrv.sh
+    oemDrvArgs="-drive file=input/oemdrv.qcow2,format=qcow2"
+    cdromArgs="-cdrom input/iso/Rocky-9-latest-${vmArch}-minimal.iso"
+else
+    oemDrvArgs=""
+    cdromArgs="-cdrom output/Rocky-9-${vmArch}-unattended.iso"
+fi
+
 # make disk drive image
 qemu-img create -f qcow2 output/xvm.qcow2 64G
 
@@ -24,7 +33,8 @@ fi
 
 echo "Starting VM installation process..."
 $qemuSystemCommand \
-    -cdrom output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
+    $cdromArgs \
+    $oemDrvArgs \
     -serial stdio || exit 1
 echo "Created VM and installed Rocky Linux"
 

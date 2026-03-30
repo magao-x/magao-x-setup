@@ -28,9 +28,10 @@ else
 fi
 export qemuMachineFlags
 
+anacondaInstallKind=${anacondaInstallKind:-cmdline}
 qemuDisplay=${qemuDisplay:-}
 if [[ ! -z $qemuDisplay ]]; then
-    ioFlag="-display $qemuDisplay"
+    ioFlag="-display $qemuDisplay -device qemu-xhci -device usb-kbd -device usb-tablet"
 else
     ioFlag='-display none'
 fi
@@ -89,8 +90,6 @@ qemuSystemCommand="$qemuSystemCommand \
     -m ${ramMB}M \
     $ioFlag "
 export qemuSystemCommand
-
-export rockyVersion=${rockyVersion:-9.6}
 
 function updateGuestRepoCheckout() {
     echo "Syncing repo in guest..."

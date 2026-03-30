@@ -1,6 +1,6 @@
 # Use CDROM installation media
 cdrom
-cmdline
+$anacondaInstallKind
 eula --agreed
 
 # Set the first NIC to acquire IPv4 address via DHCP
@@ -8,9 +8,7 @@ network --activate --device=link --bootproto=dhcp --hostname=xvm
 # Enable firewall, let SSH through
 firewall --enabled --service=ssh
 
-# Enable all the repositories we'll need
-repo --name="minimal" --baseurl=file:///run/install/sources/mount-0000-cdrom/minimal
-
+# Enable all the repositories we'll need:
 # Official Rocky Linux repositories (direct baseurls)
 repo --name="base" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/BaseOS/$basearch/os/
 repo --name="appstream" --baseurl=https://dl.rockylinux.org/pub/rocky/$releasever/AppStream/$basearch/os/

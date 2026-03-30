@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source ./_common.sh
 set -x
-if [[ -e ./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso &&
+if [[ -e ./output/Rocky-9-${vmArch}-unattended.iso &&
       -e ./output/firmware_vars.fd &&
       -e ./output/firmware_code.fd &&
       -e ./output/xvm_key &&
@@ -18,7 +18,7 @@ bash create_kickstart.sh || exit 1
 echo "download ISO and insert kickstart file"
 bash create_rocky_iso.sh || exit 1
 
-du -hs ./output/Rocky-${rockyVersion}-${vmArch}-unattended.iso \
+du -hs ./output/Rocky-9-${vmArch}-unattended.iso \
     ./output/xvm_key \
     ./output/xvm_key.pub
 
