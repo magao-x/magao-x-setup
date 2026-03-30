@@ -1,7 +1,7 @@
 #!/bin/bash
 SETUPDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if systemd-detect-virt --container; then
+if [[ $(systemd-detect-virt --container) != "none" || $MAGAOX_CONTAINER == 1 ]]; then
     VM_KIND=container
 else
     VM_KIND=$(systemd-detect-virt)

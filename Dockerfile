@@ -1,6 +1,7 @@
 # Staged build: dependencies and CLI tools first
 FROM rockylinux/rockylinux:9-ubi-init AS build
 ENV MAGAOX_ROLE=container
+ENV MAGAOX_CONTAINER=1
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 RUN sed -i \
   -e 's|^mirrorlist=|#mirrorlist=|' \
