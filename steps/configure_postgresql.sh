@@ -56,16 +56,13 @@ Description=Bind Mount for /var/lib/pgsql/extdata
 Before=postgresql.service
 
 [Mount]
-What=/home/data/postgres/tablespace
+What=/home/data/postgres
 Where=/var/lib/pgsql/extdata
 Type=none
 Options=bind
 
 [Install]
 WantedBy=multi-user.target
-
-[Service]
-ExecStart=/sbin/restorecon -Rv /var/lib/pgsql/extdata
 EOF
 
 sudo tee /etc/systemd/system/var-lib-pgsql-extdata.automount <<EOF
