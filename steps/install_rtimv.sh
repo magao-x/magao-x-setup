@@ -12,5 +12,12 @@ if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
 fi
 clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 git checkout $RTIMV_COMMIT_ISH || exit 1
-make -j$(nproc) || exit 1
-sudo make install || exit 1
+rm -rf _build
+mkdir -p _build || exit 1
+cmake -S . -B _build \
+	-DRTIMV_SERVER_SYSTEMD_USER=xsup \
+	-DRTIMV_SERVER_SYSTEMD_GROUP=xsup \
+	-DRTIMV_SERVER_SYSTEMD_ARGS="-c rtimvServer.conf" \
+	-DRTIMV_SERVER_SYSTEMD_UNIT_DIR=/usr/lib/systemd/system || exit 1
+cmake --build _build -j$(nprocs) || exit 1
+sudo cmake --install _build || exit 1
