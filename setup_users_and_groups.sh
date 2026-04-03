@@ -19,6 +19,9 @@ createuser xdev
 # Set their *primary* group
 usermod -g $instrument_group $instrument_user
 usermod -g $instrument_dev_group xdev
+# make logs readable without sudo
+usermod -aG systemd-journal $instrument_user
+usermod -aG systemd-journal xdev
 
 # Defines $ID and $VERSION_ID so we can detect which distribution we're on
 source /etc/os-release
