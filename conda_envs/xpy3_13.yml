@@ -3,6 +3,10 @@ channels:
 dependencies:
   - python=3.13
   - astropy
+  # Note: Fedora slow-walks grpc releases (presumably to preserve RHEL compatibility)
+  # so we have to follow them or get weird surprises when the codegen version
+  # and the header versions don't match
+  - grpc-cpp<1.49.0
   # Note: omission of jupyter and use of matplotlib-base prevents dependency on qt
   - jupyterlab
   - notebook
@@ -19,7 +23,6 @@ dependencies:
   - pytest
   - pybind11
   - psutil
-  - cupy
   - line_profiler
   - pyserial
   # hcipy deps available in conda
