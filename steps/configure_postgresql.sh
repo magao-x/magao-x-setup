@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 
 # install postgresql
-dnf install --setopt=timeout=300 --setopt=retries=10 -y postgresql16 postgresql16-server || exit 1
+sudo dnf install --setopt=timeout=300 --setopt=retries=10 -y postgresql16 postgresql16-server || exit 1
 
 # make sure permissions and SELinux context are correct
 sudo mkdir -p /var/lib/pgsql

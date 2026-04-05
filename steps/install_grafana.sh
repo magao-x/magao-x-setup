@@ -42,7 +42,9 @@ parentdir=/opt/MagAOX/source/
 clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 sudo tee /etc/grafana/grafana.ini <<EOF || exit 1
 [paths]
-provisioning = /opt/MagAOX/source/MagAOX/setup/grafana
+permitted_provisioning_paths = /opt/MagAOX/source/dashboards
+[feature_toggles]
+provisioning = true
 [security]
 admin_user = vizzy
 admin_password = extremeAO!
@@ -62,6 +64,8 @@ port = 636
 use_ssl = true
 bind_dn = "cn=%s,ou=people,dc=xwcl,dc=science"
 EOF
+
+clone_or_update_and_cd magao-x dashboards /opt/MagAOX/source
 
 # Enable Grafana service to start on boot
 sudo systemctl enable grafana-server || exit 1
