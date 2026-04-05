@@ -1,0 +1,10 @@
+[Unit]
+Description=Report heartbeat to Vizzybot
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

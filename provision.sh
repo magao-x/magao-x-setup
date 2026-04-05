@@ -209,6 +209,10 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
     sudo -H bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
 fi
 
+if [[ $MAGAOX_ROLE != "workstation" && "$VM_KIND" == none ]]; then
+    sudo -H bash -l "$DIR/steps/configure_vizzy_liveness.sh" || exit_with_error "Couldn't add basic availability monitoring with vizzybot"
+fi
+
 # Install first-party deps
 bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed"
 bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"

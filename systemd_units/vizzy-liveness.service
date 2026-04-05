@@ -1,0 +1,9 @@
+[Unit]
+Description=Report heartbeat to Vizzybot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"hostname": "%H"}' \
+  https://vizzy.xwcl.science/api/liveness
