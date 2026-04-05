@@ -24,7 +24,8 @@ sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 EOF
     # Install Grafana
     sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install grafana || exit 1
-    sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist || exit 1
+    sudo cp /etc/grafana/grafana.ini /etc/grafana/grafana.ini.dist
+    sudo cp /etc/grafana/ldap.toml /etc/grafana/ldap.toml.dist
 fi
 
 sudo mkdir -p /etc/grafana || exit 1
@@ -39,6 +40,28 @@ orgname=magao-x
 reponame=dashboards
 parentdir=/opt/MagAOX/source/
 clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
+sudo tee /etc/grafana/grafana.ini <<EOF || exit 1
+[paths]
+provisioning = /opt/MagAOX/source/MagAOX/setup/grafana
+[security]
+admin_user = vizzy
+admin_password = extremeAO!
+[users]
+allow_sign_up = false
+[auth.anonymous]
+enabled = true
+[date_formats]
+default_timezone = UTC
+[auth.ldap]
+enabled = true
+EOF
+sudo tee /etc/grafana/ldap.toml <<EOF || exit 1
+[[servers]]
+host = "accounts.xwcl.science"
+port = 636
+use_ssl = true
+bind_dn = "cn=%s,ou=people,dc=xwcl,dc=science"
+EOF
 
 # Enable Grafana service to start on boot
 sudo systemctl enable grafana-server || exit 1
