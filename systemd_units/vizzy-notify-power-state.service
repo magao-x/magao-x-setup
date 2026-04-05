@@ -10,12 +10,12 @@ TimeoutStopSec=2s
 ExecStart=/usr/bin/curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"hostname": "%H", "action": "startup"}' \
-  --connect-timeout 2 --max-time 2 --quiet --fail \
+  --connect-timeout 2 --max-time 2 --silent --fail \
   https://vizzy.xwcl.science/api/notify-power-state
 ExecStop=/usr/bin/curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"hostname": "%H", "action": "shutdown"}' \
-  --connect-timeout 2 --max-time 2 --quiet --fail \
+  --connect-timeout 2 --max-time 2 --silent --fail \
   https://vizzy.xwcl.science/api/notify-power-state
 
 [Install]
