@@ -7,3 +7,6 @@ ExecStart=/usr/bin/curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"hostname": "%H"}' \
   https://vizzy.xwcl.science/api/liveness
+
+[Install]
+WantedBy=multi-user.target
