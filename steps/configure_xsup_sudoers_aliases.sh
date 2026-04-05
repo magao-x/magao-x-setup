@@ -35,4 +35,6 @@ cat <<'HERE' | sudo tee /etc/profile.d/xsupify.sh || exit 1
 #!/usr/bin/env bash
 alias xsupify="/usr/bin/sudo -u xsup -i"
 alias xsupdo="/usr/bin/sudo -u xsup"
+alias xdevify="/usr/bin/sudo -u xdev -i"
+alias xdevdo="/usr/bin/sudo -u xdev"
 HERE
