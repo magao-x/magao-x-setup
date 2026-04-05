@@ -11,14 +11,15 @@ ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN dnf clean all && dnf makecache && dnf install -y sudo && bash -lx provision.sh && dnf autoremove && dnf clean all
 
-FROM scratch as cli
+FROM scratch AS cli
 COPY --from=build / /
 ENV MAGAOX_ROLE=container
 USER xsup
 
-FROM cli as gui
+FROM cli AS gui
 USER root
 ENV MAGAOX_ROLE=workstation
+ENV MAGAOX_CONTAINER=1
 RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN dnf clean all && dnf makecache && bash -lx provision.sh && dnf autoremove && dnf clean all

@@ -73,6 +73,8 @@ else
     DESIRED_CMDLINE="nosplash $NVIDIA_DRIVER_FIX $ALPAO_CMDLINE_FIX $PCIEXPANSION_CMDLINE_FIX $SPECTRE_CMDLINE_FIX $IOMMU_FIX"
 fi
 
+sudo grub2-editenv - unset menu_auto_hide
+
 if ! sudo grep -r "$DESIRED_CMDLINE" /boot/loader/entries; then
     sudo cp /etc/default/grub /etc/default/grub.bak || exit 1
     sudo grubby --update-kernel=ALL --args="$DESIRED_CMDLINE" || exit 1
