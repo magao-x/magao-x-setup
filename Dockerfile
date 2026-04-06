@@ -4,6 +4,7 @@ ENV MAGAOX_CONTAINER=1
 ENV MAGAOX_ROLE=headless
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
+RUN ls -laR /etc
 RUN dnf clean all && dnf makecache && dnf install -y sudo && bash -lx install_third_party_deps.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
