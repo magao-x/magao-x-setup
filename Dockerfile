@@ -1,9 +1,10 @@
 # Staged build: dependencies and CLI tools first
 FROM rockylinux/rockylinux:9-ubi-init AS build
 ENV MAGAOX_CONTAINER=1
+ENV MAGAOX_ROLE=headless
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
-RUN dnf clean all && dnf makecache && dnf install -y sudo && bash -lx provision.sh && dnf autoremove && dnf clean all
+RUN dnf clean all && dnf makecache && dnf install -y sudo && bash -lx install_third_party_deps.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
 COPY --from=build / /
