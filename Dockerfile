@@ -4,7 +4,10 @@ ENV MAGAOX_CONTAINER=1
 ENV MAGAOX_ROLE=headless
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
-RUN ls -laR /etc
+# work around weird issue where Rocky ARM base image
+# has "---------- 1 root root    417 Nov 23 18:17 shadow"
+# but apparently only in GitHub Actions Docker runs?
+RUN chmod -v u=rw,g=,o= /etc/shadow /etc/shadow-
 RUN dnf clean all && dnf makecache && dnf install -y sudo passwd && dnf autoremove && dnf clean all
 RUN bash -x setup_users_and_groups.sh
 RUN bash -x steps/ensure_dirs_and_perms.sh
