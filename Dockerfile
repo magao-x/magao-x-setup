@@ -1,19 +1,17 @@
 # Staged build: dependencies and CLI tools first
 FROM rockylinux/rockylinux:9-ubi-init AS build
-ENV MAGAOX_ROLE=container
 ENV MAGAOX_CONTAINER=1
-RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
-RUN sed -i \
-  -e 's|^mirrorlist=|#mirrorlist=|' \
-  -e 's|^#baseurl=http|baseurl=http|' \
-  /etc/yum.repos.d/rocky.repo
 ADD . /opt/MagAOX/source/magao-x-setup
 WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN dnf clean all && dnf makecache && dnf install -y sudo && bash -lx provision.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
 COPY --from=build / /
-ENV MAGAOX_ROLE=container
+ENV MAGAOX_ROLE=headless
+ENV MAGAOX_CONTAINER=1
+RUN echo "MAGAOX_ROLE=${MAGAOX_ROLE}" > /etc/profile.d/magaox_role.sh
+WORKDIR /opt/MagAOX/source/magao-x-setup
+RUN bash -lx provision.sh
 USER xsup
 
 FROM cli AS gui

@@ -45,10 +45,10 @@ bash $DIR/install_magpyx.sh || exit_with_error "Failed to install magpyx"
 bash $DIR/install_purepyindi.sh || exit_with_error "Failed to install purepyindi"
 bash $DIR/install_purepyindi2.sh || exit_with_error "Failed to install purepyindi2"
 bash $DIR/install_xconf.sh || exit_with_error "Failed to install xconf"
-if [[ $MAGAOX_ROLE != ci && $MAGAOX_ROLE != container && $MAGAOX_ROLE != workstation ]]; then
+if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless ]]; then
     bash $DIR/install_jupyterhub.sh || exit_with_error "Failed to install JupyterHub"
 fi
-if [[ $MAGAOX_ROLE == AOC ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then
     bash $DIR/install_sup.sh || exit_with_error "Failed to install sup"
 fi
 

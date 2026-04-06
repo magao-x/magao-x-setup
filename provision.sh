@@ -74,9 +74,9 @@ if [[ $VM_KIND != "container" ]]; then
         exit_with_error "Configure the correct hostname for ICC"
     fi
 fi
-# The VM and CI provisioning doesn't run setup_users_and_groups.sh
+# Container build doesn't run setup_users_and_groups.sh
 # separately as in the instrument instructions; we have to run it
-if [[ $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci || $MAGAOX_ROLE == container ]]; then
+if [[ $MAGAOX_CONTAINER == 1 ]]; then
     bash -l "$DIR/setup_users_and_groups.sh"
 fi
 ## Set up file structure and permissions
@@ -117,7 +117,7 @@ if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGA
     sudo -H bash -l "$DIR/steps/configure_chrony.sh"
 fi
 
-if [[ $MAGAOX_ROLE != ci ]]; then
+if [[ -z $MAGAOX_CONTAINER ]]; then
     log_info "Increase inotify watches (e.g. for VSCode remote users)"
     sudo -H bash -l "$DIR/steps/increase_fs_watcher_limits.sh"
 fi
@@ -219,7 +219,7 @@ bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and ins
 bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
 bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
 
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation || $MAGAOX_ROLE == ci ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
     # realtime image viewer
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
     echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | sudo -H tee /etc/profile.d/rtimv_config_path.sh
@@ -243,19 +243,16 @@ if [[ -z $CI && "$VM_KIND" != *container* ]]; then
     bash -l "$DIR/steps/install_MagAOX.sh" || exit 1
 fi
 
-if [[ $MAGAOX_ROLE != ci && "$VM_KIND" == "none" ]]; then
+if [[ "$VM_KIND" == "none" ]]; then
     sudo -H bash -l "$DIR/steps/configure_startup_services.sh"
-
-    if [[ $VM_KIND != "none" ]]; then
-        log_info "Generating subuid and subgid files, may need to run podman system migrate"
-        sudo -H python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
-        sudo -H podman system migrate || exit_with_error "Could not run podman system migrate"
-    fi
+    log_info "Generating subuid and subgid files, may need to run podman system migrate"
+    sudo -H python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
+    sudo -H podman system migrate || exit_with_error "Could not run podman system migrate"
 fi
 
 log_success "Provisioning complete"
 
-if [[ $MAGAOX_ROLE == ci || $MAGAOX_ROLE == container ]]; then
+if [[ $MAGAOX_CONTAINER == 1 ]]; then
     exit 0
 elif [[ -z "$(groups | grep magaox)" ]]; then
     log_info "You now need to log out and back in for group changes to take effect"
@@ -268,7 +265,7 @@ fi
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == COC || $MAGAOX_ROLE == ROC ]]; then
     log_warn "NOTE: MagAO-X computers require secrets, and getting secrets requires manual intervention."
     log_info "See https://github.com/xwcl/hush-hush for documentation."
-    log_info "Public key (/etc/ssh/ssh_host_ed25519_key.pub):"
+    log_info "The server public key you will need (/etc/ssh/ssh_host_ed25519_key.pub) is:"
     echo
     log_info "$(cat /etc/ssh/ssh_host_ed25519_key.pub)"
     echo

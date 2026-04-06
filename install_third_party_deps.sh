@@ -17,12 +17,12 @@ distroSpecificScript="$DIR/steps/configure_${ID}_${MAJOR_VERSION}.sh"
 sudo -H bash -l $distroSpecificScript || exit_with_error "Failed to configure ${ID} from $distroSpecificScript"
 
 # Install dependencies for the GUIs
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ci || $MAGAOX_ROLE == workstation ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == workstation ]]; then
     sudo -H bash -l "$DIR/steps/install_gui_dependencies.sh"
 fi
 
 # Install Linux kernel headers
-if [[ $MAGAOX_ROLE == ci || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || ($MAGAOX_ROLE == workstation && "$VM_KIND" != none) ]]; then
+if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless && "$VM_KIND" == none ]]; then
     if [[ $ID == ubuntu ]]; then
         sudo -i apt install -y linux-headers-generic
     elif [[ $ID == rocky ]]; then
@@ -39,7 +39,10 @@ else
     bash -l "$DIR/steps/install_openblas.sh" || exit 1
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TIC ]]; then
-    bash -l "$DIR/steps/install_cuda_${ID}_${MAJOR_VERSION}.sh" || exit_with_error "CUDA install failed"
+    if ! nvidia-smi 2>&1; then
+        nvidia-smi
+        exit_with_error "CUDA not found or not working, install CUDA first"
+    fi
 fi
 sudo -H bash -l "$DIR/steps/install_cfitsio.sh" || exit 1
 sudo -H bash -l "$DIR/steps/install_eigen.sh" || exit 1
@@ -49,10 +52,10 @@ sudo -H bash -l "$DIR/steps/install_flatbuffers.sh" || exit 1
 if [[ $MAGAOX_ROLE == AOC ]]; then
     sudo -H bash -l "$DIR/steps/install_lego.sh"
 fi
-if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == ci ]]; then
+if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
     sudo -H bash -l "$DIR/steps/install_basler_pylon.sh"
 fi
-if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == ci ]]; then
+if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
     sudo -H bash -l "$DIR/steps/install_edt.sh"
 fi
 

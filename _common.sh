@@ -25,7 +25,7 @@ instrument_dev_group=magaox-dev
 # cannot be changed here:
 instrument_group_gid=2000
 instrument_dev_group_gid=2001
-if [[ $MAGAOX_ROLE == ci ]]; then
+if [[ $MAGAOX_CONTAINER == 1 ]]; then
   instrument_user=root
   instrument_group=root
   instrument_dev_group=root
