@@ -147,7 +147,7 @@ fi
 # All MagAO-X computers may use the password to connect to the main db
 bash -l "$DIR/steps/configure_postgresql_pass.sh"
 
-if [[ $MAGAOX_ROLE == workstation ]]; then
+if [[ $MAGAOX_ROLE == workstation && $MAGAOX_CONTAINER != 1 ]]; then
     if [[ $VM_KIND != "wsl" ]]; then
         # Enable forwarding MagAO-X GUIs to the host for VMs
         $SUDO bash -l "$DIR/steps/enable_vm_x11_forwarding.sh"
