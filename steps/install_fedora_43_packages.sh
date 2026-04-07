@@ -54,7 +54,7 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     ntfs-3g \
     screen \
     which \
-    $SUDO \
+    sudo \
     strace \
     sysstat \
     fuse \
@@ -78,6 +78,7 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     nmtui \
     sl \
     cloc \
+    grpc grpc-devel \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
