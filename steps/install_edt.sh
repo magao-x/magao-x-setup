@@ -15,7 +15,7 @@ else
     log_info "EDTpdv SDK already installed"
 fi
 
-sudo mv /opt/EDTpdv/version /opt/EDTpdv/version.txt 2>/dev/null
-echo "/opt/EDTpdv" | sudo tee /etc/ld.so.conf.d/EDTpdv-x86_64.conf || exit 1
-sudo ldconfig || exit_with_error "Could not run ldconfig"
+$SUDO mv /opt/EDTpdv/version /opt/EDTpdv/version.txt 2>/dev/null
+echo "/opt/EDTpdv" | $SUDO tee /etc/ld.so.conf.d/EDTpdv-x86_64.conf || exit 1
+$SUDO ldconfig || exit_with_error "Could not run ldconfig"
 log_success "Finished EDTpdv setup"

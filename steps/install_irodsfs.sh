@@ -10,17 +10,17 @@ if [[ ! -e ./irodsfs ]]; then
     _cached_fetch https://github.com/cyverse/irodsfs/releases/download/$IRODSFS_VERSION/irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz
     tar xzf irodsfs-$IRODSFS_VERSION-linux-amd64.tar.gz || exit 1
 fi
-sudo mkdir -p /srv/cyverse || exit_with_error "Unable to create irodsfs mount point at /srv/cyverse"
-sudo umount /srv/cyverse || true
-sudo mkdir -p $PREFIX/bin $PREFIX/etc || exit 1
-sudo install ./irodsfs $PREFIX/bin/irodsfs || exit 1
-sudo install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/system/mount_irodsfs.service || exit 1
-sudo install -m 700 $DIR/../systemd_units/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
+$SUDO mkdir -p /srv/cyverse || exit_with_error "Unable to create irodsfs mount point at /srv/cyverse"
+$SUDO umount /srv/cyverse || true
+$SUDO mkdir -p $PREFIX/bin $PREFIX/etc || exit 1
+$SUDO install ./irodsfs $PREFIX/bin/irodsfs || exit 1
+$SUDO install -m 600 $DIR/../systemd_units/mount_irodsfs.service /etc/systemd/system/mount_irodsfs.service || exit 1
+$SUDO install -m 700 $DIR/../systemd_units/mount_irodsfs.sh $PREFIX/bin/mount_irodsfs.sh || exit 1
 
 CREDS_FILE=/root/irods_credentials.env
-if ! sudo test -e $CREDS_FILE; then
+if ! $SUDO test -e $CREDS_FILE; then
     log_info "Making a template credentials file in $CREDS_FILE"
-    cat <<'HERE' | sudo tee $CREDS_FILE || exit 1
+    cat <<'HERE' | $SUDO tee $CREDS_FILE || exit 1
 IRODSFS_USER=exao_dap
 IRODSFS_PASSWORD=
 IRODSFS_HOST=data.cyverse.org
@@ -34,7 +34,7 @@ HERE
 else
     log_info "$CREDS_FILE already exists, not overwriting"
 fi
-sudo chmod -v 0600 $CREDS_FILE
-sudo chown -v root:root $CREDS_FILE
-sudo systemctl daemon-reload
-sudo systemctl enable mount_irodsfs.service
+$SUDO chmod -v 0600 $CREDS_FILE
+$SUDO chown -v root:root $CREDS_FILE
+$SUDO systemctl daemon-reload
+$SUDO systemctl enable mount_irodsfs.service

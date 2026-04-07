@@ -15,4 +15,4 @@ clone_or_update_and_cd $orgname $reponame $parentdir || exit 1
 
 git checkout $MILKZMQ_COMMIT_ISH || exit 1
 make || exit 1
-sudo make install || exit 1
+$SUDO make install || exit 1

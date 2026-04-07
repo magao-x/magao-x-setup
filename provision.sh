@@ -36,17 +36,19 @@ refresh_sudo_timer() {
     done
 }
 
-# Clear cached credentials for sudo, if they exist
-sudo -K
+# Clear cached credentials for sudo, if they exist, and refresh only when not root.
+if [[ "$EUID" != 0 ]]; then
+    $SUDO -K
 
-# Start refreshing sudo timer in the background
-if [[ "$(sudo -H -n true 2>&1)" ]]; then
-    $_REAL_SUDO -v
-    refresh_sudo_timer &
-    SUDO_REFRESH_PID=$!
+    # Start refreshing sudo timer in the background
+    if [[ "$($_REAL_SUDO -H -n true 2>&1)" ]]; then
+        $_REAL_SUDO -v
+        refresh_sudo_timer &
+        SUDO_REFRESH_PID=$!
 
-    # Kill the background process when the script exits (normal or error)
-    trap 'kill "$SUDO_REFRESH_PID" 2>/dev/null' EXIT INT TERM
+        # Kill the background process when the script exits (normal or error)
+        trap 'kill "$SUDO_REFRESH_PID" 2>/dev/null' EXIT INT TERM
+    fi
 fi
 
 # Defines $ID and $VERSION_ID so we can detect which distribution we're on
@@ -80,14 +82,14 @@ if [[ $MAGAOX_CONTAINER == 1 ]]; then
     bash -l "$DIR/setup_users_and_groups.sh"
 fi
 ## Set up file structure and permissions
-sudo -H bash -l "$DIR/steps/ensure_dirs_and_perms.sh" $MAGAOX_ROLE
+$SUDO bash -l "$DIR/steps/ensure_dirs_and_perms.sh" $MAGAOX_ROLE
 
 # Install OS-packaged and a few self-built dependencies.
 if [[ ! $_skip3rdPartyDeps ]]; then
     # For staged VM builds we don't want to redo the 3rd party deps
     # (even if they're mostly already done). Setting $_skip3rdPartyDeps
     # lets us skip this line:
-    sudo -H bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
+    $SUDO bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
 fi
 
 # Apply configuration tweaks
@@ -95,31 +97,31 @@ log_info "Applying configuration tweaks for OS and services"
 log_info "Restoring original (trusting) behavior for git's safe.directory option"
 git config --global --replace-all safe.directory '*'
 if [[ $VM_KIND != "none" ]]; then
-    sudo -H git config --global --replace-all safe.directory '*'
+    $SUDO git config --global --replace-all safe.directory '*'
 fi
 if [[ $USER != ubuntu ]]; then
     bash -l "$DIR/steps/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
 fi
-sudo -H bash -lx "$DIR/steps/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
+$SUDO bash -lx "$DIR/steps/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
     log_info "Configure hostname aliases for instrument LAN"
-    sudo -H bash -l "$DIR/steps/configure_etc_hosts.sh"
+    $SUDO bash -l "$DIR/steps/configure_etc_hosts.sh"
     log_info "Configure NFS exports from RTC -> AOC and ICC -> AOC"
-    sudo -H bash -l "$DIR/steps/configure_nfs.sh"
+    $SUDO bash -l "$DIR/steps/configure_nfs.sh"
 else
     log_info "Configure hostname aliases for VPN"
-    sudo -H bash -l "$DIR/steps/configure_etc_hosts_vpn.sh"
+    $SUDO bash -l "$DIR/steps/configure_etc_hosts_vpn.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == TIC ]]; then
     log_info "Configure time syncing"
-    sudo -H bash -l "$DIR/steps/configure_chrony.sh"
+    $SUDO bash -l "$DIR/steps/configure_chrony.sh"
 fi
 
 if [[ -z $MAGAOX_CONTAINER ]]; then
     log_info "Increase inotify watches (e.g. for VSCode remote users)"
-    sudo -H bash -l "$DIR/steps/increase_fs_watcher_limits.sh"
+    $SUDO bash -l "$DIR/steps/increase_fs_watcher_limits.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC ]]; then
@@ -148,7 +150,7 @@ bash -l "$DIR/steps/configure_postgresql_pass.sh"
 if [[ $MAGAOX_ROLE == workstation ]]; then
     if [[ $VM_KIND != "wsl" ]]; then
         # Enable forwarding MagAO-X GUIs to the host for VMs
-        sudo -H bash -l "$DIR/steps/enable_vm_x11_forwarding.sh"
+        $SUDO bash -l "$DIR/steps/enable_vm_x11_forwarding.sh"
     fi
     # Install a config in ~/.ssh/config for the vm user
     # to make it easier to make tunnels work
@@ -159,11 +161,11 @@ fi
 if [[ -e $VENDOR_SOFTWARE_BUNDLE ]]; then
     # Extract bundle
     BUNDLE_TMPDIR=/tmp/vendor_software_bundle_$(date +"%s")
-    sudo mkdir -p $BUNDLE_TMPDIR
-    sudo unzip -o $VENDOR_SOFTWARE_BUNDLE -d $BUNDLE_TMPDIR
+    $SUDO mkdir -p $BUNDLE_TMPDIR
+    $SUDO unzip -o $VENDOR_SOFTWARE_BUNDLE -d $BUNDLE_TMPDIR
     for vendorname in  alpao andor bmc libhsfw qhyccd teledyne; do
         if [[ ! -d /opt/MagAOX/vendor/$vendorname ]]; then
-            sudo cp -R $BUNDLE_TMPDIR/bundle/$vendorname /opt/MagAOX/vendor
+            $SUDO cp -R $BUNDLE_TMPDIR/bundle/$vendorname /opt/MagAOX/vendor
         else
             echo "/opt/MagAOX/vendor/$vendorname exists, not overwriting files"
             echo "(but they're in $BUNDLE_TMPDIR/bundle/$vendorname if you want them)"
@@ -171,19 +173,19 @@ if [[ -e $VENDOR_SOFTWARE_BUNDLE ]]; then
     done
 
     if [[ $MAGAOX_ROLE == RTC ]]; then
-        sudo -H bash -l "$DIR/steps/install_alpao.sh"
+        $SUDO bash -l "$DIR/steps/install_alpao.sh"
     fi
     if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == TIC ]]; then
-        sudo -H bash -l "$DIR/steps/install_bmc.sh"
+        $SUDO bash -l "$DIR/steps/install_bmc.sh"
     fi
     if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
-        sudo -H bash -l "$DIR/steps/install_libhsfw.sh"
+        $SUDO bash -l "$DIR/steps/install_libhsfw.sh"
     fi
     if [[ $MAGAOX_ROLE == ICC ]]; then
-        sudo -H bash -l "$DIR/steps/install_picam.sh"
-        sudo -H bash -l "$DIR/steps/install_kinetix.sh"
+        $SUDO bash -l "$DIR/steps/install_picam.sh"
+        $SUDO bash -l "$DIR/steps/install_kinetix.sh"
     fi
-    sudo rm -rf $BUNDLE_TMPDIR
+    $SUDO rm -rf $BUNDLE_TMPDIR
 fi
 
 # These steps should work as whatever user is installing, provided
@@ -202,15 +204,15 @@ else
 fi
 
 if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
-    echo "export CGROUPS1_CPUSET_MOUNTPOINT=/opt/MagAOX/cpuset" | sudo tee /etc/profile.d/cgroups1_cpuset_mountpoint.sh
+    echo "export CGROUPS1_CPUSET_MOUNTPOINT=/opt/MagAOX/cpuset" | $SUDO tee /etc/profile.d/cgroups1_cpuset_mountpoint.sh
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    sudo -H bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
+    $SUDO bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
 fi
 
 if [[ $MAGAOX_ROLE != "workstation" && "$VM_KIND" == none ]]; then
-    sudo -H bash -l "$DIR/steps/configure_vizzy_liveness.sh" || exit_with_error "Couldn't add basic availability monitoring with vizzybot"
+    $SUDO bash -l "$DIR/steps/configure_vizzy_liveness.sh" || exit_with_error "Couldn't add basic availability monitoring with vizzybot"
 fi
 
 # Install first-party deps
@@ -222,14 +224,14 @@ bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and in
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
     # realtime image viewer
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
-    echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | sudo -H tee /etc/profile.d/rtimv_config_path.sh
+    echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | $SUDO tee /etc/profile.d/rtimv_config_path.sh
 fi
 
 # Create Python env
-sudo -H bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
+$SUDO bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
 
 # install Python libs that need special treatment (ordered after MILK so ImageStreamIO can be built)
-sudo -H bash -l "$DIR/steps/install_python_libs.sh" || exit_with_error "Couldn't install libraries in Python env"
+$SUDO bash -l "$DIR/steps/install_python_libs.sh" || exit_with_error "Couldn't install libraries in Python env"
 
 ## Clone sources to /opt/MagAOX/source/MagAOX unless building in CI or building the container
 if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then
@@ -244,10 +246,10 @@ if [[ -z $CI && "$VM_KIND" != *container* ]]; then
 fi
 
 if [[ "$VM_KIND" == "none" ]]; then
-    sudo -H bash -l "$DIR/steps/configure_startup_services.sh"
+    $SUDO bash -l "$DIR/steps/configure_startup_services.sh"
     log_info "Generating subuid and subgid files, may need to run podman system migrate"
-    sudo -H python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
-    sudo -H podman system migrate || exit_with_error "Could not run podman system migrate"
+    $SUDO python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
+    $SUDO podman system migrate || exit_with_error "Could not run podman system migrate"
 fi
 
 log_success "Provisioning complete"

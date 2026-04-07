@@ -1,6 +1,7 @@
 #!/bin/bash
+SUDO="${SUDO:-sudo}"
 if [[ "$EUID" != 0 ]]; then
-    sudo -H bash $0 "$@"
+    $SUDO bash $0 "$@"
     exit $?
 fi
 set -uo pipefail

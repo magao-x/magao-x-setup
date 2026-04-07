@@ -20,6 +20,6 @@ for userFolder in "${allUserFolders[@]}"; do
     fi
     uid=$(id -u $userName)
     gid=$(id -g $userName)
-    sudo rsync -av $userFolder/ /home/$userName/ || exit_with_error "Failed to sync files from $userFolder to /home/$userName/"
-    sudo chown -vR $uid:$gid /home/$userName/ || exit_with_error "Failed to normalize ownership to $userName ($(id $userName))"
+    $SUDO rsync -av $userFolder/ /home/$userName/ || exit_with_error "Failed to sync files from $userFolder to /home/$userName/"
+    $SUDO chown -vR $uid:$gid /home/$userName/ || exit_with_error "Failed to normalize ownership to $userName ($(id $userName))"
 done

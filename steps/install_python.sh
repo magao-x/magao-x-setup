@@ -1,7 +1,8 @@
 #!/bin/bash
+SUDO="${SUDO:-sudo}"
 # If not started as root, sudo yourself
 if [[ "$EUID" != 0 ]]; then
-    sudo -H bash -l $0 "$@"
+    $SUDO bash -l $0 "$@"
     exit $?
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -23,7 +24,7 @@ if [[ ! -d $CONDA_BASE ]]; then
 	  chown -R :$instrument_dev_group $CONDA_BASE || exit 1
     # set group and permissions such that only magaox-dev has write access
     chmod -R g=rwX $CONDA_BASE || exit 1
-    find $CONDA_BASE -type d -exec sudo chmod g+rwxs {} \; || exit 1
+    find $CONDA_BASE -type d -exec chmod g+rwxs {} \; || exit 1
 
     # make it possible for users to make their own envs
     cat << 'EOF' | tee $CONDA_BASE/.condarc || exit 1

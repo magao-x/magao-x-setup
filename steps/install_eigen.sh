@@ -24,5 +24,5 @@ if [[ ! -e /usr/local/share/pkgconfig/eigen3.pc ]]; then
     else
         cd $EIGEN_DIR/_build || exit 1
     fi
-    sudo make install || exit 1
+    $SUDO make install || exit 1
 fi

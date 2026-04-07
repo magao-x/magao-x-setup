@@ -11,8 +11,8 @@ if [[ ! -e lego ]]; then
     _cached_fetch https://github.com/go-acme/lego/releases/download/v4.9.0/$LEGO_ARCHIVE $LEGO_ARCHIVE || exit 1
     tar xf $LEGO_ARCHIVE || exit 1
 fi
-sudo ln -sfv $(realpath ./lego) /usr/local/bin/lego || exit 1
-sudo mkdir -p /opt/lego || exit 1
-sudo chown :$instrument_dev_group /opt/lego || exit 1
-sudo chmod -R u=rwX,g=rwX,o=x /opt/lego || exit 1
+$SUDO ln -sfv $(realpath ./lego) /usr/local/bin/lego || exit 1
+$SUDO mkdir -p /opt/lego || exit 1
+$SUDO chown :$instrument_dev_group /opt/lego || exit 1
+$SUDO chmod -R u=rwX,g=rwX,o=x /opt/lego || exit 1
 setgid_all /opt/lego || exit 1

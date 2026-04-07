@@ -1,7 +1,8 @@
 #!/bin/bash
+SUDO="${SUDO:-sudo}"
 # If not started as root, sudo yourself
 if [[ "$EUID" != 0 ]]; then
-    sudo -H bash -l $0 "$@"
+    $SUDO bash -l $0 "$@"
     exit $?
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

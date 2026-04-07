@@ -37,6 +37,7 @@ if [[ "$EUID" == 0 ]]; then
 else
   SUDO="$REAL_SUDO -H"
 fi
+export SUDO
 
 function log_error() {
     echo -e "$(tput setaf 1 2>/dev/null)$1$(tput sgr0 2>/dev/null)"

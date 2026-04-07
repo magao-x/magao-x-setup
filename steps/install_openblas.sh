@@ -23,14 +23,14 @@ if [[ $VM_KIND != "none" ]]; then
     elif [[ $ID == ubuntu ]]; then
         make clean
         make $openblasFlags || exit 1
-        sudo make install PREFIX=/usr/local $openblasFlags || exit 1
+        $SUDO make install PREFIX=/usr/local $openblasFlags || exit 1
     else
         exit_with_error "No idea how to handle VM kind $VM_KIND and distro $ID"
     fi
 else
     make -j$(nproc) $openblasFlags || exit 1
     # ensure same flags get to make install
-    sudo make install PREFIX=/usr/local $openblasFlags || exit 1
+    $SUDO make install PREFIX=/usr/local $openblasFlags || exit 1
 fi
 
 log_info "Finished OpenBLAS source install"

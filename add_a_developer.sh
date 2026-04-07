@@ -1,6 +1,7 @@
 #!/bin/bash
+SUDO="${SUDO:-sudo}"
 if [[ "$EUID" != 0 ]]; then
-    sudo -H bash $0 "$@"
+    $SUDO bash $0 "$@"
     exit $?
 fi
 set -uo pipefail
@@ -11,7 +12,7 @@ source $DIR/_common.sh
 $DIR/add_a_user.sh $1
 gpasswd -a $1 magaox-dev
 if [[ ! $(getent group $1) ]]; then
-    sudo groupadd $1
+    $SUDO groupadd $1
     echo "Added group $1"
 else
     echo "Group $1 exists"

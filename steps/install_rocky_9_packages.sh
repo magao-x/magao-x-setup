@@ -93,7 +93,7 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     gdb \
     yum-utils \
     which \
-    sudo \
+    $SUDO \
     sysstat \
     fuse \
     psmisc \

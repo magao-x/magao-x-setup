@@ -8,7 +8,7 @@ if [[ $MAGAOX_ROLE != RTC && $MAGAOX_ROLE != ICC && $MAGAOX_ROLE != AOC ]]; then
 fi
 
 if [[ $MAGAOX_ROLE != AOC ]]; then
-    sudo tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
+    $SUDO tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
 #!/usr/bin/env bash
 if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     echo 'Making AOC home directory accessible over the network at ~/data/...'
@@ -19,16 +19,16 @@ if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     ln -sv /srv/aoc/home/$USER/data/ /home/$USER/data || echo "Couldn't make symlink at /home/$USER/data"
 fi
 HERE
-    sudo chmod +x /etc/profile.d/init_users_data_dir.sh
+    $SUDO chmod +x /etc/profile.d/init_users_data_dir.sh
     log_info 'Added shell profile snippet to symlink ~/data to /srv/aoc/home/$USER/data'
 else
-        sudo tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
+        $SUDO tee /etc/profile.d/init_users_data_dir.sh <<'HERE'
 #!/usr/bin/env bash
 if [[ $(id -u) -ge 2000 && ! -e /home/$USER/data ]]; then
     echo 'Making ~/data/ dir for sharing between instruments...'
     mkdir -p /home/$USER/data || echo "Couldn't make a data dir in home"
 fi
 HERE
-    sudo chmod +x /etc/profile.d/init_users_data_dir.sh
+    $SUDO chmod +x /etc/profile.d/init_users_data_dir.sh
     log_info 'Added shell profile snippet to make ~/data on first login'
 fi

@@ -54,7 +54,7 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
     ntfs-3g \
     screen \
     which \
-    sudo \
+    $SUDO \
     strace \
     sysstat \
     fuse \

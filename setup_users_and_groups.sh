@@ -1,7 +1,8 @@
 #!/bin/bash
+SUDO="${SUDO:-sudo}"
 if [[ "$EUID" != 0 ]]; then
     echo "Becoming root..."
-    sudo -H bash -l $0 "$USER"
+    $SUDO bash -l $0 "$USER"
     exit $?
 fi
 set -o pipefail

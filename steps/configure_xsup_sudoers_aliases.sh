@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
+SUDO="${SUDO:-sudo}"
 if [[ "$EUID" != 0 ]]; then
-    sudo -H bash $0 "$@"
+    $SUDO bash $0 "$@"
     exit $?
 fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -o pipefail
 
-echo "alias teldump='logdump --dir=/opt/MagAOX/telem --ext=.bintel'" | sudo tee /etc/profile.d/teldump.sh
+echo "alias teldump='logdump --dir=/opt/MagAOX/telem --ext=.bintel'" | $SUDO tee /etc/profile.d/teldump.sh
 scratchFile=/tmp/sudoers_xsup
 targetFile=/etc/sudoers.d/xsup
 cat <<'HERE' > $scratchFile
@@ -22,7 +23,7 @@ Defaults>xsup !secure_path
 HERE
 visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
 
-sudo install \
+$SUDO install \
     --owner=root \
     --group=root \
     --mode=440 \
@@ -31,7 +32,7 @@ sudo install \
 || exit_with_error "Could not install drop-in file to $targetFile"
 
 
-cat <<'HERE' | sudo tee /etc/profile.d/xsupify.sh || exit 1
+cat <<'HERE' | $SUDO tee /etc/profile.d/xsupify.sh || exit 1
 #!/usr/bin/env bash
 alias xsupify="/usr/bin/sudo -u xsup -i"
 alias xsupdo="/usr/bin/sudo -u xsup"

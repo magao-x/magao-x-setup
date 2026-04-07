@@ -20,7 +20,7 @@ else
   git checkout $COMMIT_ISH || exit 1
   bash -x ./fetch_cacao_dev.sh || exit 1
 fi
-sudo -H rm -rf _build src/config.h src/milk_config.h || exit 1
+$SUDO rm -rf _build src/config.h src/milk_config.h || exit 1
 mkdir -p _build || exit 1
 cd _build || exit 1
 
@@ -37,7 +37,7 @@ export CFLAGS="-std=gnu17 $CFLAGS"
 
 cmake .. $milkCmakeArgs || exit 1
 make -j$(nproc) || exit 1
-sudo make install || exit 1
+$SUDO make install || exit 1
 
 milkSuffix=bin/milk
 milkBinary=$(grep -e "${milkSuffix}$" ./install_manifest.txt)
@@ -47,20 +47,20 @@ if command -v milk; then
     log_warn "Found existing milk binary at $(command -v milk)"
 fi
 link_if_necessary $milkPath /usr/local/milk || exit 1
-echo "/usr/local/milk/lib" | sudo -H tee /etc/ld.so.conf.d/milk.conf || exit 1
-sudo -H ldconfig || exit 1
-echo "export PATH=\"\$PATH:/usr/local/milk/bin\"" | sudo tee /etc/profile.d/milk.sh || exit 1
-echo "export PKG_CONFIG_PATH=\$PKG_CONFIG_PATH:/usr/local/milk/lib/pkgconfig" | sudo tee -a /etc/profile.d/milk.sh || exit 1
-echo "export MILK_SHM_DIR=/milk/shm" | sudo tee -a /etc/profile.d/milk.sh || exit 1
-echo "export MILK_ROOT=/opt/MagAOX/source/milk" | sudo tee -a /etc/profile.d/milk.sh || exit 1
-echo "export MILK_INSTALLDIR=/usr/local/milk" | sudo tee -a /etc/profile.d/milk.sh || exit 1
+echo "/usr/local/milk/lib" | $SUDO tee /etc/ld.so.conf.d/milk.conf || exit 1
+$SUDO ldconfig || exit 1
+echo "export PATH=\"\$PATH:/usr/local/milk/bin\"" | $SUDO tee /etc/profile.d/milk.sh || exit 1
+echo "export PKG_CONFIG_PATH=\$PKG_CONFIG_PATH:/usr/local/milk/lib/pkgconfig" | $SUDO tee -a /etc/profile.d/milk.sh || exit 1
+echo "export MILK_SHM_DIR=/milk/shm" | $SUDO tee -a /etc/profile.d/milk.sh || exit 1
+echo "export MILK_ROOT=/opt/MagAOX/source/milk" | $SUDO tee -a /etc/profile.d/milk.sh || exit 1
+echo "export MILK_INSTALLDIR=/usr/local/milk" | $SUDO tee -a /etc/profile.d/milk.sh || exit 1
 
-sudo mkdir -p /milk/shm || exit 1
+$SUDO mkdir -p /milk/shm || exit 1
 if [[ "$MAGAOX_ROLE" != ci && "$MAGAOX_ROLE" != container && -z $MAGAOX_CONTAINER ]]; then
   if ! grep -q "/milk/shm" /etc/fstab; then
-    echo "tmpfs /milk/shm tmpfs rw,nosuid,nodev,uid=$instrument_user,gid=$instrument_group,mode=3775 0 0" | sudo tee -a /etc/fstab || exit 1
+    echo "tmpfs /milk/shm tmpfs rw,nosuid,nodev,uid=$instrument_user,gid=$instrument_group,mode=3775 0 0" | $SUDO tee -a /etc/fstab || exit 1
     log_success "Created /milk/shm tmpfs mountpoint"
-    sudo mount /milk/shm || exit 1
+    $SUDO mount /milk/shm || exit 1
     log_success "Mounted /milk/shm"
   else
     log_info "Skipping /milk/shm mount setup because the mount point is present in /etc/fstab already"
@@ -71,11 +71,11 @@ if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
   link_if_necessary "/data/cacao-${MAGAOX_ROLE,,}" /opt/MagAOX/cacao || exit 1
 else
   make_on_data_array "cacao-${MAGAOX_ROLE,,}" /opt/MagAOX || exit 1
-  sudo ln -sf "/opt/MagAOX/cacao-${MAGAOX_ROLE,,}" /opt/MagAOX/cacao || exit 1
+  $SUDO ln -sf "/opt/MagAOX/cacao-${MAGAOX_ROLE,,}" /opt/MagAOX/cacao || exit 1
 fi
 log_info "Making /opt/MagAOX/cacao/ owned by $instrument_user:$instrument_group"
-sudo chown -R $instrument_user:$instrument_group /opt/MagAOX/cacao/ || exit 1
+$SUDO chown -R $instrument_user:$instrument_group /opt/MagAOX/cacao/ || exit 1
 if [[ $MAGAOX_CONTAINER == 1 ]]; then
     log_info "Try to get some space back..."
-    sudo -H rm -rf _build || exit 1
+    $SUDO rm -rf _build || exit 1
 fi

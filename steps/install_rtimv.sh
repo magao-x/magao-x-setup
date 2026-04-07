@@ -20,4 +20,4 @@ cmake -S . -B _build \
 	-DRTIMV_SERVER_SYSTEMD_ARGS="-c rtimvServer.conf" \
 	-DRTIMV_SERVER_SYSTEMD_UNIT_DIR=/usr/lib/systemd/system || exit 1
 cmake --build _build -j$(nprocs) || exit 1
-sudo cmake --install _build || exit 1
+$SUDO cmake --install _build || exit 1

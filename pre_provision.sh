@@ -47,7 +47,7 @@ else
     echo "Already have MAGAOX_ROLE=$MAGAOX_ROLE, not prompting for it. (Edit /etc/profile.d/magaox_role.sh if it's wrong)"
 fi
 
-echo "export MAGAOX_ROLE=$MAGAOX_ROLE" | sudo tee /etc/profile.d/magaox_role.sh
+echo "export MAGAOX_ROLE=$MAGAOX_ROLE" | $SUDO tee /etc/profile.d/magaox_role.sh
 export MAGAOX_ROLE
 set -uo pipefail
 
@@ -73,21 +73,21 @@ else
     DESIRED_CMDLINE="nosplash $NVIDIA_DRIVER_FIX $ALPAO_CMDLINE_FIX $PCIEXPANSION_CMDLINE_FIX $SPECTRE_CMDLINE_FIX $IOMMU_FIX"
 fi
 
-sudo grub2-editenv - unset menu_auto_hide
+$SUDO grub2-editenv - unset menu_auto_hide
 
-if ! sudo grep -r "$DESIRED_CMDLINE" /boot/loader/entries; then
-    sudo cp /etc/default/grub /etc/default/grub.bak || exit 1
+if ! $SUDO grep -r "$DESIRED_CMDLINE" /boot/loader/entries; then
+    $SUDO cp /etc/default/grub /etc/default/grub.bak || exit 1
 
     if [[ "$ID" == "ubuntu" || "$ID" == "debian" ]]; then
-        sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 $DESIRED_CMDLINE\"|g" /etc/default/grub || exit 1
+        $SUDO sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 $DESIRED_CMDLINE\"|g" /etc/default/grub || exit 1
     else
-        sudo grubby --update-kernel=ALL --args="$DESIRED_CMDLINE" || exit 1
+        $SUDO grubby --update-kernel=ALL --args="$DESIRED_CMDLINE" || exit 1
     fi
 
     if [[ -d /boot/grub2 ]]; then
-        sudo grub2-mkconfig -o /boot/grub2/grub.cfg || exit 1
+        $SUDO grub2-mkconfig -o /boot/grub2/grub.cfg || exit 1
     elif [[ -d /boot/grub ]]; then
-        sudo update-grub || exit 1
+        $SUDO update-grub || exit 1
     else
         exit_with_error "Where's grub gotten to?"
     fi
@@ -97,16 +97,16 @@ fi
 if [[ -d /etc/initramfs-tools ]]; then
     log_info "Disabling hibernate/resume support in initramfs"
     if ! grep 'RESUME=none' /etc/initramfs-tools/conf.d/resume; then
-        echo "RESUME=none" | sudo tee /etc/initramfs-tools/conf.d/resume || exit 1
-        sudo update-initramfs -u -k all || exit 1
+        echo "RESUME=none" | $SUDO tee /etc/initramfs-tools/conf.d/resume || exit 1
+        $SUDO update-initramfs -u -k all || exit 1
     fi
 fi
 
 if [[ ! -e /etc/modprobe.d/blacklist-nouveau.conf ]]; then
-    echo "blacklist nouveau" | sudo tee /etc/modprobe.d/blacklist-nouveau.conf > /dev/null || exit 1
-    echo "options nouveau modeset=0" | sudo tee -a /etc/modprobe.d/blacklist-nouveau.conf > /dev/null || exit 1
+    echo "blacklist nouveau" | $SUDO tee /etc/modprobe.d/blacklist-nouveau.conf > /dev/null || exit 1
+    echo "options nouveau modeset=0" | $SUDO tee -a /etc/modprobe.d/blacklist-nouveau.conf > /dev/null || exit 1
     if [[ $ID == ubuntu ]]; then
-        sudo update-initramfs -u || exit 1
+        $SUDO update-initramfs -u || exit 1
     fi
     log_success "Blacklisted nouveau nvidia driver"
 else
@@ -114,7 +114,7 @@ else
 fi
 
 if ! grep "Storage=persistent" /etc/systemd/journald.conf; then
-    echo "Storage=persistent" | sudo tee -a /etc/systemd/journald.conf || exit 1
+    echo "Storage=persistent" | $SUDO tee -a /etc/systemd/journald.conf || exit 1
     log_success "Enabled persistent systemd journald log across reboots"
 fi
 

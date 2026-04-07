@@ -11,5 +11,5 @@ _cached_fetch http://ds9.si.edu/archive/centos7/$DS9_ARCHIVE $DS9_ARCHIVE || exi
 
 tar xf $DS9_ARCHIVE || exit 1
 if [[ ! -e /usr/local/bin/ds9 ]]; then
-    sudo ln -s $(realpath ./ds9) /usr/local/bin/ds9 || exit 1
+    $SUDO ln -s $(realpath ./ds9) /usr/local/bin/ds9 || exit 1
 fi

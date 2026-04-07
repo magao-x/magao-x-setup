@@ -15,4 +15,4 @@ fi
 cd $FLATBUFFERS_DIR || exit 1
 cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release || exit 1
 make -j$(nproc) || exit 1
-sudo make install || exit 1
+$SUDO make install || exit 1

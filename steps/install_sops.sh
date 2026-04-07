@@ -11,5 +11,5 @@ if [[ ! -e $downloadFile ]]; then
     _cached_fetch https://github.com/getsops/sops/releases/download/v${release}/sops-${release}-1.$(uname -m).rpm $downloadFile || exit 1
 fi
 if ! command -v sops; then
-    sudo rpm -i $downloadFile || exit 1
+    $SUDO rpm -i $downloadFile || exit 1
 fi

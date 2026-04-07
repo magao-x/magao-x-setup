@@ -5,7 +5,7 @@ set -uo pipefail
 
 source /etc/os-release
 if [[ $ID == ubuntu ]]; then
-    sudo -i apt install -y \
+    $SUDO -i apt install -y \
         x11-apps \
         libgl-dev \
         qtbase5-dev \
@@ -18,12 +18,12 @@ if [[ $ID == ubuntu ]]; then
     || exit 1
 
     if [[ $VERSION_ID = "24.04" ]]; then
-        sudo -i apt install -y libqwtmathml-qt5-dev || exit 1
+        $SUDO -i apt install -y libqwtmathml-qt5-dev || exit 1
     else
-        sudo -i apt install -y libqwt-qt5-dev/jammy || exit 1
+        $SUDO -i apt install -y libqwt-qt5-dev/jammy || exit 1
     fi
 elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
-    sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install \
+    $SUDO dnf --setopt=timeout=300 --setopt=retries=10 -y install \
         qt5-devel \
         qwt-qt5-devel \
         wmctrl \
@@ -31,7 +31,7 @@ elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
         xterm \
     || exit 1
 elif [[ $ID == fedora ]]; then
-    sudo dnf --setopt=timeout=300 --setopt=retries=10 -y install \
+    $SUDO dnf --setopt=timeout=300 --setopt=retries=10 -y install \
         qt6-qt5compat-devel \
         qwt-qt5-devel \
         qwt-qt6-devel \
@@ -48,4 +48,4 @@ fi
 
 # For some reason, Qt won't hear any keyboard events unless this is set.
 # (Hinted at by: "Qt: Failed to create XKB context!")
-echo "export QT_XKB_CONFIG_ROOT=/usr/lib/kbd/keymaps/xkb" | sudo tee /etc/profile.d/qt_xkb_config_env_var.sh || exit 1
+echo "export QT_XKB_CONFIG_ROOT=/usr/lib/kbd/keymaps/xkb" | $SUDO tee /etc/profile.d/qt_xkb_config_env_var.sh || exit 1

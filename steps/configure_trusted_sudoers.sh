@@ -30,11 +30,11 @@ Defaults:TRUSTED !secure_path
 HERE
 
 visudo -cf $scratchFile || exit_with_error "visudo syntax check failed on $scratchFile"
-sudo install \
+$SUDO install \
     --owner=root \
     --group=root \
     --mode=440 \
     $scratchFile \
     $targetFile \
 || exit_with_error "Could not install drop-in file to $targetFile"
-sudo ls -la /etc/sudoers.d/
+$SUDO ls -la /etc/sudoers.d/

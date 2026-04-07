@@ -1,5 +1,10 @@
 #!/bin/bash
-sudo tee /etc/hosts <<'HERE'
+if [[ "$EUID" == 0 ]]; then
+    SUDO=""
+else
+    SUDO="sudo -H"
+fi
+$SUDO tee /etc/hosts <<'HERE'
 127.0.0.1      localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1            localhost localhost.localdomain localhost6 localhost6.localdomain6
 

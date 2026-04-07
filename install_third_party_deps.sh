@@ -11,28 +11,28 @@ source $DIR/_common.sh
 
 # Install OS packages first
 osPackagesScript="$DIR/steps/install_${ID}_${MAJOR_VERSION}_packages.sh"
-sudo -H bash -l $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
+$SUDO bash -l $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
 
 distroSpecificScript="$DIR/steps/configure_${ID}_${MAJOR_VERSION}.sh"
-sudo -H bash -l $distroSpecificScript || exit_with_error "Failed to configure ${ID} from $distroSpecificScript"
+$SUDO bash -l $distroSpecificScript || exit_with_error "Failed to configure ${ID} from $distroSpecificScript"
 
 # Install dependencies for the GUIs
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == workstation ]]; then
-    sudo -H bash -l "$DIR/steps/install_gui_dependencies.sh"
+    $SUDO bash -l "$DIR/steps/install_gui_dependencies.sh"
 fi
 
 # Install Linux kernel headers
 if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless && "$VM_KIND" == none ]]; then
     if [[ $ID == ubuntu ]]; then
-        sudo -i apt install -y linux-headers-generic
+        $SUDO -i apt install -y linux-headers-generic
     elif [[ $ID == rocky ]]; then
-        sudo yum install -y kernel-devel-$(uname -r) || sudo yum install -y kernel-devel
+        $SUDO yum install -y kernel-devel-$(uname -r) || $SUDO yum install -y kernel-devel
     fi
 fi
 
 ## Build third-party dependencies under /opt/MagAOX/vendor
 cd /opt/MagAOX/vendor
-sudo -H bash -l "$DIR/steps/install_rclone.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_rclone.sh" || exit 1
 if [[ $VM_KIND != "none" && $ID == rocky ]]; then
     dnf install --setopt=timeout=300 --setopt=retries=10 -y openblas-devel || exit 1
 else
@@ -44,29 +44,29 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGA
         exit_with_error "CUDA not found or not working, install CUDA first"
     fi
 fi
-sudo -H bash -l "$DIR/steps/install_cfitsio.sh" || exit 1
-sudo -H bash -l "$DIR/steps/install_eigen.sh" || exit 1
-sudo -H bash -l "$DIR/steps/install_zeromq.sh" || exit 1
-sudo -H bash -l "$DIR/steps/install_cppzmq.sh" || exit 1
-sudo -H bash -l "$DIR/steps/install_flatbuffers.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_cfitsio.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_eigen.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_zeromq.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_cppzmq.sh" || exit 1
+$SUDO bash -l "$DIR/steps/install_flatbuffers.sh" || exit 1
 if [[ $MAGAOX_ROLE == AOC ]]; then
-    sudo -H bash -l "$DIR/steps/install_lego.sh"
+    $SUDO bash -l "$DIR/steps/install_lego.sh"
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
-    sudo -H bash -l "$DIR/steps/install_basler_pylon.sh"
+    $SUDO bash -l "$DIR/steps/install_basler_pylon.sh"
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    sudo -H bash -l "$DIR/steps/install_edt.sh"
+    $SUDO bash -l "$DIR/steps/install_edt.sh"
 fi
 
 # SuSE packages need either Python 3.6 or 3.10, but Rocky 9.2 has Python 3.9 as /bin/python, so we build our own RPM:
 if [[ $ID == rocky && "$VM_KIND" == none ]]; then
-  sudo -H bash -l "$DIR/steps/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
+  $SUDO bash -l "$DIR/steps/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC ||  $MAGAOX_ROLE == workstation ]]; then
     # regular old ds9 image viewer
-    sudo -H bash -l "$DIR/steps/install_ds9.sh"
+    $SUDO bash -l "$DIR/steps/install_ds9.sh"
 fi
 
 if [[ "$VM_KIND" == none ]]; then

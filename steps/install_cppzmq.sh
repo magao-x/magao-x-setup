@@ -11,4 +11,4 @@ if [[ ! -d ./cppzmq-$CPPZMQ_VERSION ]]; then
     tar xzf cppzmq-$CPPZMQ_VERSION.tar.gz || exit 1
 fi
 cd ./cppzmq-$CPPZMQ_VERSION || exit 1
-sudo cp *.hpp /usr/local/include/ || exit 1
+$SUDO cp *.hpp /usr/local/include/ || exit 1

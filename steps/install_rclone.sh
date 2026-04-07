@@ -19,7 +19,7 @@ if [[ ! -d $PACKAGE_DIR ]]; then
     unzip $PACKAGE_ARCHIVE || exit 1
 fi
 cd $PACKAGE_DIR || exit 1
-sudo install ./rclone /usr/local/bin || exit 1
-sudo mkdir -p /usr/local/share/man/man1/ || exit 1
-sudo install ./rclone.1 /usr/local/share/man/man1/ || exit 1
-sudo ln -sf /usr/local/bin/rclone /sbin/mount.rclone || exit 1
+$SUDO install ./rclone /usr/local/bin || exit 1
+$SUDO mkdir -p /usr/local/share/man/man1/ || exit 1
+$SUDO install ./rclone.1 /usr/local/share/man/man1/ || exit 1
+$SUDO ln -sf /usr/local/bin/rclone /sbin/mount.rclone || exit 1

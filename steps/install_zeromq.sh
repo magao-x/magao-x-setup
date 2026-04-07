@@ -21,4 +21,4 @@ fi
 cd $ZEROMQ_DIR || exit 1
 ./configure --enable-drafts || exit 1
 make -j$(nproc) || exit 1
-sudo make install || exit 1
+$SUDO make install || exit 1

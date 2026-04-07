@@ -16,5 +16,5 @@ cd build || exit 1
 cmake .. || exit 1
 make || exit 1
 make test || exit 1
-sudo make install || exit 1
-sudo ldconfig || exit 1
+$SUDO make install || exit 1
+$SUDO ldconfig || exit 1
