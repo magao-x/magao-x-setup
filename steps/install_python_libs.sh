@@ -11,7 +11,6 @@ set -xu
 
 # Install the standard MagAOX user python environment
 #
-$MAMBA update -y mamba || exit_with_error "Mamba self update failed"
 source $CONDA_BASE/bin/activate
 if [[ -d /opt/conda/envs/${INSTRUMENT_CONDA_ENV} ]]; then
     conda activate ${INSTRUMENT_CONDA_ENV}

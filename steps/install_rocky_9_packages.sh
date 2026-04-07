@@ -112,6 +112,7 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     libubsan \
     libtsan \
     libasan \
+    protobuf-devel \
     grpc grpc-devel \
 || exit 1
 
