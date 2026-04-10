@@ -2,16 +2,19 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
+# For some reason (mirror sync?) some packages will occasionally fail to install
+# because of a missing version of a dependency
+INSTALL_OPTS="--setopt=timeout=300 --setopt=retries=10 --nobest --skip-broken -y"
 
 # needed for (at least) git:
-dnf group install -y development-tools || exit 1
+dnf group install $INSTALL_OPTS development-tools || exit 1
 
 # Search /usr/local/lib by default for dynamic library loading
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
 ldconfig -v || exit 1
 
 # Install build tools and utilities
-dnf --setopt=timeout=300 --setopt=retries=10 -y install \
+dnf install $INSTALL_OPTS \
     util-linux-user \
     kernel-devel \
     kernel-modules-extra \
@@ -82,7 +85,7 @@ dnf --setopt=timeout=300 --setopt=retries=10 -y install \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
-    yum install -y fftw-libs-quad || exit 1
+    dnf install $INSTALL_OPTS fftw-libs-quad || exit 1
 else
     log_info "libfftw3-quad not available on $(uname -m) host"
 fi
@@ -94,11 +97,11 @@ echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /e
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
-    dnf install -y ipmitool
+    dnf install $INSTALL_OPTS ipmitool
 fi
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
-    dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
+    dnf install $INSTALL_OPTS tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 fi

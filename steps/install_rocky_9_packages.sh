@@ -1,16 +1,19 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# For some reason (mirror sync?) some packages will occasionally fail to install
+# because of a missing version of a dependency
+INSTALL_OPTS="--setopt=timeout=300 --setopt=retries=10 --nobest --skip-broken -y"
 source $DIR/../_common.sh
 set -xuo pipefail
 
 log_info "Make Extra Packages for Enterprise Linux available in /etc/yum.repos.d/"
 if ! dnf config-manager -h >/dev/null; then
-    dnf --setopt=timeout=300 --setopt=retries=10 -y install 'dnf-command(config-manager)' || exit 1
+    dnf $INSTALL_OPTS install 'dnf-command(config-manager)' || exit 1
 fi
 log_info "Enabling CRB"
 dnf config-manager --set-enabled crb || exit 1
 log_info "Enabling EPEL repository"
-dnf --setopt=timeout=300 --setopt=retries=10 -y install epel-release || exit 1
+dnf $INSTALL_OPTS install epel-release || exit 1
 log_info "Clearing dnf cache"
 dnf clean all || exit 1
 log_info "Checking dnf for errors"
@@ -23,10 +26,10 @@ log_info "Done updating dnf packages"
 
 # needed for (at least) git:
 log_info "Installing Development Tools group"
-dnf --setopt=timeout=300 --setopt=retries=10 groupinstall -y 'Development Tools' || exit 1
+dnf $INSTALL_OPTS groupinstall 'Development Tools' || exit 1
 
 # needed for MagAO-X
-dnf --setopt=timeout=300 --setopt=retries=10 -y install gcc-toolset-14 || exit 1
+dnf $INSTALL_OPTS install gcc-toolset-14 || exit 1
 
 # Search /usr/local/lib by default for dynamic library loading
 echo "/usr/local/lib" | tee /etc/ld.so.conf.d/local.conf || exit 1
@@ -37,7 +40,7 @@ if [[ "$VM_KIND" == none ]]; then
     log_info "Installing packages not needed in virtualized environments"
     # mlocate needs a background service that won't run in a container
     # age is used for secrets management but containers won't ship secrets
-    yum --setopt=timeout=300 --setopt=retries=10 install -y \
+    dnf $INSTALL_OPTS install \
         kernel-devel \
         kernel-modules-extra \
         pciutils \
@@ -51,7 +54,7 @@ if [[ "$VM_KIND" == none ]]; then
 fi
 if [[ "$VM_KIND" != *container* ]]; then
     log_info "Installing packages not needed in containers"
-    yum --setopt=timeout=300 --setopt=retries=10 install -y \
+    dnf $INSTALL_OPTS install \
         mlocate \
         screen \
         nmap-ncat \
@@ -64,8 +67,8 @@ if [[ "$VM_KIND" != *container* ]]; then
         nfs-utils \
     || exit 1
 fi
-# For some reason (mirror sync?) some packages from EPEL will occasionally fail to install
-yum --setopt=timeout=300 --setopt=retries=10 install -y \
+
+dnf $INSTALL_OPTS install \
     gcc-gfortran \
     util-linux-user \
     passwd \
@@ -93,7 +96,7 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
     gdb \
     yum-utils \
     which \
-    $SUDO \
+    sudo \
     sysstat \
     fuse \
     psmisc \
@@ -117,7 +120,7 @@ yum --setopt=timeout=300 --setopt=retries=10 install -y \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
-    yum install --setopt=timeout=300 --setopt=retries=10 -y fftw-libs-quad || exit 1
+    dnf $INSTALL_OPTS install fftw-libs-quad || exit 1
 else
     log_info "libfftw3-quad not available on $(uname -m) host"
 fi
@@ -130,11 +133,11 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ "$VM_KIND" == none ]]; then
     dnf config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
-    dnf --setopt=timeout=300 --setopt=retries=10 -y install tailscale || exit 1
+    dnf $INSTALL_OPTS install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 else
     log_info "For containerized/virtualized environments, use Tailscale set up on the host side"
 fi
 
 # install postgresql 15 client for RHEL 9
-dnf module install --setopt=timeout=300 --setopt=retries=10 -y postgresql:15/client || exit 1
+dnf module install $INSTALL_OPTS postgresql:15/client || exit 1
