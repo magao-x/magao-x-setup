@@ -9,6 +9,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -xu
 
+# Mamba self-update
+$MAMBA update -y mamba || exit_with_error "Mamba self update failed"
+
 # Install the standard MagAOX user python environment
 #
 source $CONDA_BASE/bin/activate
