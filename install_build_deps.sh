@@ -41,12 +41,7 @@ fi
 $SUDO bash -l "$DIR/steps/ensure_dirs_and_perms.sh" $MAGAOX_ROLE || exit 1
 
 # Install OS-packaged and a few self-built dependencies.
-if [[ ! $_skip3rdPartyDeps ]]; then
-    # For staged VM builds we don't want to redo the 3rd party deps
-    # (even if they're mostly already done). Setting $_skip3rdPartyDeps
-    # lets us skip this line:
-    $SUDO bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
-fi
+$SUDO bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
 
 VENDOR_SOFTWARE_BUNDLE=$DIR/bundle.zip
 if [[ ! -e $VENDOR_SOFTWARE_BUNDLE ]]; then
@@ -100,12 +95,6 @@ bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao in
 bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
 bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
 bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
-
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
-    # realtime image viewer
-    bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
-    echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | $SUDO tee /etc/profile.d/rtimv_config_path.sh
-fi
 
 # Create Python env
 $SUDO bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"

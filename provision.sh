@@ -55,7 +55,16 @@ if [[ $VM_KIND != "none" ]]; then
 fi
 
 # Install build dependencies (1st and 3rd party)
-$SUDO bash -l "$DIR/steps/install_build_deps.sh"
+# (For container builds we don't want to redo the dependencies)
+if [[ $MAGAOX_CONTAINER != 1 ]]; then
+    $SUDO bash -l "$DIR/steps/install_build_deps.sh"
+fi
+
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
+    # realtime image viewer
+    bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
+    echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | $SUDO tee /etc/profile.d/rtimv_config_path.sh
+fi
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC ]]; then
     # Initialize the config and calib repos as normal user
