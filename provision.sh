@@ -60,6 +60,11 @@ if [[ $MAGAOX_CONTAINER != 1 ]]; then
     $SUDO bash -l "$DIR/steps/install_build_deps.sh"
 fi
 
+# Install dependencies for the GUIs
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == workstation ]]; then
+    $SUDO bash -l "$DIR/steps/install_gui_dependencies.sh"
+fi
+
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
     # realtime image viewer
     bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
