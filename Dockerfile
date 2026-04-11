@@ -10,9 +10,7 @@ WORKDIR /opt/MagAOX/source/magao-x-setup
 # but apparently only in GitHub Actions Docker runs?
 RUN chmod -v u=rw,g=,o= /etc/shadow /etc/shadow-
 RUN dnf clean all && dnf makecache && dnf install -y sudo passwd && dnf autoremove && dnf clean all
-RUN bash -x setup_users_and_groups.sh
-RUN bash -x steps/ensure_dirs_and_perms.sh
-RUN dnf clean all && dnf makecache && bash -lx install_third_party_deps.sh && dnf autoremove && dnf clean all
+RUN dnf clean all && dnf makecache && bash -lx install_build_deps.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
 COPY --from=build / /
