@@ -45,6 +45,8 @@ jobs:
           target: build
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push cli image by digest
@@ -56,6 +58,8 @@ jobs:
           target: cli
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push gui image by digest
@@ -67,6 +71,8 @@ jobs:
           target: gui
           platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Export digests
@@ -125,6 +131,8 @@ jobs:
           target: build
           platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push cli image by digest
@@ -136,6 +144,8 @@ jobs:
           target: cli
           platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push gui image by digest
@@ -147,6 +157,8 @@ jobs:
           target: gui
           platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.ref == 'refs/heads/main' }}
 
       - name: Export digests
