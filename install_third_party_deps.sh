@@ -16,10 +16,7 @@ $SUDO bash -l $osPackagesScript || exit_with_error "Failed to install packages f
 distroSpecificScript="$DIR/steps/configure_${ID}_${MAJOR_VERSION}.sh"
 $SUDO bash -l $distroSpecificScript || exit_with_error "Failed to configure ${ID} from $distroSpecificScript"
 
-# Install dependencies for the GUIs
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == workstation ]]; then
-    $SUDO bash -l "$DIR/steps/install_gui_dependencies.sh"
-fi
+
 
 # Install Linux kernel headers
 if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless && "$VM_KIND" == none ]]; then
