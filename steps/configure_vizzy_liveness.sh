@@ -15,7 +15,7 @@ done
 systemctl daemon-reload || exit 1
 
 systemctl enable --now vizzy-liveness.timer || true
-systemctl enable --now vizzy-notify-power-state.timer || true
+systemctl enable --now vizzy-notify-power-state.service || true
 
 cp -v $DIR/../systemd_units/vizzy-liveness.sh /usr/local/bin/
 chmod u=rwx,g=rx,o=rx /usr/local/bin/vizzy-liveness.sh
