@@ -15,3 +15,5 @@ for service_unit in vizzy-liveness.service vizzy-liveness.timer vizzy-notify-pow
     systemctl enable --now $service_unit || true
 done
 
+cp -v $DIR/../systemd_units/vizzy-liveness.sh /usr/local/bin/
+chmod u=rwx,g=rx,o=rx /usr/local/bin/vizzy-liveness.sh

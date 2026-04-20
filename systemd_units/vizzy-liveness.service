@@ -1,12 +1,6 @@
 [Unit]
-Description=Report heartbeat to Vizzybot
+Description=Send liveness ping
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"hostname": "%H"}' \
-  https://vizzy.xwcl.science/api/liveness
-
-[Install]
-WantedBy=multi-user.target
+ExecStart=/usr/local/bin/vizzy-liveness.sh
