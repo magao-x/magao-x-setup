@@ -31,10 +31,10 @@ wait $qemuPid
 echo "Finished installing MagAO-X software."
 ls -la ./output
 echo "Compressing disk image through QCOW2 to QCOW2 conversion"
-qemu-img convert -O qcow2 -c ./output/xvm.qcow2 ./output/xvm_compact.qcow2 || exit 1
+qemu-img convert -O qcow2 -c ./output/xvm.qcow2 ./output/xvm_stage4.qcow2 || exit 1
 du -hs ./output/xvm*
 rm -fv ./output/xvm.qcow2 || exit 1
-mv -v ./output/xvm_compact.qcow2 ./output/xvm.qcow2 || exit 1
+
 echo "Bundling VM for distribution"
 if [[ $vmArch == aarch64 ]]; then
     bash -x bundle_utm.sh || exit 1
