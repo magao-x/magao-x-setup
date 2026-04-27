@@ -57,7 +57,7 @@ fi
 # Install build dependencies (1st and 3rd party)
 # (For container builds we don't want to redo the dependencies)
 if [[ $MAGAOX_CONTAINER != 1 ]]; then
-    $SUDO bash -l "$DIR/steps/install_build_deps.sh"
+    $SUDO bash -l "$DIR/install_build_deps.sh"
 fi
 
 # Install dependencies for the GUIs

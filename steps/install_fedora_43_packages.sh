@@ -100,6 +100,11 @@ if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGA
     dnf install $INSTALL_OPTS ipmitool
 fi
 
+if [[ $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == workstation ]]; then
+    # used to play maggie-isms
+    dnf install -y pulseaudio-utils || exit 1
+fi
+
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
     dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo || exit 1
     dnf install $INSTALL_OPTS tailscale || exit 1
