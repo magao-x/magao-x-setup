@@ -34,3 +34,22 @@ else
 fi
 
 log_info "Finished OpenBLAS source install"
+
+# OpenBLAS is built with LAPACK routines included, but does not install a lapack.pc.
+# Without one, pkg-config lapack may resolve to a system LAPACK that was built against
+# a different OpenBLAS, causing undefined symbol errors at link time.
+# Write a lapack.pc that points to this OpenBLAS to get a consistent pair.
+OPENBLAS_LIBDIR=$(PKG_CONFIG_PATH=/usr/local/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH} pkg-config --variable=libdir openblas 2>/dev/null)
+OPENBLAS_LIBDIR="${OPENBLAS_LIBDIR:-/usr/local/lib}"
+OPENBLAS_VER=$(PKG_CONFIG_PATH=/usr/local/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH} pkg-config --modversion openblas 2>/dev/null || echo "0")
+$SUDO mkdir -p "${OPENBLAS_LIBDIR}/pkgconfig"
+$SUDO tee "${OPENBLAS_LIBDIR}/pkgconfig/lapack.pc" > /dev/null << EOF
+# lapack.pc — provided by OpenBLAS (includes LAPACK routines)
+Name: lapack
+Description: LAPACK routines provided by OpenBLAS
+Version: ${OPENBLAS_VER}
+Requires: openblas
+Libs:
+Cflags:
+EOF
+log_info "Wrote lapack.pc pointing to OpenBLAS at ${OPENBLAS_LIBDIR}/pkgconfig"
