@@ -13,7 +13,7 @@ RUN dnf clean all && dnf makecache && dnf install -y sudo passwd && dnf autoremo
 RUN dnf clean all && dnf makecache && bash -lx install_build_deps.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
-COPY --from=build / /
+COPY --from=build /** /
 RUN env
 ENV MAGAOX_ROLE=headless
 ENV MAGAOX_CONTAINER=1
@@ -23,7 +23,8 @@ WORKDIR /opt/MagAOX/source/magao-x-setup
 RUN bash -lx provision.sh
 USER xsup
 
-FROM cli AS gui
+FROM scratch AS gui
+COPY --from=build /** /
 USER root
 ENV MAGAOX_ROLE=workstation
 ENV MAGAOX_CONTAINER=1

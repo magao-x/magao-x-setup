@@ -295,22 +295,3 @@ jobs:
       - name: Inspect image
         run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:gui
 
-  cleanup:
-    name: Clean up old packages
-    runs-on: ubuntu-24.04
-    needs:
-      - merge-build
-      - merge-cli
-      - merge-gui
-    if: github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Clean up old packages
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: magao-x-setup
-          package-type: container
-          min-versions-to-keep: 5
-          delete-only-untagged-versions: 'true'
