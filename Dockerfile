@@ -13,7 +13,7 @@ RUN dnf clean all && dnf makecache && dnf install -y sudo passwd && dnf autoremo
 RUN dnf clean all && dnf makecache && bash -lx install_build_deps.sh && dnf autoremove && dnf clean all
 
 FROM scratch AS cli
-COPY --from=build /** /
+COPY --link --from=build / /
 RUN env
 ENV MAGAOX_ROLE=headless
 ENV MAGAOX_CONTAINER=1
@@ -24,7 +24,7 @@ RUN bash -lx provision.sh
 USER xsup
 
 FROM scratch AS gui
-COPY --from=build /** /
+COPY --link --from=build / /
 USER root
 ENV MAGAOX_ROLE=workstation
 ENV MAGAOX_CONTAINER=1
