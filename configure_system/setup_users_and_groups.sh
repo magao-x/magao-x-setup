@@ -7,7 +7,7 @@ if [[ "$EUID" != 0 ]]; then
 fi
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $DIR/_common.sh
+source "$DIR/../_common.sh"
 
 # Note that these GIDs are set on purpose to match
 # the LDAP server at accounts.xwcl.science
@@ -34,6 +34,9 @@ else
 fi
 gpasswd -a $instrument_dev_group xdev
 gpasswd -a $sudo_group xdev
+if [[ "$MAGAOX_CONTAINER" == 1 ]]; then
+  gpasswd -a $sudo_group $instrument_user
+fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
   # Instrument computers should have a backup user to own the irodsfs mount
@@ -54,8 +57,11 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
     log_success "Added $instrument_user to group guestobs"
   fi
 fi
-if $SUDO test ! -e /home/${instrument_user}/.ssh/id_ed25519; then
-  $REAL_SUDO -u $instrument_user ssh-keygen -t ed25519 -N "" -f /home/${instrument_user}/.ssh/id_ed25519 -q
+if [[ $MAGAOX_CONTAINER != 1 ]]; then
+    # Create an initial SSH key for xsup if one isn't present
+    if $SUDO test ! -e /home/${instrument_user}/.ssh/id_ed25519; then
+    $REAL_SUDO -u $instrument_user ssh-keygen -t ed25519 -N "" -f /home/${instrument_user}/.ssh/id_ed25519 -q
+    fi
 fi
 
 if [[ -n "$1" ]] && getent passwd "$1" > /dev/null 2>&1; then

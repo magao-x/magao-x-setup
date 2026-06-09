@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source $DIR/_common.sh
+source "$DIR/../_common.sh"
 if [[ "$EUID" == 0 ]]; then
     log_error "Can't add you to the magaox-dev group when you're running as root! Aborting."
     exit 1
@@ -118,7 +118,7 @@ if ! grep "Storage=persistent" /etc/systemd/journald.conf; then
     log_success "Enabled persistent systemd journald log across reboots"
 fi
 
-$DIR/setup_users_and_groups.sh || exit_with_error "Failed to set up users and groups"
+bash $DIR/../configure_system/setup_users_and_groups.sh || exit_with_error "Failed to set up users and groups"
 log_success "Created users and configured groups"
 log_info "You will need to use grub2-install with the right devices to get RAID1 reliability for boot"
 log_success "Reboot before proceeding"

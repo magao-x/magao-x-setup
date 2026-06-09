@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $DIR/_common.sh
+setupRoot=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/..")
+source "$setupRoot/_common.sh"
 if [[ $VM_KIND != "none" ]]; then
     echo "Detected virtualization: $VM_KIND"
 fi
@@ -54,82 +54,87 @@ if [[ $VM_KIND != "none" ]]; then
     $SUDO git config --global --replace-all safe.directory '*'
 fi
 
+## Set up file structure and permissions
+$SUDO bash -l "$setupRoot/configure_system/ensure_dirs_and_perms.sh" $MAGAOX_ROLE || exit 1
+
 # Install build dependencies (1st and 3rd party)
-# (For container builds we don't want to redo the dependencies)
+# (For container builds we don't want to redo the dependencies,
+# which we have already installed separately to reuse the layer cache)
 if [[ $MAGAOX_CONTAINER != 1 ]]; then
-    $SUDO bash -l "$DIR/install_build_deps.sh"
+    $SUDO bash -l "$setupRoot/install/install_third_party_deps.sh"
+    $SUDO bash -l "$setupRoot/install/install_build_deps.sh"
 fi
 
 # Install dependencies for the GUIs
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == ROC || $MAGAOX_ROLE == workstation ]]; then
-    $SUDO bash -l "$DIR/steps/install_gui_dependencies.sh"
+    $SUDO bash -l "$setupRoot/third_party/install_gui_dependencies.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == workstation ]]; then
     # realtime image viewer
-    bash -l "$DIR/steps/install_rtimv.sh" || exit_with_error "Could not install rtimv"
+    bash -l "$setupRoot/first_party/install_rtimv.sh" || exit_with_error "Could not install rtimv"
     echo "export RTIMV_CONFIG_PATH=/opt/MagAOX/config" | $SUDO tee /etc/profile.d/rtimv_config_path.sh
 fi
 
 if [[ $MAGAOX_ROLE == TIC || $MAGAOX_ROLE == TOC ]]; then
     # Initialize the config and calib repos as normal user
-    bash -l "$DIR/steps/install_testbed_config.sh"
-    bash -l "$DIR/steps/install_testbed_calib.sh"
+    bash -l "$setupRoot/first_party/install_testbed_config.sh"
+    bash -l "$setupRoot/first_party/install_testbed_calib.sh"
 else
     # Initialize the config and calib repos as normal user
-    bash -l "$DIR/steps/install_magao-x_config.sh"
-    bash -l "$DIR/steps/install_magao-x_calib.sh"
+    bash -l "$setupRoot/first_party/install_magao-x_config.sh"
+    bash -l "$setupRoot/first_party/install_magao-x_calib.sh"
 fi
 
 log_info "Applying configuration tweaks for OS and services"
 
 if [[ $USER != ubuntu ]]; then
-    bash -l "$DIR/steps/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
+    bash -l "$setupRoot/configure_system/configure_trusted_sudoers.sh" || exit_with_error "Could not configure trusted groups for sudoers"
 fi
-$SUDO bash -lx "$DIR/steps/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
+$SUDO bash -lx "$setupRoot/configure_system/configure_xsup_sudoers_aliases.sh" || exit_with_error "Could not configure sudoers or aliases for xsup"
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
     log_info "Configure hostname aliases for instrument LAN"
-    $SUDO bash -l "$DIR/steps/configure_etc_hosts.sh"
+    $SUDO bash -l "$setupRoot/configure_system/configure_etc_hosts.sh"
     log_info "Configure NFS exports from RTC -> AOC and ICC -> AOC"
-    $SUDO bash -l "$DIR/steps/configure_nfs.sh"
+    $SUDO bash -l "$setupRoot/configure_system/configure_nfs.sh"
 else
     log_info "Configure hostname aliases for VPN"
-    $SUDO bash -l "$DIR/steps/configure_etc_hosts_vpn.sh"
+    $SUDO bash -l "$setupRoot/configure_system/configure_etc_hosts_vpn.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == TOC || $MAGAOX_ROLE == TIC ]]; then
     log_info "Configure time syncing"
-    $SUDO bash -l "$DIR/steps/configure_chrony.sh"
+    $SUDO bash -l "$setupRoot/configure_system/configure_chrony.sh"
 fi
 
 if [[ -z $MAGAOX_CONTAINER ]]; then
     log_info "Increase inotify watches (e.g. for VSCode remote users)"
-    $SUDO bash -l "$DIR/steps/increase_fs_watcher_limits.sh"
+    $SUDO bash -l "$setupRoot/configure_system/increase_fs_watcher_limits.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC ]]; then
-    bash -l "$DIR/configure_certificate_renewal.sh"
+    bash -l "$setupRoot/configure_system/configure_certificate_renewal.sh"
 fi
 
 if [[ $MAGAOX_ROLE == AOC ]]; then
     # Configure a tablespace to store postgres data on the /data array
     # and user accounts for the system to use
-    bash -l "$DIR/steps/configure_postgresql.sh"
+    bash -l "$setupRoot/configure_system/configure_postgresql.sh"
     # Install and enable the service for grafana
-    bash -l "$DIR/steps/install_grafana.sh"
+    bash -l "$setupRoot/third_party/install_grafana.sh"
 fi
 # All MagAO-X computers may use the password to connect to the main db
-bash -l "$DIR/steps/configure_postgresql_pass.sh"
+bash -l "$setupRoot/configure_system/configure_postgresql_pass.sh"
 
 if [[ $MAGAOX_ROLE == workstation && $MAGAOX_CONTAINER != 1 ]]; then
     if [[ $VM_KIND != "wsl" ]]; then
         # Enable forwarding MagAO-X GUIs to the host for VMs
-        $SUDO bash -l "$DIR/steps/enable_vm_x11_forwarding.sh"
+        $SUDO bash -l "$setupRoot/configure_system/enable_vm_x11_forwarding.sh"
     fi
     # Install a config in ~/.ssh/config for the vm user
     # to make it easier to make tunnels work
-    bash -l "$DIR/steps/configure_ssh_for_workstations.sh" || exit_with_error "Failed to pre-populate SSH config"
+    bash -l "$setupRoot/configure_system/configure_ssh_for_workstations.sh" || exit_with_error "Failed to pre-populate SSH config"
 fi
 
 if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
@@ -137,29 +142,27 @@ if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == AOC ]]; then
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    $SUDO bash -l "$DIR/steps/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
+    $SUDO bash -l "$setupRoot/configure_system/add_init_users_data_dir_script.sh" || exit_with_error "Couldn't add /etc/profile.d/init_users_data_dir.sh"
 fi
 
-if [[ $MAGAOX_ROLE != "workstation" && "$VM_KIND" == none ]]; then
-    $SUDO bash -l "$DIR/steps/configure_vizzy_liveness.sh" || exit_with_error "Couldn't add basic availability monitoring with vizzybot"
+if [[ $MAGAOX_ROLE != "workstation" && "$MAGAOX_CONTAINER" != 1 ]]; then
+    $SUDO bash -l "$setupRoot/configure_system/configure_vizzy_liveness.sh" || exit_with_error "Couldn't add basic availability monitoring with vizzybot"
 fi
 
 ## Clone sources to /opt/MagAOX/source/MagAOX unless building in CI or building the container
-if [[ -z $CI && ! -e /opt/MagAOX/source/MagAOX ]]; then
+if [[ -z "$CI" && "$MAGAOX_CONTAINER" != 1 && "$VM_KIND" == "none" ]]; then
     git clone https://github.com/magao-x/MagAOX.git /opt/MagAOX/source/MagAOX || exit_with_error "Could not clone MagAOX"
     normalize_git_checkout /opt/MagAOX/source/MagAOX || exit_with_error "Could not normalize permissions on MagAOX checkout"
-fi
 
-## Build the MagAOX instrument software, unless this is a container build or CI process (where we can invoke it as a separate stage)
-if [[ -z $CI && "$VM_KIND" != *container* ]]; then
+    ## Build the MagAOX instrument software, unless this is a container build or CI process (where we can invoke it as a separate stage)
     cd /opt/MagAOX/source/MagAOX
-    bash -l "$DIR/steps/install_MagAOX.sh" || exit 1
+    bash -l "$setupRoot/first_party/install_MagAOX.sh" || exit 1
 fi
 
-if [[ "$VM_KIND" == "none" ]]; then
-    $SUDO bash -l "$DIR/steps/configure_startup_services.sh"
+if [[ -z "$CI" && "$MAGAOX_CONTAINER" != 1 && "$VM_KIND" == "none" ]]; then
+    $SUDO bash -l "$setupRoot/configure_system/configure_startup_services.sh"
     log_info "Generating subuid and subgid files, may need to run podman system migrate"
-    $SUDO python "$DIR/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
+    $SUDO python "$setupRoot/configure_system/generate_subuid_subgid.py" || exit_with_error "Generating subuid/subgid files for podman failed"
     $SUDO podman system migrate || exit_with_error "Could not run podman system migrate"
 fi
 
