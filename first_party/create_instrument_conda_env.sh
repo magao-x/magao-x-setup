@@ -29,18 +29,19 @@ $MAMBA env export
 echo "export INSTRUMENT_CONDA_ENV=$INSTRUMENT_CONDA_ENV" > /etc/profile.d/conda.sh
 echo "export CONDA_BASE=$CONDA_BASE" >> /etc/profile.d/conda.sh
 cat <<'EOF' | tee -a /etc/profile.d/conda.sh || exit 1
-if [ -f "$CONDA_BASE/etc/profile.d/conda.sh" ]; then
-    . "$CONDA_BASE/etc/profile.d/conda.sh"
-    CONDA_CHANGEPS1=false conda activate ${INSTRUMENT_CONDA_ENV}
-else
-    \export PATH="$CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin:$PATH"
-fi
+function xpy() {
+  if [ -f "$CONDA_BASE/etc/profile.d/conda.sh" ]; then
+      . "$CONDA_BASE/etc/profile.d/conda.sh"
+      CONDA_CHANGEPS1=false conda activate ${INSTRUMENT_CONDA_ENV}
+  else
+      \export PATH="$CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin:$PATH"
+  fi
+}
 EOF
 source /etc/profile.d/conda.sh
+xpy
 
-# Install the kernel for JupyterHub use
-pythonExe="$CONDA_BASE/envs/$INSTRUMENT_CONDA_ENV/bin/python"
-$pythonExe -m ipykernel install --prefix=/usr/local --name "$INSTRUMENT_CONDA_ENV" --display-name "MagAO-X ($INSTRUMENT_CONDA_ENV)" || exit_with_error "Failed to install kernel for Jupyter"
+
 
 # Install Python-dependent packages
 bash $DIR/install_lookyloo.sh || exit_with_error "Failed to install lookyloo"
@@ -50,11 +51,13 @@ bash $DIR/install_purepyindi2.sh || exit_with_error "Failed to install purepyind
 bash $DIR/install_xconf.sh || exit_with_error "Failed to install xconf"
 if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless ]]; then
     bash $DIR/install_jupyterhub.sh || exit_with_error "Failed to install JupyterHub"
+    bash $DIR/../configure_system/configure_jupyter_kernel.sh || exit_with_error "Failed to install Jupyter kernel for MagAO-X environment"
 fi
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then
     bash $DIR/install_sup.sh || exit_with_error "Failed to install sup"
 fi
 
 # ensure MILK ImageStreamIO gets rebuilt for the current Python
-$pythonExe -m pip install /opt/MagAOX/source/milk/src/ImageStreamIO/ || exit 1
-$pythonExe -c 'import ImageStreamIOWrap' || exit 1
+pythonExe="${CONDA_BASE}/envs/${INSTRUMENT_CONDA_ENV}/bin/python"
+$pythonExe -m pip install /opt/MagAOX/source/milk/src/ImageStreamIO/ || exit_with_error "Failed to build ImageStreamIOWrap"
+$pythonExe -c 'import ImageStreamIOWrap' || exit_with_error "Built ImageStreamIOWrap failed to import with ${pythonExe}"

@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $DIR/_common.sh
-
-if [[ $MAGAOX_CONTAINER == 1 ]]; then
-    # minimal container is extremely minimal, so we need to do this before anything else
-    osPackagesScript="$DIR/steps/install_${ID}_${MAJOR_VERSION}_packages.sh"
-    bash -x $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
-fi
-
+source "$DIR/../_common.sh"
 
 roleScript=/etc/profile.d/magaox_role.sh
 
@@ -32,20 +25,12 @@ if [[ $VM_KIND != "container" ]]; then
         exit_with_error "Configure the correct hostname for ICC"
     fi
 fi
-# Container build doesn't run setup_users_and_groups.sh
-# separately as in the instrument instructions; we have to run it
-if [[ $MAGAOX_CONTAINER == 1 ]]; then
-    bash -l "$DIR/setup_users_and_groups.sh"
-fi
-## Set up file structure and permissions
-$SUDO bash -l "$DIR/steps/ensure_dirs_and_perms.sh" $MAGAOX_ROLE || exit 1
 
-# Install OS-packaged and a few self-built dependencies.
-$SUDO bash -l "$DIR/install_third_party_deps.sh" || exit_with_error "Failed to install third-party dependencies"
 
-VENDOR_SOFTWARE_BUNDLE=$DIR/bundle.zip
+
+VENDOR_SOFTWARE_BUNDLE=$DIR/../third_party_proprietary/bundle.zip
 if [[ ! -e $VENDOR_SOFTWARE_BUNDLE ]]; then
-    echo "Couldn't find vendor software bundle at location $VENDOR_SOFTWARE_BUNDLE"
+    echo "Couldn't find vendor software bundle at location $(realpath $VENDOR_SOFTWARE_BUNDLE)"
     if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
         log_warn "If this instrument computer will be interfacing with the DMs or framegrabbers, you should Ctrl-C now and get the software bundle."
         read -p "If not, press enter to continue"
@@ -69,17 +54,17 @@ if [[ -e $VENDOR_SOFTWARE_BUNDLE ]]; then
     done
 
     if [[ $MAGAOX_ROLE == RTC ]]; then
-        $SUDO bash -l "$DIR/steps/install_alpao.sh"
+        $SUDO bash -l "$DIR/../third_party_proprietary/install_alpao.sh" || exit_with_error "Failed to install Alpao software"
     fi
     if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == TIC ]]; then
-        $SUDO bash -l "$DIR/steps/install_bmc.sh"
+        $SUDO bash -l "$DIR/../third_party_proprietary/install_bmc.sh" || exit_with_error "Failed to install BMC software"
     fi
     if [[ $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == RTC ]]; then
-        $SUDO bash -l "$DIR/steps/install_libhsfw.sh"
+        $SUDO bash -l "$DIR/../third_party_proprietary/install_libhsfw.sh" || exit_with_error "Failed to install libhsfw"
     fi
     if [[ $MAGAOX_ROLE == ICC ]]; then
-        $SUDO bash -l "$DIR/steps/install_picam.sh"
-        $SUDO bash -l "$DIR/steps/install_kinetix.sh"
+        $SUDO bash -l "$DIR/../third_party_proprietary/install_picam.sh" || exit_with_error "Failed to install picam"
+        $SUDO bash -l "$DIR/../third_party_proprietary/install_pvcam.sh" || exit_with_error "Failed to install pvcam"
     fi
     $SUDO rm -rf $BUNDLE_TMPDIR
 fi
@@ -91,13 +76,10 @@ fi
 cd /opt/MagAOX/source
 
 # Install first-party deps
-bash -l "$DIR/steps/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed"
-bash -l "$DIR/steps/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
-bash -l "$DIR/steps/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
-bash -l "$DIR/steps/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
-
-# Create Python env
-$SUDO bash -l "$DIR/steps/install_python.sh" || exit_with_error "Couldn't install Python"
+bash -l "$DIR/../first_party/install_milk_and_cacao.sh" || exit_with_error "milk/cacao install failed"
+bash -l "$DIR/../first_party/install_xrif.sh" || exit_with_error "Failed to build and install xrif"
+bash -l "$DIR/../first_party/install_milkzmq.sh" || exit_with_error "milkzmq install failed"
+bash -l "$DIR/../first_party/install_mxlib.sh" || exit_with_error "Failed to build and install mxlib"
 
 # install Python libs that need special treatment (ordered after MILK so ImageStreamIO can be built)
-$SUDO bash -l "$DIR/steps/install_python_libs.sh" || exit_with_error "Couldn't install libraries in Python env"
+$SUDO bash -l "$DIR/../first_party/create_instrument_conda_env.sh" || exit_with_error "Couldn't install libraries in Python env"

@@ -10,6 +10,8 @@ scratchFile=/tmp/sudoers_trusted
 targetFile=/etc/sudoers.d/trusted
 
 rm -f $scratchFile
+touch $scratchFile
+chmod u=rw,g=,o= $scratchFile
 echo '# file automatically created by configure_trusted_sudoers.sh, do not edit' > $scratchFile || exit_with_error "Could not create $scratchFile"
 trustedGroups="%xwcl-admin, %xwcl-dev"
 if [[ $ID == rocky || $ID == fedora ]]; then

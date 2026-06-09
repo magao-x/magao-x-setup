@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -o pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $DIR/_common.sh
+setupRoot=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/..")
+source "$setupRoot/_common.sh"
+
 
 # Install OS-packaged and a handful of self-built dependencies
 # (but not Python environments, proprietary vendor SDKs, or first-party
@@ -10,13 +11,11 @@ source $DIR/_common.sh
 # Install third-party dependencies (including OS-packaged ones) except for vendor SDKs
 
 # Install OS packages first
-osPackagesScript="$DIR/steps/install_${ID}_${MAJOR_VERSION}_packages.sh"
+osPackagesScript="$setupRoot/third_party/install_${ID}_${MAJOR_VERSION}_packages.sh"
 $SUDO bash -l $osPackagesScript || exit_with_error "Failed to install packages from $osPackagesScript"
 
-distroSpecificScript="$DIR/steps/configure_${ID}_${MAJOR_VERSION}.sh"
+distroSpecificScript="$setupRoot/configure_system/configure_${ID}_${MAJOR_VERSION}.sh"
 $SUDO bash -l $distroSpecificScript || exit_with_error "Failed to configure ${ID} from $distroSpecificScript"
-
-
 
 # Install Linux kernel headers
 if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless && "$VM_KIND" == none ]]; then
@@ -29,11 +28,11 @@ fi
 
 ## Build third-party dependencies under /opt/MagAOX/vendor
 cd /opt/MagAOX/vendor
-$SUDO bash -l "$DIR/steps/install_rclone.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_rclone.sh" || exit 1
 if [[ $VM_KIND != "none" && $ID == rocky ]]; then
     dnf install --setopt=timeout=300 --setopt=retries=10 -y openblas-devel || exit 1
 else
-    bash -l "$DIR/steps/install_openblas.sh" || exit 1
+    bash -l "$setupRoot/third_party/install_openblas.sh" || exit 1
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TIC ]]; then
     if ! nvidia-smi 2>&1; then
@@ -41,31 +40,35 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGA
         exit_with_error "CUDA not found or not working, install CUDA first"
     fi
 fi
-$SUDO bash -l "$DIR/steps/install_cfitsio.sh" || exit 1
-$SUDO bash -l "$DIR/steps/install_eigen.sh" || exit 1
-$SUDO bash -l "$DIR/steps/install_zeromq.sh" || exit 1
-$SUDO bash -l "$DIR/steps/install_cppzmq.sh" || exit 1
-$SUDO bash -l "$DIR/steps/install_flatbuffers.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_cfitsio.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_eigen.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_zeromq.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_cppzmq.sh" || exit 1
+$SUDO bash -l "$setupRoot/third_party/install_flatbuffers.sh" || exit 1
 if [[ $MAGAOX_ROLE == AOC ]]; then
-    $SUDO bash -l "$DIR/steps/install_lego.sh"
+    $SUDO bash -l "$setupRoot/third_party/install_lego.sh"
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
-    $SUDO bash -l "$DIR/steps/install_basler_pylon.sh"
+    $SUDO bash -l "$setupRoot/third_party/install_basler_pylon.sh"
 fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC ]]; then
-    $SUDO bash -l "$DIR/steps/install_edt.sh"
+    $SUDO bash -l "$setupRoot/third_party/install_edt.sh"
 fi
 
 # SuSE packages need either Python 3.6 or 3.10, but Rocky 9.2 has Python 3.9 as /bin/python, so we build our own RPM:
 if [[ $ID == rocky && "$VM_KIND" == none ]]; then
-  $SUDO bash -l "$DIR/steps/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
+  $SUDO bash -l "$setupRoot/third_party/install_cpuset.sh" || exit_with_error "Couldn't install cpuset from source"
 fi
 
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == TOC ||  $MAGAOX_ROLE == workstation ]]; then
     # regular old ds9 image viewer
-    $SUDO bash -l "$DIR/steps/install_ds9.sh"
+    $SUDO bash -l "$setupRoot/third_party/install_ds9.sh"
 fi
 
 if [[ "$VM_KIND" == none ]]; then
-    bash -l "$DIR/steps/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
+    bash -l "$setupRoot/third_party/install_sops.sh" || exit_with_error "Failed to build and install sops to decrypt secrets"
 fi
+
+# Get mamba and install to /opt/conda
+$SUDO bash -l "$setupRoot/third_party/install_python.sh" || exit_with_error "Couldn't install Python"
+ls /opt/conda

@@ -13,8 +13,6 @@ set +o pipefail
 yes | $SUDO $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV_NAME -f $DIR/../conda_envs/jupyterhub.yml || exit_with_error "Failed to install or update packages for JupyterHub env"
 set -o pipefail
 
-$SUDO $DIR/configure_jupyter_kernel.sh || exit_with_error "Failed to install Jupyter kernel for MagAO-X environment"
-
 # lock = disable annoying popup about jupyter news
 $SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
 $SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
