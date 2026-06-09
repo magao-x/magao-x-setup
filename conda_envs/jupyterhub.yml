@@ -8,5 +8,8 @@ dependencies:
   # pip itself:
   - pip
   - pip:
+    - ipywidgets
+    - anywidget
     - jupyterlab-speedy-unfold
     - fitsview
+    - pyviewarr
