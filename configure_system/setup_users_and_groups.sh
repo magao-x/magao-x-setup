@@ -14,9 +14,12 @@ source "$DIR/../_common.sh"
 createLocalFallbackGroup $instrument_group $instrument_group_gid || exit_with_error "Couldn't create local fallback for group $instrument_group"
 createLocalFallbackGroup $instrument_dev_group $instrument_dev_group_gid || exit_with_error "Couldn't create local fallback for group $instrument_dev_group"
 
-# Not an error if they already exist:
-createuser $instrument_user
+# Not an error if they already exist. xdev probably already exists
+# from interactive install, but it's ordered first for containers
+# which don't have any normal users yet so that xdev gets uid=1000
+# (matching the real instrument)
 createuser xdev
+createuser $instrument_user
 # Set their *primary* group
 usermod -g $instrument_group $instrument_user
 usermod -g $instrument_dev_group xdev
