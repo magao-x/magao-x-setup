@@ -49,8 +49,7 @@ bash $DIR/install_magpyx.sh || exit_with_error "Failed to install magpyx"
 bash $DIR/install_purepyindi.sh || exit_with_error "Failed to install purepyindi"
 bash $DIR/install_purepyindi2.sh || exit_with_error "Failed to install purepyindi2"
 bash $DIR/install_xconf.sh || exit_with_error "Failed to install xconf"
-if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless ]]; then
-    bash $DIR/install_jupyterhub.sh || exit_with_error "Failed to install JupyterHub"
+if [[ -d $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME} ]]; then
     bash $DIR/../configure_system/configure_jupyter_kernel.sh || exit_with_error "Failed to install Jupyter kernel for MagAO-X environment"
 fi
 if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then

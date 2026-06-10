@@ -71,4 +71,6 @@ fi
 
 # Get mamba and install to /opt/conda
 $SUDO bash -l "$setupRoot/third_party/install_python.sh" || exit_with_error "Couldn't install Python"
-ls /opt/conda
+if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless ]]; then
+    $SUDO bash $setupRoot/third_party/install_jupyterhub.sh || exit_with_error "Failed to install JupyterHub"
+fi

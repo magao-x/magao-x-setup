@@ -14,8 +14,8 @@ yes | $SUDO $CONDA_BASE/bin/mamba env update -p $CONDA_BASE/envs/$JUPYTERHUB_ENV
 set -o pipefail
 
 # lock = disable annoying popup about jupyter news
-$SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
-$SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements"
+$SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension disable "@jupyterlab/apputils-extension:announcements" 2>&1 > /dev/null || true
+$SUDO $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME}/bin/jupyter labextension lock "@jupyterlab/apputils-extension:announcements" 2>&1 > /dev/null || true
 
 # Note that this GID is set on purpose to match
 # the LDAP server at accounts.xwcl.science
