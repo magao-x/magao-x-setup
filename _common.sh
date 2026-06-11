@@ -18,6 +18,7 @@ CONDA=/opt/conda/bin/conda
 INSTRUMENT_CONDA_ENV=xpy3_13
 JUPYTERHUB_ENV_NAME=jupyterhub
 
+dev_user=xdev
 instrument_user=xsup
 instrument_group=magaox
 instrument_dev_group=magaox-dev
