@@ -22,7 +22,7 @@ if [[ $MAGAOX_ROLE != workstation && $MAGAOX_ROLE != headless && "$VM_KIND" == n
     if [[ $ID == ubuntu ]]; then
         $SUDO -i apt install -y linux-headers-generic
     elif [[ $ID == rocky ]]; then
-        $SUDO yum install -y kernel-devel-$(uname -r) || $SUDO yum install -y kernel-devel
+        $SUDO yum install --setopt=timeout=300 --setopt=retries=10 -y kernel-devel-$(uname -r) || $SUDO yum install --setopt=timeout=300 --setopt=retries=10 -y kernel-devel
     fi
 fi
 

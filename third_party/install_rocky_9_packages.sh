@@ -19,9 +19,9 @@ dnf clean all || exit 1
 log_info "Checking dnf for errors"
 dnf check || exit 1
 log_info "Checking dnf for updates"
-dnf check-update
+dnf --setopt=timeout=300 --setopt=retries=10 check-update
 log_info "Updating dnf packages"
-dnf update -y || exit 1
+dnf --setopt=timeout=300 --setopt=retries=10 update -y || exit 1
 log_info "Done updating dnf packages"
 
 # needed for (at least) git:
@@ -132,7 +132,7 @@ echo "export PKG_CONFIG_PATH=\${PKG_CONFIG_PATH-}:/usr/local/lib/pkgconfig" > /e
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 if [[ "$VM_KIND" == none ]]; then
-    dnf config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
+    dnf --setopt=timeout=300 --setopt=retries=10 config-manager -y --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo || exit 1
     dnf $INSTALL_OPTS install tailscale || exit 1
     systemctl enable --now tailscaled || exit 1
 else

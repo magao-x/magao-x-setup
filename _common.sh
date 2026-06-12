@@ -130,7 +130,7 @@ function _cached_fetch() {
   mkdir -p /opt/MagAOX/.cache || return 1
   if [[ ! -e $dest/$filename ]]; then
     if [[ ! -e /opt/MagAOX/.cache/$filename ]]; then
-      curl $EXTRA_CURL_OPTS --fail -L $url > /tmp/magaoxcache-$filename || return 1
+      curl $EXTRA_CURL_OPTS --fail --retry 3 --retry-all-errors -L $url > /tmp/magaoxcache-$filename || return 1
       mv /tmp/magaoxcache-$filename /opt/MagAOX/.cache/$filename || return 1
       log_info "Downloaded to /opt/MagAOX/.cache/$filename"
     fi
@@ -170,7 +170,17 @@ function clone_or_update_and_cd() {
     if [[ ! -d $parentdir/$reponame/.git ]]; then
       echo "Cloning new copy of $orgname/$reponame"
       CLONE_DEST=/tmp/${reponame}_$(date +"%s")
-      git clone https://github.com/$orgname/$reponame.git $CLONE_DEST || return 1
+      for attempt in 1 2 3; do
+        rm -rf $CLONE_DEST
+        if git clone https://github.com/$orgname/$reponame.git $CLONE_DEST; then
+          break
+        elif [[ $attempt -lt 3 ]]; then
+          log_warn "git clone of $orgname/$reponame failed (attempt $attempt/3), retrying..."
+          sleep $((attempt * 2))
+        else
+          return 1
+        fi
+      done
       $SUDO rsync -a $CLONE_DEST/ $destdir/ || return 1
       cd $destdir/ || return 1
       log_success "Cloned new $destdir"
