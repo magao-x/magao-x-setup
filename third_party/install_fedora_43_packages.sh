@@ -50,6 +50,8 @@ dnf install $INSTALL_OPTS \
     boost-devel \
     gsl \
     gsl-devel \
+    cfitsio \
+    cfitsio-devel \
     bc \
     chrony \
     gdb \

@@ -92,6 +92,8 @@ dnf $INSTALL_OPTS install \
     boost-devel \
     gsl \
     gsl-devel \
+    cfitsio \
+    cfitsio-devel \
     bc \
     gdb \
     yum-utils \

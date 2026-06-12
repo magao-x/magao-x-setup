@@ -40,7 +40,6 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC || $MAGA
         exit_with_error "CUDA not found or not working, install CUDA first"
     fi
 fi
-$SUDO bash -l "$setupRoot/third_party/install_cfitsio.sh" || exit 1
 $SUDO bash -l "$setupRoot/third_party/install_eigen.sh" || exit 1
 $SUDO bash -l "$setupRoot/third_party/install_zeromq.sh" || exit 1
 $SUDO bash -l "$setupRoot/third_party/install_cppzmq.sh" || exit 1
