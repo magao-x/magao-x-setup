@@ -5,7 +5,7 @@ set -uo pipefail
 
 source /etc/os-release
 if [[ $ID == ubuntu ]]; then
-    $SUDO -i apt install -y \
+    $REAL_SUDO -i apt install -y \
         x11-apps \
         libgl-dev \
         qtbase5-dev \
@@ -18,9 +18,9 @@ if [[ $ID == ubuntu ]]; then
     || exit 1
 
     if [[ $VERSION_ID = "24.04" ]]; then
-        $SUDO -i apt install -y libqwtmathml-qt5-dev || exit 1
+        $REAL_SUDO -i apt install -y libqwtmathml-qt5-dev || exit 1
     else
-        $SUDO -i apt install -y libqwt-qt5-dev/jammy || exit 1
+        $REAL_SUDO -i apt install -y libqwt-qt5-dev/jammy || exit 1
     fi
 elif [[ $ID == rocky && $VERSION_ID == "9."* ]]; then
     $SUDO dnf --setopt=timeout=300 --setopt=retries=10 -y install \
