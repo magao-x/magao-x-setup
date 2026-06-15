@@ -58,6 +58,7 @@ apt-get install -y \
     libfftw3-single3 \
     libfftw3-long3 \
     libfftw3-double3 \
+    libcfitsio-dev \
 || exit 1
 
 if [[ $(uname -m) == "x86_64" ]]; then
