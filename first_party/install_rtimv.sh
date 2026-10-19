@@ -2,7 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/../_common.sh
 set -uo pipefail
-RTIMV_COMMIT_ISH=magaox
+RTIMV_COMMIT_ISH=37795957774daf141438f409caaa6f22f3e6d437
 orgname=jaredmales
 reponame=rtimv
 parentdir=/opt/MagAOX/source
