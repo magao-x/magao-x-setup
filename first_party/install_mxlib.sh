@@ -13,7 +13,7 @@ MXLIBROOT=/opt/MagAOX/source/mxlib
 if [[ -e /opt/rh/gcc-toolset-14/enable ]]; then
     source /opt/rh/gcc-toolset-14/enable
 fi
-MXLIB_COMMIT_ISH=magaox
+MXLIB_COMMIT_ISH=841906cf4fb6e9ca5093f83d2500f03e4e97f9ed
 orgname=jaredmales
 reponame=mxlib
 parentdir=/opt/MagAOX/source
