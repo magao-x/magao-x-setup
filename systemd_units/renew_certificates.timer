@@ -4,7 +4,7 @@ Description=Renew certificates
 [Timer]
 Persistent=true
 OnCalendar=*-*-* 1:23
-RandomizedDelaySec=1h
+RandomizedDelaySec=5m
 
 [Install]
 WantedBy=timers.target
