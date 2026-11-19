@@ -31,11 +31,13 @@ $CONDA_BASE/envs/sup/bin/python -c 'import sup' || exit 1  # verify sup is on PY
 # Install service units
 UNIT_PATH=/etc/systemd/system/
 if [[ $MAGAOX_ROLE == AOC ]]; then
-    $SUDO cp $DIR/../systemd_units/sup.service $UNIT_PATH/sup.service
-    OVERRIDE_PATH=$UNIT_PATH/sup.service.d/
-    $SUDO mkdir -p $OVERRIDE_PATH
-    echo "[Service]" | $SUDO tee $OVERRIDE_PATH/override.conf
-    echo "Environment=\"MAGAOX_ROLE=$MAGAOX_ROLE\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    $SUDO systemctl enable sup.service || true
-    $SUDO systemctl restart sup.service || true
+    for name in sup sup-stream; do
+        $SUDO cp $DIR/../systemd_units/${name}.service $UNIT_PATH/${name}.service
+        OVERRIDE_PATH=$UNIT_PATH/${name}.service.d/
+        $SUDO mkdir -p $OVERRIDE_PATH
+        echo "[Service]" | $SUDO tee $OVERRIDE_PATH/override.conf
+        echo "Environment=\"MAGAOX_ROLE=$MAGAOX_ROLE\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
+        $SUDO systemctl enable ${name}.service || true
+        $SUDO systemctl restart ${name}.service || true
+    done
 fi
