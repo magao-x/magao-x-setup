@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=xsup
 WorkingDirectory=/home/xsup
-ExecStart=/usr/local/bin/lego --email lynx@magao-x.org --dns vultr --domains exao1.magao-x.org renew
+ExecStart=/usr/local/bin/lego --email lynx@magao-x.org --dns vultr --domains exao1.magao-x.org --dns-timeout 240 renew
 
 [Install]
 WantedBy=default.target

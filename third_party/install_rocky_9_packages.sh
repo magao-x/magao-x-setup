@@ -143,3 +143,8 @@ fi
 
 # install postgresql 15 client for RHEL 9
 dnf module install $INSTALL_OPTS postgresql:15/client || exit 1
+
+if [[ "$MAGAOX_ROLE" == AOC ]]; then
+    dnf $INSTALL_OPTS install nginx
+    log_info "Installed nginx for AOC web UI"
+fi
