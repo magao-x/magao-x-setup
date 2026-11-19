@@ -6,7 +6,8 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/root
-ExecStart=/usr/local/bin/lego --email lynx@magao-x.org --dns vultr --domains exao1.magao-x.org --dns-timeout 240 renew
+ExecStart=/usr/local/bin/lego --email lynx@magao-x.org --dns vultr --domains exao1.magao-x.org --dns-timeout 240 --path /etc/pki/lego renew
+ExecStartPost=/usr/bin/systemctl reload nginx
 
 [Install]
 WantedBy=default.target
