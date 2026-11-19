@@ -47,6 +47,10 @@ $SUDO bash -l "$setupRoot/third_party/install_flatbuffers.sh" || exit 1
 if [[ $MAGAOX_ROLE == AOC ]]; then
     $SUDO bash -l "$setupRoot/third_party/install_lego.sh"
 fi
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then
+    # Rust + wasm-pack to build sup's WASM viewers
+    $SUDO bash -l "$setupRoot/third_party/install_rust_wasm.sh" || exit_with_error "Failed to install Rust WASM toolchain"
+fi
 if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == TIC ]]; then
     $SUDO bash -l "$setupRoot/third_party/install_basler_pylon.sh"
 fi

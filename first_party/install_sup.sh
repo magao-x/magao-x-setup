@@ -24,8 +24,7 @@ $SUDO $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/magpyx
 
 # $CONDA_BASE/envs/sup/bin/python -c 'import ImageStreamIOWrap' || exit 1 # milk not cloned yet, in install_milk_and_cacao.sh instead
 
-make  # installs Python module in editable mode, builds all js (needs node/yarn)
-$SUDO $CONDA_BASE/envs/sup/bin/pip install -e /opt/MagAOX/source/sup   # because only root can write to site-packages
+make install SUP_ENV=$CONDA_BASE/envs/sup  # builds as non-root user, installs as root with sudo in Makefile
 cd
 $CONDA_BASE/envs/sup/bin/python -c 'import sup' || exit 1  # verify sup is on PYTHONPATH
 
@@ -36,31 +35,7 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
     OVERRIDE_PATH=$UNIT_PATH/sup.service.d/
     $SUDO mkdir -p $OVERRIDE_PATH
     echo "[Service]" | $SUDO tee $OVERRIDE_PATH/override.conf
-    echo "Environment=\"UVICORN_HOST=0.0.0.0\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    echo "Environment=\"UVICORN_PORT=4433\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
     echo "Environment=\"MAGAOX_ROLE=$MAGAOX_ROLE\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    echo "Environment=\"UVICORN_SSL_KEYFILE=/home/xsup/.lego/certificates/exao1.magao-x.org.key\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    echo "Environment=\"UVICORN_SSL_CERTFILE=/home/xsup/.lego/certificates/exao1.magao-x.org.crt\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    echo "Environment=\"UVICORN_CA_CERTS=/home/xsup/.lego/certificates/exao1.magao-x.org.issuer.crt\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    $SUDO firewall-cmd --add-forward-port=port=443:proto=tcp:toport=4433 --permanent
-    $SUDO firewall-cmd --permanent --zone=public --add-service=https
     $SUDO systemctl enable sup.service || true
     $SUDO systemctl restart sup.service || true
 fi
-
-# Install localhost-only service
-$SUDO cp $DIR/../systemd_units/sup.service $UNIT_PATH/sup-local.service
-OVERRIDE_PATH=$UNIT_PATH/sup-local.service.d/
-$SUDO mkdir -p $OVERRIDE_PATH
-echo "[Service]" | $SUDO tee $OVERRIDE_PATH/override.conf
-echo "Environment=\"MAGAOX_ROLE=$MAGAOX_ROLE\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-
-if [[ $VM_KIND != "none" ]]; then
-    echo "Environment=\"UVICORN_HOST=0.0.0.0\"" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-fi
-if [[ $instrument_user != xsup ]]; then
-    echo "User=$instrument_user" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-    echo "WorkingDirectory=/home/$instrument_user" | $SUDO tee -a $OVERRIDE_PATH/override.conf
-fi
-$SUDO systemctl enable sup-local.service || true
-$SUDO systemctl restart sup-local.service || true

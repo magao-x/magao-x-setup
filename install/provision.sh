@@ -117,12 +117,16 @@ if [[ $MAGAOX_ROLE == AOC ]]; then
     bash -l "$setupRoot/configure_system/configure_certificate_renewal.sh"
 fi
 
-if [[ $MAGAOX_ROLE == AOC ]]; then
+if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then
     # Configure a tablespace to store postgres data on the /data array
     # and user accounts for the system to use
     bash -l "$setupRoot/configure_system/configure_postgresql.sh"
     # Install and enable the service for grafana
     bash -l "$setupRoot/third_party/install_grafana.sh"
+    # Configure nginx to serve the instrument web UI
+    bash -l "$setupRoot/configure_system/configure_nginx.sh"
+    # Install sup and set up SystemD services
+    bash -l $setupRoot/first_party/install_sup.sh || exit_with_error "Failed to install sup"
 fi
 # All MagAO-X computers may use the password to connect to the main db
 bash -l "$setupRoot/configure_system/configure_postgresql_pass.sh"

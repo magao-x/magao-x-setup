@@ -52,9 +52,6 @@ bash $DIR/install_xconf.sh || exit_with_error "Failed to install xconf"
 if [[ -d $CONDA_BASE/envs/${JUPYTERHUB_ENV_NAME} ]]; then
     bash $DIR/../configure_system/configure_jupyter_kernel.sh || exit_with_error "Failed to install Jupyter kernel for MagAO-X environment"
 fi
-if [[ $MAGAOX_ROLE == AOC || $MAGAOX_ROLE == ROC ]]; then
-    bash $DIR/install_sup.sh || exit_with_error "Failed to install sup"
-fi
 
 # ensure MILK ImageStreamIO gets rebuilt for the current Python
 pythonExe="${CONDA_BASE}/envs/${INSTRUMENT_CONDA_ENV}/bin/python"
