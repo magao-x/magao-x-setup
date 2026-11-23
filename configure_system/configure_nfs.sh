@@ -35,18 +35,26 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
     else
         exportDataLine="/data      $exportHosts"
     fi
+    exportsUnchanged=true
     if ! grep -q "$exportDataLine" /etc/exports; then
         echo "$exportDataLine" | $SUDO tee -a /etc/exports || exit 1
-        $SUDO exportfs -a || exit 1
-        $SUDO systemctl reload $nfsServiceUnit || exit 1
+        exportsUnchanged=false
     fi
     if [[ $MAGAOX_ROLE == AOC ]]; then
-        exportBackupsLine="/mnt/backup      $exportHosts"
+        exportBackupsLine="/mnt/backups      $exportHosts"
         if ! grep -q "$exportBackupsLine" /etc/exports; then
             echo "$exportBackupsLine" | $SUDO tee -a /etc/exports || exit 1
-            $SUDO exportfs -a || exit 1
-            $SUDO systemctl reload $nfsServiceUnit || exit 1
+            exportsUnchanged=false
         fi
+        exportConfigLine="/opt/MagAOX/config      $exportHosts"
+        if ! grep -q "$exportConfigLine" /etc/exports; then
+            echo "$exportConfigLine" | $SUDO tee -a /etc/exports || exit 1
+            exportsUnchanged=false
+        fi
+    fi
+    if [[ "$exportsUnchanged" != true ]]; then
+        $SUDO exportfs -a || exit 1
+        $SUDO systemctl reload $nfsServiceUnit || exit 1
     fi
 
     # every host mounts the other two hosts' MagAO-X data folders
@@ -73,12 +81,17 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         if ! grep -q /srv/aoc/home /etc/fstab; then
             echo "aoc:/home $aocHomeMountPath	nfs	rw,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
         fi
-    fi
-    if [[ $MAGAOX_ROLE != AOC ]]; then
+
         backupsMountPath=/srv/aoc/mnt/backups
         $SUDO mkdir -p $backupsMountPath || exit 1
         if ! grep -q $backupsMountPath /etc/fstab; then
             echo "aoc:/mnt/backups $backupsMountPath	nfs	ro,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
+        fi
+
+        configMountPath=/opt/MagAOX/config
+        $SUDO mkdir -p $configMountPath || exit 1
+        if ! grep -q $configMountPath /etc/fstab; then
+            echo "aoc:/opt/MagAOX/config $configMountPath	nfs	rw,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
         fi
     fi
 fi

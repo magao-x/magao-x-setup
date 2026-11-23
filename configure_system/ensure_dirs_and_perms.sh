@@ -20,9 +20,16 @@ chmod -R u=rwX,g=rwX,o=rX /opt/MagAOX/calib
 setgid_all /opt/MagAOX/calib
 
 mkdir -pv /opt/MagAOX/config
-chown -R root:$instrument_dev_group /opt/MagAOX/config
-chmod -R u=rwX,g=rwX,o=rX /opt/MagAOX/config
-setgid_all /opt/MagAOX/config
+# On RTC/ICC this may be an NFS (auto)mount of AOC's config, where root is squashed
+# and the permissions are AOC's to manage. Checked via /proc/self/mounts to avoid
+# triggering the automount (and hanging if AOC is unreachable).
+if awk '$2 == "/opt/MagAOX/config" && ($3 ~ /^nfs/ || $3 == "autofs") { found=1 } END { exit !found }' /proc/self/mounts; then
+    log_info "/opt/MagAOX/config is a remote mount, skipping permission normalization"
+else
+    chown -R root:$instrument_dev_group /opt/MagAOX/config
+    chmod -R u=rwX,g=rwX,o=rX /opt/MagAOX/config
+    setgid_all /opt/MagAOX/config
+fi
 mkdir -pv /opt/MagAOX/.cache
 chown -R root:$instrument_dev_group /opt/MagAOX/.cache
 chmod -R u=rwX,g=rwsX,o=rX /opt/MagAOX/.cache
