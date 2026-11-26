@@ -41,9 +41,9 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
         exportsUnchanged=false
     fi
     if [[ $MAGAOX_ROLE == AOC ]]; then
-        exportBackupsLine="/mnt/backups      $exportHosts"
-        if ! grep -q "$exportBackupsLine" /etc/exports; then
-            echo "$exportBackupsLine" | $SUDO tee -a /etc/exports || exit 1
+        exportBackupLine="/mnt/backup      $exportHosts"
+        if ! grep -q "$exportBackupLine" /etc/exports; then
+            echo "$exportBackupLine" | $SUDO tee -a /etc/exports || exit 1
             exportsUnchanged=false
         fi
         exportConfigLine="/opt/MagAOX/config      $exportHosts"
@@ -82,10 +82,10 @@ if [[ $MAGAOX_ROLE == RTC || $MAGAOX_ROLE == ICC || $MAGAOX_ROLE == AOC ]]; then
             echo "aoc:/home $aocHomeMountPath	nfs	rw,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
         fi
 
-        backupsMountPath=/srv/aoc/mnt/backups
+        backupsMountPath=/srv/aoc/mnt/backup
         $SUDO mkdir -p $backupsMountPath || exit 1
         if ! grep -q $backupsMountPath /etc/fstab; then
-            echo "aoc:/mnt/backups $backupsMountPath	nfs	ro,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
+            echo "aoc:/mnt/backup $backupsMountPath	nfs	ro,noauto,x-systemd.automount,nofail,soft,timeo=30	0 0" | $SUDO tee -a /etc/fstab || exit 1
         fi
 
         configMountPath=/opt/MagAOX/config
